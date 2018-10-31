@@ -15,7 +15,7 @@ namespace LabManagement
         static public void Fill()
         {
             // Db.InsertRows("Lock", "id, cw1, ccw, cw2", lockCombo);
-            // Db.SaveArrayToJson(lockCombo);
+            Db.SaveArrayToJson(lockCombo);
             string locksFile = System.AppContext.BaseDirectory + Constants.locksJsonFileName;
             Console.WriteLine("dir =" + locksFile);
             Lock[] MasterLocks = JsonConvert.DeserializeObject<Lock[]>(File.ReadAllText(locksFile));

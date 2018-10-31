@@ -15,16 +15,21 @@
 
         public Lock(string lockNumber)
         {
-            bool isNumeric = int.TryParse(lockNumber, out int n);
-            bool isV30 = n > 0 && n < 201;
-            bool isV652 = n > 600 && n < 801;
-            bool notValidNumber = !(isNumeric && (isV30 || isV652));
-            if (notValidNumber)
+            bool notNumeric = !int.TryParse(lockNumber, out int n);
+            //bool isV30 = n > 0 && n < 201;
+            //bool isV652 = n > 600 && n < 801;
+            //bool notValidNumber = !(isNumeric && (isV30 || isV652));
+            if (notNumeric)
             {
                 cw1 = -1;
                 return;
             }
             var returnedSQL = Db.GetId("Lock", n.ToString());
+            if (returnedSQL.Count == 0)
+            {
+                cw1 = -1;
+                return;
+            }
             int.TryParse(returnedSQL[0], out number);
             int.TryParse(returnedSQL[1], out cw1);
             int.TryParse(returnedSQL[2], out ccw);
