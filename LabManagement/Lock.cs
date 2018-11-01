@@ -16,9 +16,6 @@
         public Lock(string lockNumber)
         {
             bool notNumeric = !int.TryParse(lockNumber, out int n);
-            //bool isV30 = n > 0 && n < 201;
-            //bool isV652 = n > 600 && n < 801;
-            //bool notValidNumber = !(isNumeric && (isV30 || isV652));
             if (notNumeric)
             {
                 cw1 = -1;

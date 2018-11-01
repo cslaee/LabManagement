@@ -13,13 +13,13 @@ namespace LabManagement
         {
             String[,] tables = new string[9, 2]{
            {"EventType",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
+                "description VARCHAR(45) PRIMARY KEY UNIQUE"},
            {"Calendar",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
+                "calendarID	INTEGER PRIMARY KEY AUTO_INCREMENT, subject VARCHAR(45), semesterFK INT, eventTypeFK VATCHAR(45), startDate DATE, endDate DATE, startTime DATETIME, endTime DATETIME"},
            {"Semester",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
+                "semesterID	INTEGER PRIMARY KEY, name VARCHAR(45), year INT"},
            {"Status",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
+                "description VARCHAR(45) PRIMARY KEY UNIQUE"},
            {"Schedule",
                 "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
            {"TaughtBy",
