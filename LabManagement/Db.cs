@@ -117,7 +117,7 @@ namespace LabManagement
                         for (int j = 0; j < numRow; ++j)
                         {
 
-                            val.Append(locks[j].number + ", " + locks[j].cw1 + ", " + locks[j].ccw + ", " + locks[j].cw2 + ")");
+                            val.Append(locks[j].id + ", " + locks[j].cw1 + ", " + locks[j].ccw + ", " + locks[j].cw2 + ")");
                             cmd.CommandText = val.ToString();
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);

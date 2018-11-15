@@ -32,7 +32,7 @@ namespace LabManagement
             outGoingMessage.Text = diologText.ToString();
             Lock temp = new Lock(lockNumber.Text);
 
-            Console.WriteLine("EmailCombinations.add_Click = " + temp.number + " = " + temp.cw1 + "-" + temp.ccw + "-" + temp.cw2);
+            Console.WriteLine("EmailCombinations.add_Click = " + temp.id + " = " + temp.cw1 + "-" + temp.ccw + "-" + temp.cw2);
             lockNumber.Text = "";
             lockerNumber.Text = "";
 

@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace LabManagement
 {
@@ -11,39 +15,34 @@ namespace LabManagement
 
         static public void TestTables()
         {
-            String[,] tables = new string[9, 2]{
-           {"EventType",
-                "description VARCHAR(45) PRIMARY KEY UNIQUE"},
-           {"Calendar",
-                "calendarID	INTEGER PRIMARY KEY AUTO_INCREMENT, subject VARCHAR(45), semesterFK INT, eventTypeFK VATCHAR(45), startDate DATE, endDate DATE, startTime DATETIME, endTime DATETIME"},
-           {"Semester",
-                "semesterID	INTEGER PRIMARY KEY, name VARCHAR(45), year INT"},
-           {"Status",
-                "description VARCHAR(45) PRIMARY KEY UNIQUE"},
-           {"Schedule",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
-           {"TaughtBy",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
-           {"User",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
-           {"Lock",
-                "id	INTEGER PRIMARY KEY, cw1 INTEGER, ccw INTEGER, cw2 INTEGER"},
-           {"Source",
-            "Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE," +
-            "LangTitle TEXT NOT NULL UNIQUE CHECK (LangTitle <> '')" }
-           };
-
-            Console.WriteLine("Check Databases");
             DeleteDatabaseFile();
-            //        System.Threading.Thread.Sleep(1000);
             ValidateDatabaseFile();
-            for (int i = 0; i < tables.GetLength(0); i++)
-            {
-                CreateTable(tables[i, 0], tables[i, 1]);
-            }
+            string schema = ReadDbSchema();
+            BuildTables(ReadDbSchema());
             InitialData.Fill();
-           // System.Environment.Exit(1);
+            // System.Environment.Exit(1);
         }
+
+
+        public static string ReadDbSchema()
+        {
+            string sqlFile = System.AppContext.BaseDirectory + Constants.sqlFileName;
+            string pattern = @"""mydb""" + @"\.|ATTACH(?:.*?);|BEGIN;|COMMIT;";
+            string lines;
+            using (var streamReader = File.OpenText(sqlFile))
+            {
+                lines = streamReader.ReadToEnd();
+            }
+            return Regex.Replace(lines, pattern, String.Empty);
+        }
+
+
+
+
+
+
+
+
 
 
         public static void ValidateDatabaseFile()
@@ -74,7 +73,7 @@ namespace LabManagement
             }
         }
 
-        private static int CreateTable(String name, String columns)
+        private static int BuildTables(String sqlStatement)
         {
             int result = -1;
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
@@ -82,9 +81,7 @@ namespace LabManagement
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
-                    String ctine = "CREATE TABLE IF NOT EXISTS ";
-                    Console.WriteLine(ctine + name + " (" + columns + ")");
-                    cmd.CommandText = @ctine + name + " (" + columns + ")";
+                    cmd.CommandText = sqlStatement;
 
                     try
                     {
@@ -101,6 +98,17 @@ namespace LabManagement
             }
             return result;
         }
+
+
+
+
+
+
+
+
+
+
+
 
     }
 

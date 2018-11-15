@@ -3,7 +3,7 @@
 {
     internal class Lock
     {
-        public int number;
+        public int id;
         public int cw1;
         public int ccw;
         public int cw2;
@@ -27,21 +27,21 @@
                 cw1 = -1;
                 return;
             }
-            int.TryParse(returnedSQL[0], out number);
+            int.TryParse(returnedSQL[0], out id);
             int.TryParse(returnedSQL[1], out cw1);
             int.TryParse(returnedSQL[2], out ccw);
             int.TryParse(returnedSQL[3], out cw2);
         }
         public Lock(int _number, int _cw1, int _ccw, int _cw2)
         {
-            number = _number;
+            id = _number;
             cw1 = _cw1;
             ccw = _ccw;
             cw2 = _cw2;
         }
         public void SetLock(int _number, int _cw1, int _ccw, int _cw2)
         {
-            number = _number;
+            id = _number;
             cw1 = _cw1;
             ccw = _ccw;
             cw2 = _cw2;
