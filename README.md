@@ -1,2 +1,4 @@
 # LabManagement
-Software to manage EE labs
+Software to manage Electrical Engineering Laboratories
+
+This is a standalone MS Windows application with no web server capabilities.
