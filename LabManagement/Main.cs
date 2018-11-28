@@ -95,5 +95,11 @@ namespace LabManagement
         {
 
         }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            EmailCombinations f2 = new EmailCombinations();
+           f2.ShowDialog(); // Shows Form2
+        }
     }
 }
