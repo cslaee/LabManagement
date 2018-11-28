@@ -142,8 +142,9 @@
             this.outGoingMessage.Location = new System.Drawing.Point(15, 64);
             this.outGoingMessage.Multiline = true;
             this.outGoingMessage.Name = "outGoingMessage";
-            this.outGoingMessage.Size = new System.Drawing.Size(572, 374);
+            this.outGoingMessage.Size = new System.Drawing.Size(572, 176);
             this.outGoingMessage.TabIndex = 12;
+            this.outGoingMessage.TextChanged += new System.EventHandler(this.outGoingMessage_TextChanged);
             // 
             // Clear
             // 

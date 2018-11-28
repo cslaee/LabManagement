@@ -17,7 +17,8 @@ namespace LabManagement
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             LabManagement.ValidateDatabase.TestTables();
-            Application.Run(new EmailCombinations());
+            //Application.Run(new EmailCombinations());
+            Application.Run(new Main());
         }
     }
 }

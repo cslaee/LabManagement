@@ -127,5 +127,10 @@ namespace LabManagement
             AppendText("Here is the combination to the locker that you have requested.");
             outGoingMessage.Text = diologText.ToString();
         }
+
+        private void outGoingMessage_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

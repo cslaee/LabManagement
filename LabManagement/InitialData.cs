@@ -20,6 +20,9 @@ namespace LabManagement
             Console.WriteLine("dir =" + locksFile);
             Lock[] MasterLocks = JsonConvert.DeserializeObject<Lock[]>(File.ReadAllText(locksFile));
             Db.ObjToSql("Lock", "id, cw1, ccw, cw2", MasterLocks);
+
+            string displayableVersion = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+            Console.WriteLine("Version = " + displayableVersion);
         }
 
     }
