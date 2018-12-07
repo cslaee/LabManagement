@@ -29,6 +29,63 @@ namespace LabManagement
             return returnString;
         }
 
+        static public int UpdateID(string table, string idName, string id, string colName, string colValue)
+        {
+            int result = -1;
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    string comboQuery = "UPDATE " + table + " SET " + colName + " = '" + colValue + "' WHERE " + idName + " = " + id;
+                    System.Console.WriteLine(comboQuery);
+                    cmd.CommandText = comboQuery;
+
+                    try
+                    {
+                        result = cmd.ExecuteNonQuery();
+                        System.Console.WriteLine("Updated ID " + id);
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException Deleting ID " + id);
+                    }
+                }
+                conn.Close();
+            }
+            return result;
+        }
+
+
+        static public int DeleteId(string table, string idName, string id)
+        {
+            int result = -1;
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    string comboQuery = "DELETE FROM " + table + " WHERE " + idName + " = " + id;
+                    System.Console.WriteLine(comboQuery);
+                    cmd.CommandText = comboQuery;
+
+                    try
+                    {
+                        result = cmd.ExecuteNonQuery();
+                        System.Console.WriteLine("Deleted ID " + id);
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException Deleting ID " + id);
+                    }
+                }
+                conn.Close();
+            }
+            return result;
+        }
+
+
+
         static public int InsertRow(string name, string column, string values)
         {
             int result = -1;

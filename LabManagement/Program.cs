@@ -16,7 +16,10 @@ namespace LabManagement
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            LabManagement.ValidateDatabase.TestTables();
+            if (Constants.deleteDB == true)
+            {
+                LabManagement.ValidateDatabase.TestTables();
+            }
             //Application.Run(new EmailCombinations());
             Application.Run(new Main());
         }
