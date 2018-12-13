@@ -9,7 +9,7 @@ namespace LabManagement
 
     public partial class Main : Form
     {
-        string userDataGrid_RowStr;
+        int sqlId;
 
         public Main()
         {
@@ -18,7 +18,7 @@ namespace LabManagement
         }
 
 
-        
+
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
         }
@@ -73,26 +73,17 @@ namespace LabManagement
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
         }
 
 
         private void dataGridView1_RowEnter(object sender,
             DataGridViewCellEventArgs e)
         {
-            for (int i = 0; i < userDataGrid.Rows[e.RowIndex].Cells.Count; i++)
-            {
-                userDataGrid[i, e.RowIndex].Style.BackColor = Color.Yellow;
-            }
         }
 
         private void dataGridView1_RowLeave(object sender,
             DataGridViewCellEventArgs e)
         {
-            //for (int i = 0; i < dataGridView1.Rows[e.RowIndex].Cells.Count; i++)
-            //{
-            //    dataGridView1[i, e.RowIndex].Style.BackColor = Color.Empty;
-            //}
         }
 
 
@@ -105,17 +96,16 @@ namespace LabManagement
             SQLiteCommand command = connection.CreateCommand();
             command.CommandText = "select * from User";
             connection.Open();
-            //SQLiteCommand comm = new SQLiteCommand("Select * From Patients", conn);
             using (SQLiteDataReader read = command.ExecuteReader())
             {
                 while (read.Read())
                 {
-                    userDataGrid.Rows.Add(new object[] {
-            read.GetValue(0),  // U can use column index
-            read.GetValue(read.GetOrdinal("first")),  // Or column name like this
-            read.GetValue(read.GetOrdinal("last")),
-            read.GetValue(read.GetOrdinal("email"))
-            });
+                   userDataGrid.Rows.Add(new object[] {
+                    read.GetValue(0),  // U can use column index
+                    read.GetValue(read.GetOrdinal("first")),  // Or column name like this
+                    read.GetValue(read.GetOrdinal("last")),
+                    read.GetValue(read.GetOrdinal("email"))
+                   });
                 }
             }
 
@@ -139,61 +129,42 @@ namespace LabManagement
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             string newCellValue = userDataGrid[e.ColumnIndex, e.RowIndex].Value.ToString();
-            string rowID = GetID(e.RowIndex);
+            sqlId = GetID(e.RowIndex);
             string colName = User.getColumnName(e.ColumnIndex);
-
-            Console.WriteLine("|" + rowID + "|");
-            if (rowID.Equals("-1"))
+            if (sqlId == 0)
             {
-                //Console.WriteLine(" return = " + Db.InsertRow("User", "'" + colName + "'", "'" + newCellValue + "'"));
-                int rowIDme = Db.InsertRow("User", "'" + colName + "'", "'" + newCellValue + "'");
-                userDataGrid[0, e.RowIndex].Value = rowIDme;
-                //Db.InsertRow("User", "first, last, email", "'mike','obermeyer','m@o.com'");
-                //addRow(colName, newCellValue);
+                sqlId = Db.InsertRow("User", "'" + colName + "'", "'" + newCellValue + "'");
+                userDataGrid[0, e.RowIndex].Value = sqlId;
                 return;
             }
-
-            Console.WriteLine("dataGridView1_CellEndEdit two newCellValue = " + newCellValue + " Col =" + e.ColumnIndex + " Row =" + e.RowIndex);
-            Db.UpdateID("User", "userID", rowID, colName, newCellValue);
-            //        userDataGrid[e.ColumnIndex, e.RowIndex].Style.BackColor = Color.Yellow;
-        }
-
-        private void addRow(string colName, string cellValue)
-        {
-            Db.InsertRow("User", colName, cellValue);
+            Db.UpdateID("User", "userID", sqlId.ToString(), colName, newCellValue);
         }
 
         private void dataGridView1_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
-            Db.DeleteId("User", "userID", userDataGrid_RowStr);
+            Console.WriteLine("userID" + sqlId);
+            Db.DeleteId("User", "userID", sqlId.ToString());
         }
 
         private void dataGridView1_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-
-            Console.WriteLine("dataGridView1_RowsAdded Four");
         }
 
         private void userDataGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
-
-            //Console.WriteLine("DataGridViewRowPostPaintEventArgs RoxIndex"+ e.RowIndex  + " e = " + userDataGrid[1, e.RowIndex].ToString());
         }
 
         private void userDataGrid_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)
         {
-            userDataGrid_RowStr = GetID(e.Row.Index);
+            sqlId = GetID(e.Row.Index);
         }
 
-        private string GetID(int indx)
+        private int GetID(int indx)
         {
-            string sqliteIndex = "-1";
+            int sqliteIndex = -1;
             if (indx > -1)
             {
-                if (Int32.TryParse(JsonConvert.SerializeObject(userDataGrid[0, indx].Value), out int itemIDint))
-                {
-                    sqliteIndex = itemIDint.ToString();
-                }
+                Int32.TryParse(JsonConvert.SerializeObject(userDataGrid[0, indx].Value), out sqliteIndex);
             }
             Console.WriteLine("userDataGrid_RowStateChanged sqliteIndex = " + sqliteIndex + " indx = " + indx);
             return sqliteIndex;
