@@ -84,9 +84,46 @@ namespace LabManagement
             return result;
         }
 
-
-
         static public int InsertRow(string name, string column, string values)
+        {
+            int result = -1;
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    string comboQuery = "INSERT INTO " + name + " (" + column + ") VALUES(" + values + ")";
+                    System.Console.WriteLine(comboQuery);
+                    cmd.CommandText = comboQuery;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        System.Console.WriteLine("Created Table");
+
+                        cmd.CommandText = "SELECT LAST_INSERT_ROWID()";
+                        //System.Console.WriteLine("Return ID = " + reader.GetValue(i).ToString());
+                        //result = cmd.ExecuteNonQuery();
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            reader.Read();
+                            result = System.Int32.Parse(reader.GetValue(0).ToString());
+
+                            //return reader["col_1"];
+                        }
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException Creating table");
+                    }
+                }
+                conn.Close();
+            }
+            return result;
+        }
+
+
+        static public int InsertRowOld(string name, string column, string values)
         {
             int result = -1;
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
@@ -102,6 +139,16 @@ namespace LabManagement
                     {
                         result = cmd.ExecuteNonQuery();
                         System.Console.WriteLine("Created Table");
+
+                        cmd.CommandText = "SELECT LAST_INSERT_ROWID()";
+                        //System.Console.WriteLine("Return ID = " + reader.GetValue(i).ToString());
+                        //result = cmd.ExecuteNonQuery();
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            reader.Read();
+                            System.Console.WriteLine("Return ID = " + reader.GetValue(0).ToString());
+                            //return reader["col_1"];
+                        }
                     }
                     catch (SQLiteException)
                     {
