@@ -41,7 +41,7 @@
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.button2 = new System.Windows.Forms.Button();
             this.Lockers = new System.Windows.Forms.TabPage();
-            this.button3 = new System.Windows.Forms.Button();
+            this.buttonSendCombo = new System.Windows.Forms.Button();
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
             this.Edit = new System.Windows.Forms.TabControl();
             this.Configuration = new System.Windows.Forms.TabPage();
@@ -61,9 +61,7 @@
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.Users = new System.Windows.Forms.TabPage();
             this.userDataGrid = new System.Windows.Forms.DataGridView();
-            this.button15 = new System.Windows.Forms.Button();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
-            this.Add = new System.Windows.Forms.Button();
             this.Settings = new System.Windows.Forms.TabPage();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -207,7 +205,7 @@
             // 
             // Lockers
             // 
-            this.Lockers.Controls.Add(this.button3);
+            this.Lockers.Controls.Add(this.buttonSendCombo);
             this.Lockers.Controls.Add(this.pictureBox7);
             this.Lockers.Controls.Add(this.Edit);
             this.Lockers.Controls.Add(this.Print);
@@ -221,15 +219,15 @@
             this.Lockers.UseVisualStyleBackColor = true;
             this.Lockers.Click += new System.EventHandler(this.Lockers_Click);
             // 
-            // button3
+            // buttonSendCombo
             // 
-            this.button3.Location = new System.Drawing.Point(162, 64);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(107, 23);
-            this.button3.TabIndex = 7;
-            this.button3.Text = "Email Combinations";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            this.buttonSendCombo.Location = new System.Drawing.Point(162, 64);
+            this.buttonSendCombo.Name = "buttonSendCombo";
+            this.buttonSendCombo.Size = new System.Drawing.Size(107, 23);
+            this.buttonSendCombo.TabIndex = 7;
+            this.buttonSendCombo.Text = "Email Combinations";
+            this.buttonSendCombo.UseVisualStyleBackColor = true;
+            this.buttonSendCombo.Click += new System.EventHandler(this.buttonSendCombinations);
             // 
             // pictureBox7
             // 
@@ -401,9 +399,7 @@
             // Users
             // 
             this.Users.Controls.Add(this.userDataGrid);
-            this.Users.Controls.Add(this.button15);
             this.Users.Controls.Add(this.pictureBox5);
-            this.Users.Controls.Add(this.Add);
             this.Users.Location = new System.Drawing.Point(4, 22);
             this.Users.Name = "Users";
             this.Users.Size = new System.Drawing.Size(791, 565);
@@ -433,15 +429,6 @@
             this.userDataGrid.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.dataGridView1_RowsRemoved);
             this.userDataGrid.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.userDataGrid_RowStateChanged);
             // 
-            // button15
-            // 
-            this.button15.Location = new System.Drawing.Point(161, 32);
-            this.button15.Name = "button15";
-            this.button15.Size = new System.Drawing.Size(75, 23);
-            this.button15.TabIndex = 4;
-            this.button15.Text = "Edit";
-            this.button15.UseVisualStyleBackColor = true;
-            // 
             // pictureBox5
             // 
             this.pictureBox5.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox5.BackgroundImage")));
@@ -450,16 +437,6 @@
             this.pictureBox5.Size = new System.Drawing.Size(150, 150);
             this.pictureBox5.TabIndex = 3;
             this.pictureBox5.TabStop = false;
-            // 
-            // Add
-            // 
-            this.Add.Location = new System.Drawing.Point(161, 3);
-            this.Add.Name = "Add";
-            this.Add.Size = new System.Drawing.Size(75, 23);
-            this.Add.TabIndex = 2;
-            this.Add.Text = "Add";
-            this.Add.UseVisualStyleBackColor = true;
-            this.Add.Click += new System.EventHandler(this.Add_Click);
             // 
             // Settings
             // 
@@ -484,23 +461,25 @@
             // 
             this.ID.HeaderText = "ID";
             this.ID.Name = "ID";
+            this.ID.Visible = false;
             // 
             // firstName
             // 
             this.firstName.HeaderText = "First";
             this.firstName.Name = "firstName";
-            this.firstName.Width = 120;
+            this.firstName.Width = 200;
             // 
             // lastName
             // 
             this.lastName.HeaderText = "Last";
             this.lastName.Name = "lastName";
-            this.lastName.Width = 120;
+            this.lastName.Width = 200;
             // 
             // emailAddress
             // 
             this.emailAddress.HeaderText = "email";
             this.emailAddress.Name = "emailAddress";
+            this.emailAddress.Width = 200;
             // 
             // userType
             // 
@@ -547,7 +526,6 @@
         private System.Windows.Forms.TabPage Parts;
         private System.Windows.Forms.TabPage Rooms;
         private System.Windows.Forms.TabPage Users;
-        private System.Windows.Forms.Button Add;
         private System.Windows.Forms.TabPage Lockers;
         private System.Windows.Forms.TabControl Edit;
         private System.Windows.Forms.TabPage Configuration;
@@ -573,8 +551,7 @@
         private System.Windows.Forms.Button button14;
         private System.Windows.Forms.Button button13;
         private System.Windows.Forms.Button button12;
-        private System.Windows.Forms.Button button15;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button buttonSendCombo;
         private System.Windows.Forms.DataGridView userDataGrid;
         private System.Windows.Forms.DataGridViewTextBoxColumn ID;
         private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
