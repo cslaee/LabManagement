@@ -56,14 +56,6 @@ namespace LabManagement
         }
 
 
-        public static void ValidateTable()
-        {
-            if (!File.Exists("./" + Constants.databaseName))
-            {
-                SQLiteConnection.CreateFile(Constants.databaseName);
-                System.Console.WriteLine("No Database exsist, file created");
-            }
-        }
 
         private static int BuildTables(String sqlStatement)
         {
