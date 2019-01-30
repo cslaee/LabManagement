@@ -37,14 +37,6 @@ namespace LabManagement
         }
 
 
-
-
-
-
-
-
-
-
         public static void ValidateDatabaseFile()
         {
             if (!File.Exists("./" + Constants.databaseName))

@@ -154,7 +154,10 @@ namespace LabManagement
         {
         }
 
+        private void ImportExcel_Click(object sender, EventArgs e)
+        {
+            InitialData.ImportExcelData();
 
-
+        }
     }
 }

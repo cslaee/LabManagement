@@ -8,6 +8,8 @@ namespace LabManagement
 {
     class Db
     {
+        static readonly bool debug = Constants.dbDebug;
+
         static public List<string> GetId(string table, string id)
         {
             var returnString = new List<string>();
@@ -132,6 +134,7 @@ namespace LabManagement
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
                     string comboQuery = "INSERT INTO " + name + " (" + column + ") VALUES(" + values + ")";
+
                     System.Console.WriteLine(comboQuery);
                     cmd.CommandText = comboQuery;
 
@@ -160,7 +163,7 @@ namespace LabManagement
             return result;
         }
 
-        static public int arrayToSql(string name, string column, int[,] values)
+        static public int arrayToSqlOld(string name, string column, int[,] values)
         {
             int result = -1;
             int numRow = values.GetLength(0);
@@ -188,6 +191,52 @@ namespace LabManagement
                             cmd.CommandText = val.ToString();
                             result = cmd.ExecuteNonQuery();
                             System.Console.WriteLine(val);
+                            val.Remove(queryLeftLen, val.Length - queryLeftLen);
+                        }
+                        System.Console.WriteLine("Finished Creating Table");
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException Creating table");
+                    }
+                }
+                conn.Close();
+            }
+            return result;
+        }
+
+
+        static public int arrayToSql(string name, string column, string[,] values)
+        {
+            int result = -1;
+            int numRow = values.GetLength(0);
+            int numCol = values.GetLength(1);
+            StringBuilder val = new StringBuilder();
+            string queryLeft = "INSERT INTO " + name + " (" + column + ") VALUES(";
+            int queryLeftLen = queryLeft.Length;
+            val.Append(queryLeft);
+            if (debug)
+                   System.Console.WriteLine("queryLeft = " + queryLeft);
+            
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    try
+                    {
+                        for (int j = 0; j < numRow; ++j)
+                        {
+                            for (int i = 0; i < numCol; ++i)
+                            {
+                                val.Append(values[j, i] + ", ");
+                            }
+                            val.Remove(val.Length - 2, 2);
+                            val.Append(")");
+                            cmd.CommandText = val.ToString();
+                            if (debug)
+                               System.Console.WriteLine("query = " + val.ToString());
+                            result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);
                         }
                         System.Console.WriteLine("Finished Creating Table");

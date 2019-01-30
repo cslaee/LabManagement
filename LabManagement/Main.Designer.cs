@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.Schedule = new System.Windows.Forms.TabPage();
+            this.Calendar = new System.Windows.Forms.TabPage();
             this.button6 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -61,16 +61,17 @@
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.Users = new System.Windows.Forms.TabPage();
             this.userDataGrid = new System.Windows.Forms.DataGridView();
-            this.pictureBox5 = new System.Windows.Forms.PictureBox();
-            this.Settings = new System.Windows.Forms.TabPage();
-            this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.firstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.emailAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.userType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.Settings = new System.Windows.Forms.TabPage();
+            this.pictureBox6 = new System.Windows.Forms.PictureBox();
+            this.ImportExcel = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
-            this.Schedule.SuspendLayout();
+            this.Calendar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.Classes.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -90,7 +91,7 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.Schedule);
+            this.tabControl1.Controls.Add(this.Calendar);
             this.tabControl1.Controls.Add(this.Classes);
             this.tabControl1.Controls.Add(this.Lockers);
             this.tabControl1.Controls.Add(this.Parts);
@@ -103,20 +104,20 @@
             this.tabControl1.Size = new System.Drawing.Size(799, 591);
             this.tabControl1.TabIndex = 0;
             // 
-            // Schedule
+            // Calendar
             // 
-            this.Schedule.Controls.Add(this.button6);
-            this.Schedule.Controls.Add(this.button5);
-            this.Schedule.Controls.Add(this.button4);
-            this.Schedule.Controls.Add(this.pictureBox1);
-            this.Schedule.Controls.Add(this.button1);
-            this.Schedule.Location = new System.Drawing.Point(4, 22);
-            this.Schedule.Name = "Schedule";
-            this.Schedule.Padding = new System.Windows.Forms.Padding(3);
-            this.Schedule.Size = new System.Drawing.Size(791, 565);
-            this.Schedule.TabIndex = 0;
-            this.Schedule.Text = "Schedule";
-            this.Schedule.UseVisualStyleBackColor = true;
+            this.Calendar.Controls.Add(this.button6);
+            this.Calendar.Controls.Add(this.button5);
+            this.Calendar.Controls.Add(this.button4);
+            this.Calendar.Controls.Add(this.pictureBox1);
+            this.Calendar.Controls.Add(this.button1);
+            this.Calendar.Location = new System.Drawing.Point(4, 22);
+            this.Calendar.Name = "Calendar";
+            this.Calendar.Padding = new System.Windows.Forms.Padding(3);
+            this.Calendar.Size = new System.Drawing.Size(791, 565);
+            this.Calendar.TabIndex = 0;
+            this.Calendar.Text = "Calendar";
+            this.Calendar.UseVisualStyleBackColor = true;
             // 
             // button6
             // 
@@ -429,34 +430,6 @@
             this.userDataGrid.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.dataGridView1_RowsRemoved);
             this.userDataGrid.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.userDataGrid_RowStateChanged);
             // 
-            // pictureBox5
-            // 
-            this.pictureBox5.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox5.BackgroundImage")));
-            this.pictureBox5.Location = new System.Drawing.Point(5, 3);
-            this.pictureBox5.Name = "pictureBox5";
-            this.pictureBox5.Size = new System.Drawing.Size(150, 150);
-            this.pictureBox5.TabIndex = 3;
-            this.pictureBox5.TabStop = false;
-            // 
-            // Settings
-            // 
-            this.Settings.Controls.Add(this.pictureBox6);
-            this.Settings.Location = new System.Drawing.Point(4, 22);
-            this.Settings.Name = "Settings";
-            this.Settings.Size = new System.Drawing.Size(791, 565);
-            this.Settings.TabIndex = 6;
-            this.Settings.Text = "Settings";
-            this.Settings.UseVisualStyleBackColor = true;
-            // 
-            // pictureBox6
-            // 
-            this.pictureBox6.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox6.BackgroundImage")));
-            this.pictureBox6.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox6.Name = "pictureBox6";
-            this.pictureBox6.Size = new System.Drawing.Size(150, 150);
-            this.pictureBox6.TabIndex = 2;
-            this.pictureBox6.TabStop = false;
-            // 
             // ID
             // 
             this.ID.HeaderText = "ID";
@@ -486,6 +459,45 @@
             this.userType.HeaderText = " User Type";
             this.userType.Name = "userType";
             // 
+            // pictureBox5
+            // 
+            this.pictureBox5.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox5.BackgroundImage")));
+            this.pictureBox5.Location = new System.Drawing.Point(5, 3);
+            this.pictureBox5.Name = "pictureBox5";
+            this.pictureBox5.Size = new System.Drawing.Size(150, 150);
+            this.pictureBox5.TabIndex = 3;
+            this.pictureBox5.TabStop = false;
+            // 
+            // Settings
+            // 
+            this.Settings.Controls.Add(this.ImportExcel);
+            this.Settings.Controls.Add(this.pictureBox6);
+            this.Settings.Location = new System.Drawing.Point(4, 22);
+            this.Settings.Name = "Settings";
+            this.Settings.Size = new System.Drawing.Size(791, 565);
+            this.Settings.TabIndex = 6;
+            this.Settings.Text = "Settings";
+            this.Settings.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox6
+            // 
+            this.pictureBox6.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox6.BackgroundImage")));
+            this.pictureBox6.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox6.Name = "pictureBox6";
+            this.pictureBox6.Size = new System.Drawing.Size(150, 150);
+            this.pictureBox6.TabIndex = 2;
+            this.pictureBox6.TabStop = false;
+            // 
+            // ImportExcel
+            // 
+            this.ImportExcel.Location = new System.Drawing.Point(5, 465);
+            this.ImportExcel.Name = "ImportExcel";
+            this.ImportExcel.Size = new System.Drawing.Size(113, 25);
+            this.ImportExcel.TabIndex = 3;
+            this.ImportExcel.Text = "Import From Excel";
+            this.ImportExcel.UseVisualStyleBackColor = true;
+            this.ImportExcel.Click += new System.EventHandler(this.ImportExcel_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -496,7 +508,7 @@
             this.Text = "EE Lab Management";
             this.Load += new System.EventHandler(this.Main_Load);
             this.tabControl1.ResumeLayout(false);
-            this.Schedule.ResumeLayout(false);
+            this.Calendar.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.Classes.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -519,7 +531,7 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage Schedule;
+        private System.Windows.Forms.TabPage Calendar;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TabPage Classes;
         private System.Windows.Forms.Button button2;
@@ -558,5 +570,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
         private System.Windows.Forms.DataGridViewTextBoxColumn userType;
+        private System.Windows.Forms.Button ImportExcel;
     }
 }

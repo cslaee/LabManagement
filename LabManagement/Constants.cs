@@ -4,7 +4,10 @@ namespace LabManagement
 {
     class Constants
     {
-        public const Boolean deleteDB = false;
+        public const Boolean deleteDB = true;
+        public const Boolean dbDebug = false;
+        public const Boolean initialDataDebug = true;
+
         public const string username = "John Doe";
         public const string email = "test@test.test";
         public const String databaseName = "CalStateLAeeDB.sqlite3";
