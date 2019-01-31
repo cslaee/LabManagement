@@ -23,18 +23,18 @@ namespace LabManagement
         //static public var[,] lockerType = new var[1, 4] {{1,1,1,1}};
 
 
-        static public void TestTables()
+        static public void StartDb()
         {
             DeleteDatabaseFile();
-            ValidateDatabaseFile();
-            string schema = ReadDbSchema();
-            BuildTables(ReadDbSchema());
-            Fill();
+            IfNotExistsCreateDatabase();
+            JasonReadWriteDemo();
+
+            ImportExcelData();
             // System.Environment.Exit(1);
         }
 
 
-        public static string ReadDbSchema()
+        public static string GetDbSchema()
         {
             string sqlFile = System.AppContext.BaseDirectory + Constants.sqlFileName;
             string pattern = @"""mydb""" + @"\.|ATTACH(?:.*?);|BEGIN;|COMMIT;";
@@ -47,12 +47,14 @@ namespace LabManagement
         }
 
 
-        public static void ValidateDatabaseFile()
+        public static void IfNotExistsCreateDatabase()
         {
             if (!File.Exists("./" + Constants.databaseName))
             {
+                System.Console.WriteLine("No Database exsist, Creating one");
                 SQLiteConnection.CreateFile(Constants.databaseName);
-                System.Console.WriteLine("No Database exsist, file created");
+                System.Console.WriteLine("Building Tables");
+                BuildDbTables(GetDbSchema());
             }
         }
 
@@ -67,7 +69,7 @@ namespace LabManagement
 
 
 
-        private static int BuildTables(string sqlStatement)
+        private static int BuildDbTables(string sqlStatement)
         {
             int result = -1;
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
@@ -93,14 +95,14 @@ namespace LabManagement
             return result;
         }
 
-        static public void Fill()
+        static public void JasonReadWriteDemo()
         {
             // Db.InsertRows("Lock", "id, cw1, ccw, cw2", lockCombo);
-            Db.SaveArrayToJson(lockCombo);
+            SaveArrayToJson(lockCombo);
             string locksFile = System.AppContext.BaseDirectory + Constants.locksJsonFileName;
             Console.WriteLine("dir =" + locksFile);
             Lock[] MasterLocks = JsonConvert.DeserializeObject<Lock[]>(File.ReadAllText(locksFile));
-            Db.SqlInsertObject("Lock", "id, cw1, ccw, cw2", MasterLocks);
+            SqlInsertObject("Lock", "id, cw1, ccw, cw2", MasterLocks);
 
             string displayableVersion = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
             Console.WriteLine("Version = " + displayableVersion);

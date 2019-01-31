@@ -18,12 +18,8 @@ namespace LabManagement
             Application.SetCompatibleTextRenderingDefault(false);
 
 
-            if (Constants.deleteDB == true)
-            {
-                LabManagement.Db.TestTables();
-            }
+                LabManagement.Db.StartDb();
             //Application.Run(new EmailCombinations());
-            Db.ImportExcelData();
             Application.Run(new Main());
         }
     }
