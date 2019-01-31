@@ -25,7 +25,7 @@ namespace LabManagement
             string locksFile = System.AppContext.BaseDirectory + Constants.locksJsonFileName;
             Console.WriteLine("dir =" + locksFile);
             Lock[] MasterLocks = JsonConvert.DeserializeObject<Lock[]>(File.ReadAllText(locksFile));
-            Db.ObjToSql("Lock", "id, cw1, ccw, cw2", MasterLocks);
+            Db.SqlInsertObject("Lock", "id, cw1, ccw, cw2", MasterLocks);
 
             string displayableVersion = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
             Console.WriteLine("Version = " + displayableVersion);
@@ -107,7 +107,7 @@ namespace LabManagement
             }
             Marshal.ReleaseComObject(xlWorkSheet);
 
-            Db.arrayToSql(workSheet, sqlColumnString, sheetData);
+            Db.SqlInsertArray(workSheet, sqlColumnString, sheetData);
         }
     }
 }

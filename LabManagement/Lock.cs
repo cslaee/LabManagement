@@ -21,7 +21,7 @@
                 cw1 = -1;
                 return;
             }
-            var returnedSQL = Db.GetId("Lock", n.ToString());
+            var returnedSQL = Db.GetID("Lock", n.ToString());
             if (returnedSQL.Count == 0)
             {
                 cw1 = -1;

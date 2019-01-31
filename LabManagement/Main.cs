@@ -50,7 +50,7 @@ namespace LabManagement
             string colName = User.getColumnName(e.ColumnIndex);
             if (sqlId == 0)
             {
-                sqlId = Db.InsertRow("User", "'" + colName + "'", "'" + newCellValue + "'");
+                sqlId = Db.SqlInsert("User", "'" + colName + "'", "'" + newCellValue + "'");
                 userDataGrid[0, e.RowIndex].Value = sqlId;
                 return;
             }
@@ -60,7 +60,7 @@ namespace LabManagement
         private void dataGridView1_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
             Console.WriteLine("userID" + sqlId);
-            Db.DeleteId("User", "userID", sqlId.ToString());
+            Db.DeleteID("User", "userID", sqlId.ToString());
         }
 
         private void userDataGrid_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)

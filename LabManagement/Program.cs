@@ -20,7 +20,7 @@ namespace LabManagement
 
             if (Constants.deleteDB == true)
             {
-                LabManagement.ValidateDatabase.TestTables();
+                LabManagement.Db.TestTables();
             }
             //Application.Run(new EmailCombinations());
             InitialData.ImportExcelData();
