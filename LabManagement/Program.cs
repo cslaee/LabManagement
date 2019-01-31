@@ -23,7 +23,7 @@ namespace LabManagement
                 LabManagement.Db.TestTables();
             }
             //Application.Run(new EmailCombinations());
-            InitialData.ImportExcelData();
+            Db.ImportExcelData();
             Application.Run(new Main());
         }
     }
