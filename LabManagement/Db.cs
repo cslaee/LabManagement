@@ -14,21 +14,12 @@ namespace LabManagement
     {
         static readonly bool debug = Constants.dbDebug;
         static string connectionString = @"Data Source=" + Constants.databaseName + "; Version=3; FailIfMissing=True; Foreign Keys=True;";
-
         static readonly bool debug2 = Constants.initialDataDebug;
-        static public int[,] lockCombo = new int[10, 4] {
-             {1, 2, 3, 4}, {2, 3, 4, 5}, {3, 4, 5, 6}, {4, 5, 6, 7}, {5, 6, 7, 8}, {6, 7, 8, 9}, {7, 8, 9, 10}, {8, 9, 10, 11}, {9, 10, 11, 12}, {10, 11, 12, 13}
-                        };
-
-        //static public var[,] lockerType = new var[1, 4] {{1,1,1,1}};
-
 
         static public void StartDb()
         {
             DeleteDatabaseFile();
             IfNotExistsCreateDatabase();
-            JasonReadWriteDemo();
-
             ImportExcelData();
             // System.Environment.Exit(1);
         }
@@ -93,19 +84,6 @@ namespace LabManagement
                 conn.Close();
             }
             return result;
-        }
-
-        static public void JasonReadWriteDemo()
-        {
-            // Db.InsertRows("Lock", "id, cw1, ccw, cw2", lockCombo);
-            SaveArrayToJson(lockCombo);
-            string locksFile = System.AppContext.BaseDirectory + Constants.locksJsonFileName;
-            Console.WriteLine("dir =" + locksFile);
-            Lock[] MasterLocks = JsonConvert.DeserializeObject<Lock[]>(File.ReadAllText(locksFile));
-            SqlInsertObject("Lock", "id, cw1, ccw, cw2", MasterLocks);
-
-            string displayableVersion = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
-            Console.WriteLine("Version = " + displayableVersion);
         }
 
         static public void ImportExcelData()
@@ -265,6 +243,7 @@ namespace LabManagement
             return result;
         }
 
+
         static public int SqlInsert(string name, string column, string values)
         {
             int result = -1;
@@ -302,7 +281,6 @@ namespace LabManagement
             }
             return result;
         }
-
 
  
         static public int SqlInsertArray(string name, string column, string[,] values)
@@ -385,27 +363,6 @@ namespace LabManagement
             }
             return result;
         }
-
-
-
-        static public int SaveArrayToJson(int[,] values)
-        {
-            int result = -1;
-            int numRow = values.GetLength(0);
-            string locksFile = System.AppContext.BaseDirectory + Constants.locksJsonFileName;
-
-            Lock[] l = new Lock[numRow];
-            for (int i = 0; i < numRow; i++)
-                l[i] = new Lock(values[i, 0], values[i, 1], values[i, 2], values[i, 3]);
-
-            string json = JsonConvert.SerializeObject(l, Formatting.Indented);
-            File.WriteAllText(locksFile, json.ToString());
-            System.Console.WriteLine("Finished writing json into file");
-            return result;
-        }
-
-
-
 
     }
 
