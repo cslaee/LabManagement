@@ -2,6 +2,8 @@
 using System;
 using System.Data.SQLite;
 using System.Drawing;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace LabManagement
@@ -13,6 +15,20 @@ namespace LabManagement
         public Main()
         {
             InitializeComponent();
+
+            //Project Properties -> Application, click the button named “Assembly Information
+            string displayableVersion = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+            this.Version.Text = "Version " + displayableVersion;
+
+            var attribute = Assembly.GetExecutingAssembly()
+                                .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)
+                                .Cast<AssemblyDescriptionAttribute>().FirstOrDefault();
+            if (attribute != null)
+            {
+                this.Description.Text = attribute.Description;
+                Console.WriteLine(attribute.Description);
+            }
+
             PopulateUserDataGridView();
         }
 
@@ -32,7 +48,7 @@ namespace LabManagement
             {
                 while (read.Read())
                 {
-                   userDataGrid.Rows.Add(new object[] {
+                    userDataGrid.Rows.Add(new object[] {
                     read.GetValue(0),  // U can use column index
                     read.GetValue(read.GetOrdinal("first")),  // Or column name like this
                     read.GetValue(read.GetOrdinal("last")),
@@ -159,5 +175,7 @@ namespace LabManagement
             Db.ImportExcelData();
 
         }
+
+
     }
 }

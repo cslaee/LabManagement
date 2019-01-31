@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
@@ -13,18 +12,14 @@ namespace LabManagement
     class Db
     {
         static readonly bool debug = Constants.dbDebug;
-        static string connectionString = @"Data Source=" + Constants.databaseName + "; Version=3; FailIfMissing=True; Foreign Keys=True;";
-        static readonly bool debug2 = Constants.initialDataDebug;
 
         static public void StartDb()
         {
-            DeleteDatabaseFile();
+            IfWipeDbTrue();
             IfNotExistsCreateDatabase();
-            ImportExcelData();
+
             // System.Environment.Exit(1);
         }
-
-
         public static string GetDbSchema()
         {
             string sqlFile = System.AppContext.BaseDirectory + Constants.sqlFileName;
@@ -46,24 +41,28 @@ namespace LabManagement
                 SQLiteConnection.CreateFile(Constants.databaseName);
                 System.Console.WriteLine("Building Tables");
                 BuildDbTables(GetDbSchema());
+                ImportExcelData();
             }
         }
 
-        public static void DeleteDatabaseFile()
+        public static void IfWipeDbTrue()
         {
-            if (File.Exists("./" + Constants.databaseName))
+            if (Constants.wipeDB)
             {
+            if (File.Exists("./" + Constants.databaseName))
+               {
                 File.Delete("./" + Constants.databaseName);
                 System.Console.WriteLine("Database file deleted");
+               }
+
             }
         }
-
 
 
         private static int BuildDbTables(string sqlStatement)
         {
             int result = -1;
-            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
@@ -88,8 +87,8 @@ namespace LabManagement
 
         static public void ImportExcelData()
         {
-            //string[] workSheets = new string[2] { "Lock", "User" };
-            string[] workSheets = new string[1] { "User" };
+            string[] workSheets = new string[2] { "Lock", "User" };
+           // string[] workSheets = new string[1] { "User" };
 
             Excel.Application xlApp;
             Excel.Workbook xlWorkBook;
@@ -124,19 +123,19 @@ namespace LabManagement
             sqlColumnString2.Append("'");
             int rCnt;
             int cCnt;
-            double cellInSheet;
+            object cellObject;
             string[,] sheetData = new string[rw - 1, cl];
             string[] columnData = new string[cl];
-                    if (debug2)
-                        System.Console.WriteLine("Now importing " + workSheet + " worksheet");
- 
+            if (debug)
+                System.Console.WriteLine("Now importing " + workSheet + " worksheet");
+
             for (cCnt = 1; cCnt <= cl; cCnt++)
             {
                 columnData[cCnt - 1] = (string)(range.Cells[1, cCnt] as Excel.Range).Value2;
             }
 
             string sqlColumnString = string.Join(", ", columnData);
-            if (debug2)
+            if (debug)
                 System.Console.WriteLine("columns = " + sqlColumnString);
 
             //     MessageBox.Show("start>" + sqlColumnString);
@@ -145,15 +144,17 @@ namespace LabManagement
             {
                 for (cCnt = 1; cCnt <= cl; cCnt++)
                 {
-                    str = (string)(range.Cells[rCnt, cCnt] as Excel.Range).Value2;
-//                    str = "'5'"; 
+                    //str = (string)(range.Cells[rCnt, cCnt] as Excel.Range).Value2;
+                    cellObject = (range.Cells[rCnt, cCnt] as Excel.Range).Value2;
+                    str = Convert.ToString(cellObject);
+                    //                    str = "'5'"; 
                     sheetData[rCnt - 2, cCnt - 1] = "'" + str + "'";
                     sqlColumnString2.Append(str + "',");
-//                    if (debug)
-//                        System.Console.WriteLine("columns2 = " + sqlColumnString2);
-                        //System.Console.WriteLine("columns2 = " + sqlColumnString2);
+                    //                    if (debug)
+                    //                        System.Console.WriteLine("columns2 = " + sqlColumnString2);
+                    //System.Console.WriteLine("columns2 = " + sqlColumnString2);
                 }
-                if (debug2)
+                if (debug)
                 {
                     System.Console.WriteLine("sqlColumnString2 = " + sqlColumnString2);
                     sqlColumnString2.Clear();
@@ -164,7 +165,6 @@ namespace LabManagement
 
             Db.SqlInsertArray(workSheet, sqlColumnString, sheetData);
         }
-
 
 
         static public List<string> GetID(string table, string id)
@@ -282,7 +282,7 @@ namespace LabManagement
             return result;
         }
 
- 
+
         static public int SqlInsertArray(string name, string column, string[,] values)
         {
             int result = -1;
@@ -293,8 +293,8 @@ namespace LabManagement
             int queryLeftLen = queryLeft.Length;
             val.Append(queryLeft);
             if (debug)
-                   System.Console.WriteLine("queryLeft = " + queryLeft);
-            
+                System.Console.WriteLine("queryLeft = " + queryLeft);
+
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
                 conn.Open();
@@ -312,7 +312,7 @@ namespace LabManagement
                             val.Append(")");
                             cmd.CommandText = val.ToString();
                             if (debug)
-                               System.Console.WriteLine("query = " + val.ToString());
+                                System.Console.WriteLine("query = " + val.ToString());
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);
                         }

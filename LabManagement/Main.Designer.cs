@@ -68,8 +68,9 @@
             this.userType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.Settings = new System.Windows.Forms.TabPage();
+            this.Description = new System.Windows.Forms.Label();
+            this.Version = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
-            this.ImportExcel = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.Calendar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -470,7 +471,8 @@
             // 
             // Settings
             // 
-            this.Settings.Controls.Add(this.ImportExcel);
+            this.Settings.Controls.Add(this.Description);
+            this.Settings.Controls.Add(this.Version);
             this.Settings.Controls.Add(this.pictureBox6);
             this.Settings.Location = new System.Drawing.Point(4, 22);
             this.Settings.Name = "Settings";
@@ -478,6 +480,24 @@
             this.Settings.TabIndex = 6;
             this.Settings.Text = "Settings";
             this.Settings.UseVisualStyleBackColor = true;
+            // 
+            // Description
+            // 
+            this.Description.AutoSize = true;
+            this.Description.Location = new System.Drawing.Point(530, 30);
+            this.Description.Name = "Description";
+            this.Description.Size = new System.Drawing.Size(60, 13);
+            this.Description.TabIndex = 7;
+            this.Description.Text = "Description";
+            // 
+            // Version
+            // 
+            this.Version.AutoSize = true;
+            this.Version.Location = new System.Drawing.Point(530, 3);
+            this.Version.Name = "Version";
+            this.Version.Size = new System.Drawing.Size(42, 13);
+            this.Version.TabIndex = 6;
+            this.Version.Text = "Version";
             // 
             // pictureBox6
             // 
@@ -487,16 +507,6 @@
             this.pictureBox6.Size = new System.Drawing.Size(150, 150);
             this.pictureBox6.TabIndex = 2;
             this.pictureBox6.TabStop = false;
-            // 
-            // ImportExcel
-            // 
-            this.ImportExcel.Location = new System.Drawing.Point(5, 465);
-            this.ImportExcel.Name = "ImportExcel";
-            this.ImportExcel.Size = new System.Drawing.Size(113, 25);
-            this.ImportExcel.TabIndex = 3;
-            this.ImportExcel.Text = "Import From Excel";
-            this.ImportExcel.UseVisualStyleBackColor = true;
-            this.ImportExcel.Click += new System.EventHandler(this.ImportExcel_Click);
             // 
             // Main
             // 
@@ -523,6 +533,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.userDataGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             this.Settings.ResumeLayout(false);
+            this.Settings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
             this.ResumeLayout(false);
 
@@ -570,6 +581,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
         private System.Windows.Forms.DataGridViewTextBoxColumn userType;
-        private System.Windows.Forms.Button ImportExcel;
+        private System.Windows.Forms.Label Version;
+        private System.Windows.Forms.Label Description;
     }
 }
