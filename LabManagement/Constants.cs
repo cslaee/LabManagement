@@ -5,7 +5,7 @@ namespace LabManagement
     class Constants
     {
         public const Boolean wipeDB = true;
-        public const Boolean dbDebug = false;
+        public const Boolean dbDebug = true;
 
         public const string username = "John Doe";
         public const string email = "test@test.test";
@@ -16,7 +16,6 @@ namespace LabManagement
         public const string locksJsonFileName = "Locks.json";
         public const string sqlFileName = "db.sql";
         public string workingDirectory = System.AppContext.BaseDirectory;
-
     }
 
 

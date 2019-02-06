@@ -26,7 +26,6 @@ namespace LabManagement
             if (attribute != null)
             {
                 this.Description.Text = attribute.Description;
-                Console.WriteLine(attribute.Description);
             }
 
             PopulateUserDataGridView();
@@ -49,7 +48,7 @@ namespace LabManagement
                 while (read.Read())
                 {
                     userDataGrid.Rows.Add(new object[] {
-                    read.GetValue(0),  // U can use column index
+                    read.GetValue(0),  // Example using a column index to import index
                     read.GetValue(read.GetOrdinal("first")),  // Or column name like this
                     read.GetValue(read.GetOrdinal("last")),
                     read.GetValue(read.GetOrdinal("email"))

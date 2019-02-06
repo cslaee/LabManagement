@@ -20,6 +20,8 @@ namespace LabManagement
 
             // System.Environment.Exit(1);
         }
+
+
         public static string GetDbSchema()
         {
             string sqlFile = System.AppContext.BaseDirectory + Constants.sqlFileName;
@@ -35,12 +37,16 @@ namespace LabManagement
 
         public static void IfNotExistsCreateDatabase()
         {
+            //  https://github.com/tatsushid/mysql-wb-exportsqlite
+            //--   Then export file.
+            //--   Tools>Catalog>ExportSqliteTableCoumns"
             if (!File.Exists("./" + Constants.databaseName))
             {
                 System.Console.WriteLine("No Database exsist, Creating one");
                 SQLiteConnection.CreateFile(Constants.databaseName);
                 System.Console.WriteLine("Building Tables");
                 BuildDbTables(GetDbSchema());
+                //todo Add PRAGMA foreign_keys=ON
                 ImportExcelData();
             }
         }
@@ -49,11 +55,11 @@ namespace LabManagement
         {
             if (Constants.wipeDB)
             {
-            if (File.Exists("./" + Constants.databaseName))
-               {
-                File.Delete("./" + Constants.databaseName);
-                System.Console.WriteLine("Database file deleted");
-               }
+                if (File.Exists("./" + Constants.databaseName))
+                {
+                    File.Delete("./" + Constants.databaseName);
+                    System.Console.WriteLine("Database file deleted");
+                }
 
             }
         }
@@ -77,7 +83,6 @@ namespace LabManagement
                     catch (SQLiteException)
                     {
                         Console.WriteLine("SQLiteException Creating table");
-
                     }
                 }
                 conn.Close();
@@ -87,8 +92,8 @@ namespace LabManagement
 
         static public void ImportExcelData()
         {
-            string[] workSheets = new string[2] { "Lock", "User" };
-           // string[] workSheets = new string[1] { "User" };
+            string[] workSheets = new string[3] { "Lock", "UserType", "User" };
+            // string[] workSheets = new string[1] { "User" };
 
             Excel.Application xlApp;
             Excel.Workbook xlWorkBook;
@@ -116,43 +121,45 @@ namespace LabManagement
             xlWorkSheet = (Excel.Worksheet)workBook.Worksheets.get_Item(workSheet);
             Excel.Range range;
             range = xlWorkSheet.UsedRange;
-            int rw = range.Rows.Count;
-            int cl = range.Columns.Count;
+
+            int lastUsedRow = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
+                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                                           Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
+                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
+
+            int lastUsedColumn = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
+                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                                           Excel.XlSearchOrder.xlByColumns, Excel.XlSearchDirection.xlPrevious,
+                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Column;
+//            System.Console.WriteLine("last row=" + lastUsedRow + "last column=" + lastUsedColumn);
+
             string str;
             StringBuilder sqlColumnString2 = new StringBuilder();
-            sqlColumnString2.Append("'");
-            int rCnt;
-            int cCnt;
             object cellObject;
-            string[,] sheetData = new string[rw - 1, cl];
-            string[] columnData = new string[cl];
+            string[,] sheetData = new string[lastUsedRow - 1, lastUsedColumn];
+            string[] columnData = new string[lastUsedColumn];
             if (debug)
-                System.Console.WriteLine("Now importing " + workSheet + " worksheet");
+                System.Console.WriteLine("* Now inserting " + workSheet + " worksheet into tables");
 
-            for (cCnt = 1; cCnt <= cl; cCnt++)
+            for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
             {
-                columnData[cCnt - 1] = (string)(range.Cells[1, cCnt] as Excel.Range).Value2;
+                columnData[currentColumn - 1] = (string)(range.Cells[1, currentColumn] as Excel.Range).Value2;
+                if (debug)
+                    System.Console.WriteLine("columnData = " + columnData[currentColumn - 1]);
             }
 
             string sqlColumnString = string.Join(", ", columnData);
             if (debug)
                 System.Console.WriteLine("columns = " + sqlColumnString);
 
-            //     MessageBox.Show("start>" + sqlColumnString);
-
-            for (rCnt = 2; rCnt <= rw; rCnt++)
+            for (int currentRow = 2; currentRow <= lastUsedRow; currentRow++)
             {
-                for (cCnt = 1; cCnt <= cl; cCnt++)
+                for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
                 {
-                    //str = (string)(range.Cells[rCnt, cCnt] as Excel.Range).Value2;
-                    cellObject = (range.Cells[rCnt, cCnt] as Excel.Range).Value2;
+                    cellObject = (range.Cells[currentRow, currentColumn] as Excel.Range).Value2;
                     str = Convert.ToString(cellObject);
-                    //                    str = "'5'"; 
-                    sheetData[rCnt - 2, cCnt - 1] = "'" + str + "'";
-                    sqlColumnString2.Append(str + "',");
-                    //                    if (debug)
-                    //                        System.Console.WriteLine("columns2 = " + sqlColumnString2);
-                    //System.Console.WriteLine("columns2 = " + sqlColumnString2);
+                    sheetData[currentRow - 2, currentColumn - 1] = "'" + str + "'";
+                    sqlColumnString2.Append(str + ", ");
                 }
                 if (debug)
                 {
@@ -164,6 +171,8 @@ namespace LabManagement
             Marshal.ReleaseComObject(xlWorkSheet);
 
             Db.SqlInsertArray(workSheet, sqlColumnString, sheetData);
+            if (debug)
+                System.Console.WriteLine("* Finished inserting " + workSheet + " worksheet into tables");
         }
 
 
@@ -316,7 +325,7 @@ namespace LabManagement
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);
                         }
-                        System.Console.WriteLine("Finished Creating Table");
+                        System.Console.WriteLine("Finished Inserting Array into table");
                     }
                     catch (SQLiteException)
                     {
