@@ -93,15 +93,10 @@ namespace LabManagement
         static public void ImportExcelData()
         {
             string[] workSheets = new string[3] { "Lock", "UserType", "User" };
-            // string[] workSheets = new string[1] { "User" };
-
             Excel.Application xlApp;
             Excel.Workbook xlWorkBook;
-            //string fileLocation = @"C:\Users\moberme\source\repos\ImportExcelDemo\importMe.xls";
-            string fileToImport = System.AppContext.BaseDirectory + @"InitialData.xlsx";
-            // MessageBox.Show(fileToImport);
+            string  fileLocation = System.AppContext.BaseDirectory + @"InitialData.xlsx";
             xlApp = new Excel.Application();
-            string fileLocation = fileToImport;
             xlWorkBook = xlApp.Workbooks.Open(fileLocation, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
 
             foreach (string workSheetString in workSheets)
@@ -176,13 +171,14 @@ namespace LabManagement
         }
 
 
-        static public List<string> GetID(string table, string id)
+        static public List<string> GetID(string table, string idName, string id)
         {
             var returnString = new List<string>();
             var myObject = new object[100];
             SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
             SQLiteCommand command = connection.CreateCommand();
-            command.CommandText = "select * from " + table + " where id = " + id;
+            //command.CommandText = "select * from " + table + " where id = " + id;
+            command.CommandText = "select * from " + table + " where " + idName + " = " + id;
             connection.Open();
 
             using (SQLiteDataReader reader = command.ExecuteReader())
