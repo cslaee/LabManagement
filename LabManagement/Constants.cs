@@ -6,6 +6,7 @@ namespace LabManagement
     {
         public const Boolean wipeDB = true;
         public const Boolean dbDebug = true;
+        public const Boolean importScheduleDebug = true;
 
         public const string username = "John Doe";
         public const string email = "test@test.test";

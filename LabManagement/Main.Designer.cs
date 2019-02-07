@@ -35,7 +35,7 @@
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.ImportScheduleButton = new System.Windows.Forms.Button();
             this.Classes = new System.Windows.Forms.TabPage();
             this.button7 = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -71,6 +71,7 @@
             this.Description = new System.Windows.Forms.Label();
             this.Version = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
+            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.tabControl1.SuspendLayout();
             this.Calendar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -88,6 +89,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             this.Settings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -111,7 +113,7 @@
             this.Calendar.Controls.Add(this.button5);
             this.Calendar.Controls.Add(this.button4);
             this.Calendar.Controls.Add(this.pictureBox1);
-            this.Calendar.Controls.Add(this.button1);
+            this.Calendar.Controls.Add(this.ImportScheduleButton);
             this.Calendar.Location = new System.Drawing.Point(4, 22);
             this.Calendar.Name = "Calendar";
             this.Calendar.Padding = new System.Windows.Forms.Padding(3);
@@ -119,6 +121,7 @@
             this.Calendar.TabIndex = 0;
             this.Calendar.Text = "Calendar";
             this.Calendar.UseVisualStyleBackColor = true;
+            this.Calendar.Click += new System.EventHandler(this.Calendar_Click);
             // 
             // button6
             // 
@@ -156,14 +159,15 @@
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
-            // button1
+            // ImportScheduleButton
             // 
-            this.button1.Location = new System.Drawing.Point(162, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Import";
-            this.button1.UseVisualStyleBackColor = true;
+            this.ImportScheduleButton.Location = new System.Drawing.Point(162, 6);
+            this.ImportScheduleButton.Name = "ImportScheduleButton";
+            this.ImportScheduleButton.Size = new System.Drawing.Size(107, 23);
+            this.ImportScheduleButton.TabIndex = 0;
+            this.ImportScheduleButton.Text = "Import Schedule";
+            this.ImportScheduleButton.UseVisualStyleBackColor = true;
+            this.ImportScheduleButton.Click += new System.EventHandler(this.ImportSchedule_Click);
             // 
             // Classes
             // 
@@ -508,6 +512,11 @@
             this.pictureBox6.TabIndex = 2;
             this.pictureBox6.TabStop = false;
             // 
+            // fileSystemWatcher1
+            // 
+            this.fileSystemWatcher1.EnableRaisingEvents = true;
+            this.fileSystemWatcher1.SynchronizingObject = this;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -535,6 +544,7 @@
             this.Settings.ResumeLayout(false);
             this.Settings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -543,7 +553,7 @@
 
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage Calendar;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button ImportScheduleButton;
         private System.Windows.Forms.TabPage Classes;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TabPage Parts;
@@ -583,5 +593,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn userType;
         private System.Windows.Forms.Label Version;
         private System.Windows.Forms.Label Description;
+        private System.IO.FileSystemWatcher fileSystemWatcher1;
     }
 }

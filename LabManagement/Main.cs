@@ -52,6 +52,7 @@ namespace LabManagement
                     read.GetValue(read.GetOrdinal("first")),  // Or column name like this
                     read.GetValue(read.GetOrdinal("last")),
                     read.GetValue(read.GetOrdinal("email"))
+                   // read.GetValue(read.GetOrdinal("userTypeFK"))
                    });
                 }
             }
@@ -175,6 +176,22 @@ namespace LabManagement
 
         }
 
+        private void ImportSchedule_Click(object sender, EventArgs e)
+        {
 
+
+//            openFileDialog1_FileOk(sender, e.ToString());
+            ImportSchedule.GetExcelSchedule();
+        }
+
+        private void Calendar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //deleted and not used
+        }
     }
 }

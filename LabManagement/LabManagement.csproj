@@ -101,6 +101,8 @@
     <Compile Include="EmailCombination.Designer.cs">
       <DependentUpon>EmailCombination.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExcelHelper.cs" />
+    <Compile Include="ImportSchedule.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
