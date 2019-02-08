@@ -20,13 +20,16 @@ namespace LabManagement
         {
             string fileName = GetFileName();
 
+            ExcelHelper x = new ExcelHelper(fileName);
 
-
-
-
-
-
-            ExcelToArray(fileName);
+            for (int i = 1; i <= x.rowCount; i++)
+            {
+                for (int j = 1; j <= x.colCount; j++)
+                {
+                    System.Console.Write(x.excelArray[i - 1, j - 1] +"_|_");
+                }
+                System.Console.WriteLine(" ");
+            }
 
 //            System.Environment.Exit(1);
         }
@@ -56,7 +59,6 @@ namespace LabManagement
 
 static void ExcelToArray(string fileName)
         {
-            string[] workSheets = new string[3] { "Lock", "UserType", "User" };
             Excel.Application xlApp;
             Excel.Workbook xlWorkBook;
             Excel.Worksheet xlWorkSheet;
@@ -64,32 +66,26 @@ static void ExcelToArray(string fileName)
             xlWorkBook = xlApp.Workbooks.Open(fileName, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             string firstWorksheet = xlWorkSheet.Name.ToString();
-            int[] lastUserRowAndColumn = ExcelHelper.GetLastColumnAndRow(xlWorkSheet);
+            //int[] lastUserRowAndColumn = ExcelHelper.GetLastColumnAndRowOld(xlWorkSheet);
 
-            int lastUsedRow = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
+            ExcelHelper x = new ExcelHelper(xlWorkSheet);
 
-            int lastUsedColumn = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByColumns, Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Column;
-           
-            
-            
-            
-            //foreach (string workSheetString in workSheets)
-            //{
-            //    ImportSheet(xlWorkBook, workSheetString);
-            //}
+            for (int i = 1; i <= x.rowCount; i++)
+            {
+                for (int j = 1; j <= x.colCount; j++)
+                {
+                    System.Console.Write(x.excelArray[i - 1, j - 1] +"_|_");
+                }
+                System.Console.WriteLine(" ");
+            }
+
             xlWorkBook.Close(true, null, null);
             xlApp.Quit();
             Marshal.ReleaseComObject(xlWorkBook);
             Marshal.ReleaseComObject(xlApp);
 
-            //MessageBox.Show(fileName);
-            MessageBox.Show(firstWorksheet + " last row =" +lastUserRowAndColumn[0] + "last col =" + lastUserRowAndColumn[1]);
+            if (debug)
+                MessageBox.Show(firstWorksheet + " last row =" + x.rowCount + "last col =" + x.rowCount);
         }
 
 
