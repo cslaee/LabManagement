@@ -4,8 +4,6 @@ using System.Data.SQLite;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace LabManagement
 {
@@ -17,7 +15,6 @@ namespace LabManagement
         {
             IfWipeDbTrue();
             IfNotExistsCreateDatabase();
-
             // System.Environment.Exit(1);
         }
 
@@ -53,14 +50,10 @@ namespace LabManagement
 
         public static void IfWipeDbTrue()
         {
-            if (Constants.wipeDB)
+            if (Constants.wipeDB && File.Exists("./" + Constants.databaseName))
             {
-                if (File.Exists("./" + Constants.databaseName))
-                {
                     File.Delete("./" + Constants.databaseName);
                     System.Console.WriteLine("Database file deleted");
-                }
-
             }
         }
 
@@ -90,111 +83,34 @@ namespace LabManagement
             return result;
         }
 
+
         static public void ImportExcelData()
         {
             string fileName = System.AppContext.BaseDirectory + @"InitialData.xlsx";
-            int numWorksheets = ExcelData.GetNumberOfSheets(fileName);
-
             List<ExcelData> excelList = ExcelData.GetEntireWorkbook(fileName);
-
-            foreach (ExcelData aPart in excelList)
+            foreach (ExcelData ws in excelList)
             {
-                Console.WriteLine(aPart.sheetName + " " + aPart.sqlColumnString);
-            }
-            Console.WriteLine("number of sheets = " + numWorksheets);
-
-        }
-
-
-        static public void ImportExcelDataOld()
-        {
-            string[] workSheets = new string[3] { "Lock", "UserType", "User" };
-            Microsoft.Office.Interop.Excel.Application xlApp;
-            Microsoft.Office.Interop.Excel.Workbook xlWorkBook;
-            string fileLocation = System.AppContext.BaseDirectory + @"InitialData.xlsx";
-            xlApp = new Microsoft.Office.Interop.Excel.Application();
-            xlWorkBook = xlApp.Workbooks.Open(fileLocation, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-
-            foreach (string workSheetString in workSheets)
-            {
-                ImportSheet(xlWorkBook, workSheetString);
-            }
-
-            xlWorkBook.Close(true, null, null);
-            xlApp.Quit();
-            Marshal.ReleaseComObject(xlWorkBook);
-            Marshal.ReleaseComObject(xlApp);
-        }
-
-        static void ImportSheet(Microsoft.Office.Interop.Excel.Workbook workBook, string workSheet)
-        {
-            Microsoft.Office.Interop.Excel.Worksheet xlWorkSheet;
-            xlWorkSheet = (Microsoft.Office.Interop.Excel.Worksheet)workBook.Worksheets.get_Item(workSheet);
-            Microsoft.Office.Interop.Excel.Range range;
-            range = xlWorkSheet.UsedRange;
-
-            int lastUsedRow = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Microsoft.Office.Interop.Excel.XlSearchOrder.xlByRows, Microsoft.Office.Interop.Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
-
-            int lastUsedColumn = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Microsoft.Office.Interop.Excel.XlSearchOrder.xlByColumns, Microsoft.Office.Interop.Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Column;
-            //            System.Console.WriteLine("last row=" + lastUsedRow + "last column=" + lastUsedColumn);
-
-            string str;
-            StringBuilder sqlColumnString2 = new StringBuilder();
-            object cellObject;
-            string[,] sheetData = new string[lastUsedRow - 1, lastUsedColumn];
-            string[] columnData = new string[lastUsedColumn];
-            if (debug)
-                System.Console.WriteLine("* Now inserting " + workSheet + " worksheet into tables");
-
-            for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
-            {
-                columnData[currentColumn - 1] = (string)(range.Cells[1, currentColumn] as Microsoft.Office.Interop.Excel.Range).Value2;
-                if (debug)
-                    System.Console.WriteLine("columnData = " + columnData[currentColumn - 1]);
-                //columns = first, last, sid, email, phone, cell, userTypeFKe
-            }
-
-            string sqlColumnString = string.Join(", ", columnData);
-            if (debug)
-                System.Console.WriteLine("columns = " + sqlColumnString);
-
-            for (int currentRow = 2; currentRow <= lastUsedRow; currentRow++)
-            {
-                for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
+                string[,] sheetData = new string[ws.rowCount - 1, ws.colCount];
+                for (int currentRow = 1; currentRow <= ws.rowCount - 1; currentRow++)
                 {
-                    cellObject = (range.Cells[currentRow, currentColumn] as Microsoft.Office.Interop.Excel.Range).Value2;
-                    str = Convert.ToString(cellObject);
-                    sheetData[currentRow - 2, currentColumn - 1] = "'" + str + "'";
-                    sqlColumnString2.Append(str + ", ");
+                    for (int currentColumn = 0; currentColumn <= ws.colCount -1; currentColumn++)
+                    {
+                        sheetData[currentRow - 1, currentColumn] = "'" + ws.excelArray[currentRow, currentColumn] + "'";
+                    }
                 }
-                if (debug)
-                {
-                    System.Console.WriteLine("sqlColumnString2 = " + sqlColumnString2);
-                    sqlColumnString2.Clear();
-                }
-
+            Console.WriteLine("ws.sheetName = " + ws.sheetName + "ws.sqlColumnString = " + ws.sqlColumnString + "sheetData = " +sheetData);
+            Db.SqlInsertArray(ws.sheetName, ws.sqlColumnString, sheetData);
             }
-            Marshal.ReleaseComObject(xlWorkSheet);
-
-            Db.SqlInsertArray(workSheet, sqlColumnString, sheetData);
-            if (debug)
-                System.Console.WriteLine("* Finished inserting " + workSheet + " worksheet into tables");
         }
 
 
+ 
         static public List<string> GetID(string table, string idName, string id)
         {
             var returnString = new List<string>();
             var myObject = new object[100];
             SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
             SQLiteCommand command = connection.CreateCommand();
-            //command.CommandText = "select * from " + table + " where id = " + id;
             command.CommandText = "select * from " + table + " where " + idName + " = " + id;
             connection.Open();
 

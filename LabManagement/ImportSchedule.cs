@@ -20,7 +20,6 @@ namespace LabManagement
         {
             string fileName = GetFileName();
 
-            Console.WriteLine("number of sheets = " + ExcelData.GetNumberOfSheets(fileName));
             ExcelData x = new ExcelData(fileName, 1);
 
             for (int i = 1; i <= x.rowCount; i++)

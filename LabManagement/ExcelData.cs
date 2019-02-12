@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace LabManagement
 {
@@ -69,7 +64,7 @@ namespace LabManagement
 //**
 
 
-            closeWorkbook(xlWorkBook, xlApp);
+            CloseWorkbook(xlWorkBook, xlApp);
         }
 
         public ExcelData(Microsoft.Office.Interop.Excel.Workbook xlWorkBook, Microsoft.Office.Interop.Excel.Application xlApp, int sheetNumber)
@@ -98,13 +93,13 @@ namespace LabManagement
         }
 
 
-        static void openWorkbook(Microsoft.Office.Interop.Excel.Workbook xlWorkBook, Microsoft.Office.Interop.Excel.Application xlApp)
+        static void OpenWorkbook(Microsoft.Office.Interop.Excel.Workbook xlWorkBook, Microsoft.Office.Interop.Excel.Application xlApp)
         {
             xlApp = new Microsoft.Office.Interop.Excel.Application();
             //            xlWorkBook = xlApp.Workbooks.Open(fileName, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
         }
 
-        static void closeWorkbook(Microsoft.Office.Interop.Excel.Workbook xlWorkBook, Microsoft.Office.Interop.Excel.Application xlApp)
+        static void CloseWorkbook(Microsoft.Office.Interop.Excel.Workbook xlWorkBook, Microsoft.Office.Interop.Excel.Application xlApp)
         {
             xlWorkBook.Close(true, null, null);
             xlApp.Quit();
@@ -130,21 +125,8 @@ namespace LabManagement
             {
                 excelList.Add(new ExcelData(xlWorkBook, xlApp, currentWorksheet));
             }
-            closeWorkbook(xlWorkBook, xlApp);
+            CloseWorkbook(xlWorkBook, xlApp);
             return excelList;
-        }
-
-        static public int GetNumberOfSheets(string fileName)
-        {
-            Microsoft.Office.Interop.Excel.Application xlApp;
-            Microsoft.Office.Interop.Excel.Workbook xlWorkBook;
-            xlApp = new Microsoft.Office.Interop.Excel.Application();
-            xlWorkBook = xlApp.Workbooks.Open(fileName, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-
-            int numberOfWorksheets = xlWorkBook.Sheets.Count;
-
-            closeWorkbook(xlWorkBook, xlApp);
-            return numberOfWorksheets;
         }
 
 
