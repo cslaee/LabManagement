@@ -92,11 +92,27 @@ namespace LabManagement
 
         static public void ImportExcelData()
         {
+            string fileName = System.AppContext.BaseDirectory + @"InitialData.xlsx";
+            int numWorksheets = ExcelData.GetNumberOfSheets(fileName);
+
+            List<ExcelData> excelList = ExcelData.GetEntireWorkbook(fileName);
+
+            foreach (ExcelData aPart in excelList)
+            {
+                Console.WriteLine(aPart.sheetName + " " + aPart.sqlColumnString);
+            }
+            Console.WriteLine("number of sheets = " + numWorksheets);
+
+        }
+
+
+        static public void ImportExcelDataOld()
+        {
             string[] workSheets = new string[3] { "Lock", "UserType", "User" };
-            Excel.Application xlApp;
-            Excel.Workbook xlWorkBook;
-            string  fileLocation = System.AppContext.BaseDirectory + @"InitialData.xlsx";
-            xlApp = new Excel.Application();
+            Microsoft.Office.Interop.Excel.Application xlApp;
+            Microsoft.Office.Interop.Excel.Workbook xlWorkBook;
+            string fileLocation = System.AppContext.BaseDirectory + @"InitialData.xlsx";
+            xlApp = new Microsoft.Office.Interop.Excel.Application();
             xlWorkBook = xlApp.Workbooks.Open(fileLocation, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
 
             foreach (string workSheetString in workSheets)
@@ -110,23 +126,23 @@ namespace LabManagement
             Marshal.ReleaseComObject(xlApp);
         }
 
-        static void ImportSheet(Excel.Workbook workBook, string workSheet)
+        static void ImportSheet(Microsoft.Office.Interop.Excel.Workbook workBook, string workSheet)
         {
-            Excel.Worksheet xlWorkSheet;
-            xlWorkSheet = (Excel.Worksheet)workBook.Worksheets.get_Item(workSheet);
-            Excel.Range range;
+            Microsoft.Office.Interop.Excel.Worksheet xlWorkSheet;
+            xlWorkSheet = (Microsoft.Office.Interop.Excel.Worksheet)workBook.Worksheets.get_Item(workSheet);
+            Microsoft.Office.Interop.Excel.Range range;
             range = xlWorkSheet.UsedRange;
 
             int lastUsedRow = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
                                            System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
+                                           Microsoft.Office.Interop.Excel.XlSearchOrder.xlByRows, Microsoft.Office.Interop.Excel.XlSearchDirection.xlPrevious,
                                            false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
 
             int lastUsedColumn = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
                                            System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByColumns, Excel.XlSearchDirection.xlPrevious,
+                                           Microsoft.Office.Interop.Excel.XlSearchOrder.xlByColumns, Microsoft.Office.Interop.Excel.XlSearchDirection.xlPrevious,
                                            false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Column;
-//            System.Console.WriteLine("last row=" + lastUsedRow + "last column=" + lastUsedColumn);
+            //            System.Console.WriteLine("last row=" + lastUsedRow + "last column=" + lastUsedColumn);
 
             string str;
             StringBuilder sqlColumnString2 = new StringBuilder();
@@ -138,9 +154,10 @@ namespace LabManagement
 
             for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
             {
-                columnData[currentColumn - 1] = (string)(range.Cells[1, currentColumn] as Excel.Range).Value2;
+                columnData[currentColumn - 1] = (string)(range.Cells[1, currentColumn] as Microsoft.Office.Interop.Excel.Range).Value2;
                 if (debug)
                     System.Console.WriteLine("columnData = " + columnData[currentColumn - 1]);
+                //columns = first, last, sid, email, phone, cell, userTypeFKe
             }
 
             string sqlColumnString = string.Join(", ", columnData);
@@ -151,7 +168,7 @@ namespace LabManagement
             {
                 for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
                 {
-                    cellObject = (range.Cells[currentRow, currentColumn] as Excel.Range).Value2;
+                    cellObject = (range.Cells[currentRow, currentColumn] as Microsoft.Office.Interop.Excel.Range).Value2;
                     str = Convert.ToString(cellObject);
                     sheetData[currentRow - 2, currentColumn - 1] = "'" + str + "'";
                     sqlColumnString2.Append(str + ", ");

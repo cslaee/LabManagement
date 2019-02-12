@@ -172,7 +172,7 @@ namespace LabManagement
 
         private void ImportExcel_Click(object sender, EventArgs e)
         {
-            Db.ImportExcelData();
+            // This button is no longer in program 
 
         }
 

@@ -20,7 +20,8 @@ namespace LabManagement
         {
             string fileName = GetFileName();
 
-            ExcelHelper x = new ExcelHelper(fileName);
+            Console.WriteLine("number of sheets = " + ExcelData.GetNumberOfSheets(fileName));
+            ExcelData x = new ExcelData(fileName, 1);
 
             for (int i = 1; i <= x.rowCount; i++)
             {
@@ -53,110 +54,6 @@ namespace LabManagement
             }
             return filePath;
         }
-
-
-
-
-static void ExcelToArray(string fileName)
-        {
-            Excel.Application xlApp;
-            Excel.Workbook xlWorkBook;
-            Excel.Worksheet xlWorkSheet;
-            xlApp = new Excel.Application();
-            xlWorkBook = xlApp.Workbooks.Open(fileName, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-            xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
-            string firstWorksheet = xlWorkSheet.Name.ToString();
-            //int[] lastUserRowAndColumn = ExcelHelper.GetLastColumnAndRowOld(xlWorkSheet);
-
-            ExcelHelper x = new ExcelHelper(xlWorkSheet);
-
-            for (int i = 1; i <= x.rowCount; i++)
-            {
-                for (int j = 1; j <= x.colCount; j++)
-                {
-                    System.Console.Write(x.excelArray[i - 1, j - 1] +"_|_");
-                }
-                System.Console.WriteLine(" ");
-            }
-
-            xlWorkBook.Close(true, null, null);
-            xlApp.Quit();
-            Marshal.ReleaseComObject(xlWorkBook);
-            Marshal.ReleaseComObject(xlApp);
-
-            if (debug)
-                MessageBox.Show(firstWorksheet + " last row =" + x.rowCount + "last col =" + x.rowCount);
-        }
-
-
-
-
-        static void ImportSheet(Excel.Workbook workBook, string workSheet)
-        {
-            Excel.Worksheet xlWorkSheet;
-            xlWorkSheet = (Excel.Worksheet)workBook.Worksheets.get_Item(workSheet);
-            Excel.Range range;
-            range = xlWorkSheet.UsedRange;
-
-            int lastUsedRow = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
-
-            int lastUsedColumn = xlWorkSheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByColumns, Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Column;
-            //            System.Console.WriteLine("last row=" + lastUsedRow + "last column=" + lastUsedColumn);
-
-            string str;
-            StringBuilder sqlColumnString2 = new StringBuilder();
-            object cellObject;
-            string[,] sheetData = new string[lastUsedRow - 1, lastUsedColumn];
-            string[] columnData = new string[lastUsedColumn];
-            if (debug)
-                System.Console.WriteLine("* Now inserting " + workSheet + " worksheet into tables");
-
-            for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
-            {
-                columnData[currentColumn - 1] = (string)(range.Cells[1, currentColumn] as Excel.Range).Value2;
-                if (debug)
-                    System.Console.WriteLine("columnData = " + columnData[currentColumn - 1]);
-            }
-
-            string sqlColumnString = string.Join(", ", columnData);
-            if (debug)
-                System.Console.WriteLine("columns = " + sqlColumnString);
-
-            for (int currentRow = 2; currentRow <= lastUsedRow; currentRow++)
-            {
-                for (int currentColumn = 1; currentColumn <= lastUsedColumn; currentColumn++)
-                {
-                    cellObject = (range.Cells[currentRow, currentColumn] as Excel.Range).Value2;
-                    str = Convert.ToString(cellObject);
-                    sheetData[currentRow - 2, currentColumn - 1] = "'" + str + "'";
-                    sqlColumnString2.Append(str + ", ");
-                }
-                if (debug)
-                {
-                    System.Console.WriteLine("sqlColumnString2 = " + sqlColumnString2);
-                    sqlColumnString2.Clear();
-                }
-
-            }
-            Marshal.ReleaseComObject(xlWorkSheet);
-
-            Db.SqlInsertArray(workSheet, sqlColumnString, sheetData);
-            if (debug)
-                System.Console.WriteLine("* Finished inserting " + workSheet + " worksheet into tables");
-        }
-
-
-
-
-
-
-
 
 
 
