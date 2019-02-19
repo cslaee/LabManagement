@@ -26,6 +26,7 @@ namespace LabManagement
         static public void GetExcelSchedule()
         {
             Regex coursePattern = new Regex(@"EE(\d{4})");
+            Regex coursePattern2 = new Regex(@"([A-Z]{1,4})(\d{4})-?(\d{0,2})");
             Regex course_Number = new Regex("EE");
             string fileName = @"C:\Users\moberme\Documents\ArletteTestSchedule.xlsx";
              ExcelData ws = new ExcelData(fileName, 1);
@@ -40,6 +41,8 @@ namespace LabManagement
             //}
 
             Boolean isCourse;
+            string rawCourse;
+            string courseLetters;
             string courseNumber;
             string section;
             string title;
@@ -52,13 +55,15 @@ namespace LabManagement
 
             for (int currentRow = 0; currentRow <= ws.rowCount - 1; currentRow++)
             {
-                isCourse = coursePattern.IsMatch(ws.excelArray[currentRow, 0]);
+                rawCourse = ws.excelArray[currentRow, 0];
+                isCourse = coursePattern2.IsMatch(rawCourse);
 
 
                 if (isCourse)
                 {
-                    courseNumber = Regex.Match(ws.excelArray[currentRow, 0], @"(\d{4})").Value;
-                    section = Regex.Match(ws.excelArray[currentRow, 0], @"-(\d{2})").Groups[1].Value;
+                    courseLetters = coursePattern2.Match(rawCourse).Groups[1].Value;
+                    courseNumber = coursePattern2.Match(rawCourse).Groups[2].Value;
+                    section = coursePattern2.Match(rawCourse).Groups[3].Value;
                     title = ws.excelArray[currentRow, 1].Trim();
                     credit = ws.excelArray[currentRow, 2].Trim();
                     faculty = ws.excelArray[currentRow, 3].Trim();
@@ -67,7 +72,8 @@ namespace LabManagement
                     endTime = ws.excelArray[currentRow, 4].Trim();
                     room = ws.excelArray[currentRow, 5].Trim();
 
-                    string outString = courseNumber + " " + section + " " + title + " " + credit + " " + faculty + " " + days + " " + startTime + " " + endTime + " " + room;
+                    //string outString = courseNumber + " " + section + " " + title + " " + credit + " " + faculty + " " + days + " " + startTime + " " + endTime + " " + room;
+                    string outString = "course letters = " + courseLetters+ " number = " + courseNumber + " section ='" + section + "'";
 
 
                    //                 var match = Regex.Match(ws.excelArray[currentRow, 0], pattern, RegexOptions.IgnoreCase);
