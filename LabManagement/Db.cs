@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -52,8 +54,8 @@ namespace LabManagement
         {
             if (Constants.wipeDB && File.Exists("./" + Constants.databaseName))
             {
-                    File.Delete("./" + Constants.databaseName);
-                    System.Console.WriteLine("Database file deleted");
+                File.Delete("./" + Constants.databaseName);
+                System.Console.WriteLine("Database file deleted");
             }
         }
 
@@ -93,25 +95,125 @@ namespace LabManagement
                 string[,] sheetData = new string[ws.rowCount - 1, ws.colCount];
                 for (int currentRow = 1; currentRow <= ws.rowCount - 1; currentRow++)
                 {
-                    for (int currentColumn = 0; currentColumn <= ws.colCount -1; currentColumn++)
+                    for (int currentColumn = 0; currentColumn <= ws.colCount - 1; currentColumn++)
                     {
                         sheetData[currentRow - 1, currentColumn] = "'" + ws.excelArray[currentRow, currentColumn] + "'";
                     }
                 }
-            Console.WriteLine("ws.sheetName = " + ws.sheetName + "ws.sqlColumnString = " + ws.sqlColumnString + "sheetData = " +sheetData);
-            Db.SqlInsertArray(ws.sheetName, ws.sqlColumnString, sheetData);
+                Console.WriteLine("ws.sheetName = " + ws.sheetName + "ws.sqlColumnString = " + ws.sqlColumnString + "sheetData = " + sheetData);
+                Db.SqlInsertArray(ws.sheetName, ws.sqlColumnString, sheetData);
             }
         }
 
-
- 
-        static public List<string> GetID(string table, string idName, string id)
+        static public long GetSingleInt(string table, string searchColumn, string matchString, string returnColumn)
         {
             var returnString = new List<string>();
-            var myObject = new object[100];
             SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
             SQLiteCommand command = connection.CreateCommand();
-            command.CommandText = "select * from " + table + " where " + idName + " = " + id;
+            string sqlStr = "select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
+//sqlStr = select ' semesterNameID from SemesterName where name ' = FALL COLLATE NOCASE
+            Console.WriteLine("sqlStr = " + sqlStr);
+            command.CommandText = sqlStr; 
+            connection.Open();
+            long value = -1;
+
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                reader.Read();
+                value = Convert.ToInt64(reader[returnColumn]);
+            }
+
+            connection.Close();
+            return value;
+        }
+
+
+        static public string GetSingleString(string table, string searchColumn, string matchString, string returnColumn)
+        {
+            var returnString = new List<string>();
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand command = connection.CreateCommand();
+            command.CommandText = "select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
+            //Console.WriteLine("select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchValue + " COLLATE NOCASE");
+            connection.Open();
+            string value = "";
+            try
+            {
+                value = (string)command.ExecuteScalar();
+            }
+            catch (SQLiteException)
+            {
+                System.Console.WriteLine("SQLiteException GetSingleValue ");
+            }
+            connection.Close();
+            return value;
+        }
+
+        static public List<object> GetTuple(object obj, string searchString)
+        {
+            string tableName = Regex.Match(obj.ToString(), @"(\w+)\.(\w+)").Groups[2].Value;
+            var returnString = new List<object>();
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand command = connection.CreateCommand();
+            command.CommandText = "select * from " + tableName + " where " + searchString + " COLLATE NOCASE";
+            connection.Open();
+            string type;
+
+//            obj.GetType().GetProperty("year").SetValue(obj, 9999, null);// pretty cool
+            Console.WriteLine("Start 3");
+
+            Console.WriteLine("Start 3 ++ " + obj.ToString());
+            foreach (var prop in obj.GetType().GetProperties())
+            {
+                Console.WriteLine("{0}={1}", prop.Name, prop.GetValue(obj, null));
+            }
+            Console.WriteLine("End 3");
+
+
+
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        //returnString.Add(reader.GetValue(i).ToString());
+                        type = reader.GetDataTypeName(i);
+                        switch (type)
+                        {
+                            case "INTEGER":
+                                Console.WriteLine("found int");
+                                //Convert.ToInt64()
+                                returnString.Add(reader.GetValue(i).ToString());
+                                //bool notNumeric = !int.TryParse(lockNumber, out int n);
+                                break;
+                            case "DATE":
+                                Console.WriteLine("found date");
+                                //returnString.Add(reader.GetValue(i).ToString());
+                                break;
+                        }
+                        //returnString.Add(reader.GetValue(i));
+                        //returnString.Add(reader.GetValue(i).ToString());
+                        //Console.WriteLine("returnString = " + returnString[i]);
+                    }
+                }
+            }
+            connection.Close();
+            return returnString;
+        }
+
+
+
+
+
+
+
+        static public List<string> GetTuple(string table, string searchColumn, string matchString)
+        {
+            var returnString = new List<string>();
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand command = connection.CreateCommand();
+            command.CommandText = "select * from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
             connection.Open();
 
             using (SQLiteDataReader reader = command.ExecuteReader())
@@ -126,7 +228,7 @@ namespace LabManagement
             return returnString;
         }
 
-        static public int UpdateID(string table, string idName, string id, string colName, string colValue)
+        static public int UpdateIDOld(string table, string idName, string id, string colName, string colValue)
         {
             int result = -1;
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
@@ -152,6 +254,34 @@ namespace LabManagement
             }
             return result;
         }
+
+        static public int UpdateID(string table, string idName, int id, string colNameAndValue)
+        {
+            int result = -1;
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    string comboQuery = "UPDATE " + table + " SET " + colNameAndValue +  " WHERE " + idName + " = " + id;
+                    System.Console.WriteLine(comboQuery);
+                    cmd.CommandText = comboQuery;
+
+                    try
+                    {
+                        result = cmd.ExecuteNonQuery();
+                        System.Console.WriteLine("Updated ID " + id);
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException Deleting ID " + id);
+                    }
+                }
+                conn.Close();
+            }
+            return result;
+        }
+
 
 
         static public int DeleteID(string table, string idName, string id)

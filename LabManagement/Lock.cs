@@ -21,7 +21,7 @@
                 cw1 = -1;
                 return;
             }
-            var returnedSQL = Db.GetID("Lock", "lockID", n.ToString());
+            var returnedSQL = Db.GetTuple("Lock", "lockID", n.ToString());
             if (returnedSQL.Count == 0)
             {
                 cw1 = -1;

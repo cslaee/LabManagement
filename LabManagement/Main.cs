@@ -70,7 +70,7 @@ namespace LabManagement
                 userDataGrid[0, e.RowIndex].Value = sqlId;
                 return;
             }
-            Db.UpdateID("User", "userID", sqlId.ToString(), colName, newCellValue);
+            Db.UpdateID("User", "userID", sqlId, colName + " = '" + newCellValue + "'");
         }
 
         private void dataGridView1_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)

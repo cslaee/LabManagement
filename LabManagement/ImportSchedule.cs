@@ -14,9 +14,9 @@ namespace LabManagement
     {
 
         static readonly bool debug = Constants.importScheduleDebug;
-        //todo get Semester name & year
-        //toto get semester dates
-        //todo get revision date
+        //*todo get Semester name & year
+        //*toto get semester dates
+        //*todo get revision date
 
         //todo Insert Semester season, year, scheduleDate, schedulePostDate
 
@@ -29,7 +29,6 @@ namespace LabManagement
 
         static public void GetExcelSchedule()
         {
-            Regex semesterPattern = new Regex(@"^(\d{1,2})\/(\d{1,2})\/(\d{4}).*?(FALL|WINTER|SPRING|SUMMER)\s(\d{4})");
             Regex coursePattern = new Regex(@"([A-Z]{1,4})(\d{4})-?(\d{0,2})");
             Regex facultyPattern = new Regex(@"(\w+)\/?(\w+)?");
             Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{3,4})([AP]?M?)-(\d{3,4})([AP]?M?)");
@@ -38,7 +37,6 @@ namespace LabManagement
             ExcelData ws = new ExcelData(fileName, 1);
 
             Boolean isCourse;
-            string rawSemester, revisionMonth, revisionDay, revisionYear, semesterSeason, semesterYear;
             string rawCourse, subject, catalog, section;
             string title;
             string credit;
@@ -46,19 +44,8 @@ namespace LabManagement
             string rawTime, day1, day2, day3, day4, startTime, startTimeAPM, endTime, endTimeAPM;
             string rawRoom, building, roomPrefix, roomPostfix, room;
             string outString;
-            rawSemester = ws.excelArray[2, 0].Trim();
-            revisionMonth = semesterPattern.Match(rawSemester).Groups[1].Value;
-            revisionDay = semesterPattern.Match(rawSemester).Groups[2].Value;
-            revisionYear = semesterPattern.Match(rawSemester).Groups[3].Value;
-            semesterSeason = semesterPattern.Match(rawSemester).Groups[4].Value;
-            semesterYear = semesterPattern.Match(rawSemester).Groups[5].Value;
-
-            outString = "revisionMonth = " + revisionMonth + " revisionDay = " + revisionDay + " revisionYear ='" + revisionYear + " semesterSeason = " + semesterSeason + " semesterYear ='" + semesterYear; 
-            //outString = "rawRoom = " + rawSemester;
-            Console.WriteLine(outString);
-
-
-
+            Semester semester = new Semester(ws);
+            Console.WriteLine("name = " + semester.name);
             for (int currentRow = 5; currentRow <= ws.rowCount - 1; currentRow++)
             {
                 rawCourse = ws.excelArray[currentRow, 0];

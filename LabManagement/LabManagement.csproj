@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Course.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="EmailCombination.cs">
       <SubType>Form</SubType>
@@ -112,6 +113,8 @@
     <Compile Include="Lock.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Schedule.cs" />
+    <Compile Include="Semester.cs" />
     <Compile Include="User.cs" />
     <EmbeddedResource Include="EmailCombination.resx">
       <DependentUpon>EmailCombination.cs</DependentUpon>
