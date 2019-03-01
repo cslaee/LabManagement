@@ -33,19 +33,17 @@ namespace LabManagement
             Regex facultyPattern = new Regex(@"(\w+)\/?(\w+)?");
             Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{3,4})([AP]?M?)-(\d{3,4})([AP]?M?)");
             Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
-            string fileName = @"C:\Users\moberme\Documents\ArletteTestSchedule.xlsx";
+            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
             ExcelData ws = new ExcelData(fileName, 1);
 
             Boolean isCourse;
-            string rawCourse, subject, catalog, section;
-            string title;
-            string credit;
+            string rawCourse, title, credit;
             string rawFaculty, faculty1, faculty2;
             string rawTime, day1, day2, day3, day4, startTime, startTimeAPM, endTime, endTimeAPM;
             string rawRoom, building, roomPrefix, roomPostfix, room;
             string outString;
             Semester semester = new Semester(ws);
-            Console.WriteLine("name = " + semester.name);
+//            Console.WriteLine("name = " + semester.Name);
             for (int currentRow = 5; currentRow <= ws.rowCount - 1; currentRow++)
             {
                 rawCourse = ws.excelArray[currentRow, 0];
@@ -53,11 +51,9 @@ namespace LabManagement
 
                 if (isCourse)
                 {
-                    subject = coursePattern.Match(rawCourse).Groups[1].Value;
-                    catalog = coursePattern.Match(rawCourse).Groups[2].Value;
-                    section = coursePattern.Match(rawCourse).Groups[3].Value;
                     title = ws.excelArray[currentRow, 1].Trim();
                     credit = ws.excelArray[currentRow, 2].Trim();
+                    Course c = new Course(rawCourse, title, credit);
                     rawFaculty = ws.excelArray[currentRow, 3].Trim();
                     faculty1 = facultyPattern.Match(rawFaculty).Groups[1].Value;
                     faculty2 = facultyPattern.Match(rawFaculty).Groups[2].Value;
@@ -80,14 +76,14 @@ namespace LabManagement
                     //string outString = "course letters = " + courseLetters+ " number = " + courseNumber + " section ='" + section + "'";
                     //string outString = "faculty 1 = " + faculty1 + " faculty 2 = " + "'" + faculty2 + "'";
                     //string outString = "rawCourse = " + rawCourse + " day 1 = " + day1 + " day 2 = " + day2+ " day 3 = " + day3+ " day 4 = " + day4 + " startTime = " + startTime + " startTimeAPM = " + startTimeAPM + " endTime = " + endTime + " endTimeAPM = " + endTimeAPM;
-                    outString = "rawRoom = " + rawRoom + "building = " + building + " roomPrefix = " + roomPrefix + " room = " + room + " roomPostfix = " + roomPostfix;
-
+                    //outString = "rawRoom = " + rawRoom + "building = " + building + " roomPrefix = " + roomPrefix + " room = " + room + " roomPostfix = " + roomPostfix;
+                    outString = "subject =" + c.Subject + " catalog =" + c.Catalog + " section =" + c.Section + " title=" + c.Title + " credit =" + c.Credit; 
 
                     //                 var match = Regex.Match(ws.excelArray[currentRow, 0], pattern, RegexOptions.IgnoreCase);
 
                     //courseNumber = course_Number.Match(ws.excelArray[currentRow, 0], "").Value;
                     //Regex.Replace(ws.excelArray[currentRow, 0], pattern, String.Empty)
-                    Console.WriteLine(outString);
+                 //   Console.WriteLine(outString);
                 }
                 //                System.Console.WriteLine(" ");
             }

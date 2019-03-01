@@ -111,7 +111,6 @@ namespace LabManagement
             SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
             SQLiteCommand command = connection.CreateCommand();
             string sqlStr = "select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
-//sqlStr = select ' semesterNameID from SemesterName where name ' = FALL COLLATE NOCASE
             Console.WriteLine("sqlStr = " + sqlStr);
             command.CommandText = sqlStr; 
             connection.Open();
@@ -149,6 +148,7 @@ namespace LabManagement
             return value;
         }
 
+
         static public List<object> GetTuple(object obj, string searchString)
         {
             string tableName = Regex.Match(obj.ToString(), @"(\w+)\.(\w+)").Groups[2].Value;
@@ -159,17 +159,12 @@ namespace LabManagement
             connection.Open();
             string type;
 
-//            obj.GetType().GetProperty("year").SetValue(obj, 9999, null);// pretty cool
-            Console.WriteLine("Start 3");
-
-            Console.WriteLine("Start 3 ++ " + obj.ToString());
-            foreach (var prop in obj.GetType().GetProperties())
-            {
-                Console.WriteLine("{0}={1}", prop.Name, prop.GetValue(obj, null));
-            }
-            Console.WriteLine("End 3");
-
-
+            // ** useful 
+            //  obj.GetType().GetProperty("year").SetValue(obj, 9999, null);// pretty cool
+            //foreach (var prop in obj.GetType().GetProperties())
+            //{
+            //    Console.WriteLine("{0}={1}", prop.Name, prop.GetValue(obj, null));
+            //}
 
             using (SQLiteDataReader reader = command.ExecuteReader())
             {
@@ -177,19 +172,21 @@ namespace LabManagement
                 {
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
-                        //returnString.Add(reader.GetValue(i).ToString());
-                        type = reader.GetDataTypeName(i);
+                        type = Regex.Match(reader.GetDataTypeName(i), @"(\w+)").Groups[1].Value;
                         switch (type)
                         {
                             case "INTEGER":
-                                Console.WriteLine("found int");
-                                //Convert.ToInt64()
+                                //Console.WriteLine("found int");
                                 returnString.Add(reader.GetValue(i).ToString());
                                 //bool notNumeric = !int.TryParse(lockNumber, out int n);
                                 break;
                             case "DATE":
-                                Console.WriteLine("found date");
+                                //Console.WriteLine("found date");
                                 //returnString.Add(reader.GetValue(i).ToString());
+                                break;
+                            case "VARCHAR":
+                                returnString.Add(reader.GetValue(i).ToString());
+                                //Console.WriteLine("type = " + type);
                                 break;
                         }
                         //returnString.Add(reader.GetValue(i));
@@ -201,11 +198,6 @@ namespace LabManagement
             connection.Close();
             return returnString;
         }
-
-
-
-
-
 
 
         static public List<string> GetTuple(string table, string searchColumn, string matchString)
@@ -228,32 +220,6 @@ namespace LabManagement
             return returnString;
         }
 
-        static public int UpdateIDOld(string table, string idName, string id, string colName, string colValue)
-        {
-            int result = -1;
-            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
-            {
-                conn.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(conn))
-                {
-                    string comboQuery = "UPDATE " + table + " SET " + colName + " = '" + colValue + "' WHERE " + idName + " = " + id;
-                    System.Console.WriteLine(comboQuery);
-                    cmd.CommandText = comboQuery;
-
-                    try
-                    {
-                        result = cmd.ExecuteNonQuery();
-                        System.Console.WriteLine("Updated ID " + id);
-                    }
-                    catch (SQLiteException)
-                    {
-                        System.Console.WriteLine("SQLiteException Deleting ID " + id);
-                    }
-                }
-                conn.Close();
-            }
-            return result;
-        }
 
         static public int UpdateID(string table, string idName, int id, string colNameAndValue)
         {
@@ -270,7 +236,6 @@ namespace LabManagement
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        System.Console.WriteLine("Updated ID " + id);
                     }
                     catch (SQLiteException)
                     {
@@ -281,7 +246,6 @@ namespace LabManagement
             }
             return result;
         }
-
 
 
         static public int DeleteID(string table, string idName, string id)
@@ -321,13 +285,12 @@ namespace LabManagement
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
                     string comboQuery = "INSERT INTO " + name + " (" + column + ") VALUES(" + values + ")";
-                    System.Console.WriteLine(comboQuery);
                     cmd.CommandText = comboQuery;
 
                     try
                     {
                         cmd.ExecuteNonQuery();
-                        System.Console.WriteLine("Created Table");
+                        System.Console.WriteLine("SqlInsert ()" + comboQuery);
 
                         cmd.CommandText = "SELECT LAST_INSERT_ROWID()";
                         //System.Console.WriteLine("Return ID = " + reader.GetValue(i).ToString());
@@ -336,8 +299,6 @@ namespace LabManagement
                         {
                             reader.Read();
                             result = System.Int32.Parse(reader.GetValue(0).ToString());
-
-                            //return reader["col_1"];
                         }
                     }
                     catch (SQLiteException)
