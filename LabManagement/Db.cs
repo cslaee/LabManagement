@@ -318,11 +318,11 @@ namespace LabManagement
             int numRow = values.GetLength(0);
             int numCol = values.GetLength(1);
             StringBuilder val = new StringBuilder();
-            string queryLeft = "INSERT INTO " + name + " (" + column + ") VALUES(";
-            int queryLeftLen = queryLeft.Length;
-            val.Append(queryLeft);
+            string SqlInsertArrayQuery = "INSERT INTO " + name + " (" + column + ") VALUES(";
+            int queryLen = SqlInsertArrayQuery.Length;
+            val.Append(SqlInsertArrayQuery);
             if (debug)
-                System.Console.WriteLine("queryLeft = " + queryLeft);
+                System.Console.WriteLine("* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
 
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
@@ -343,7 +343,7 @@ namespace LabManagement
                             if (debug)
                                 System.Console.WriteLine("query = " + val.ToString());
                             result = cmd.ExecuteNonQuery();
-                            val.Remove(queryLeftLen, val.Length - queryLeftLen);
+                            val.Remove(queryLen, val.Length - queryLen);
                         }
                         System.Console.WriteLine("Finished Inserting Array into table");
                     }

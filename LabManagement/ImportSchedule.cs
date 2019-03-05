@@ -4,9 +4,8 @@ using System.Data.SQLite;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
-using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
+
 
 namespace LabManagement
 {
@@ -29,11 +28,14 @@ namespace LabManagement
 
         static public void GetExcelSchedule()
         {
-            Regex coursePattern = new Regex(@"([A-Z]{1,4})(\d{4})-?(\d{0,2})");
+            Regex coursePattern = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
+            //Regex coursePattern = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
             Regex facultyPattern = new Regex(@"(\w+)\/?(\w+)?");
             Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{3,4})([AP]?M?)-(\d{3,4})([AP]?M?)");
             Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
-            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
+            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall2019.xlsx";
+            //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\sum2019.xlsx";
+            //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
             ExcelData ws = new ExcelData(fileName, 1);
 
             Boolean isCourse;
@@ -42,13 +44,14 @@ namespace LabManagement
             string rawTime, day1, day2, day3, day4, startTime, startTimeAPM, endTime, endTimeAPM;
             string rawRoom, building, roomPrefix, roomPostfix, room;
             string outString;
-            Semester semester = new Semester(ws);
-//            Console.WriteLine("name = " + semester.Name);
-            for (int currentRow = 5; currentRow <= ws.rowCount - 1; currentRow++)
+            //            Semester semester = new Semester(ws);
+            //            Console.WriteLine("name = " + semester.Name);
+            for (int currentRow = 4; currentRow <= ws.rowCount - 1; currentRow++)
             {
                 rawCourse = ws.excelArray[currentRow, 0];
                 isCourse = coursePattern.IsMatch(rawCourse);
 
+                System.Console.WriteLine(" 0 = " +  ws.excelArray[currentRow, 0] + " 1 = " +  ws.excelArray[currentRow, 1] + " 2 = " +  ws.excelArray[currentRow, 2] + " 3 = " +  ws.excelArray[currentRow, 3]);
                 if (isCourse)
                 {
                     title = ws.excelArray[currentRow, 1].Trim();
@@ -77,7 +80,7 @@ namespace LabManagement
                     //string outString = "faculty 1 = " + faculty1 + " faculty 2 = " + "'" + faculty2 + "'";
                     //string outString = "rawCourse = " + rawCourse + " day 1 = " + day1 + " day 2 = " + day2+ " day 3 = " + day3+ " day 4 = " + day4 + " startTime = " + startTime + " startTimeAPM = " + startTimeAPM + " endTime = " + endTime + " endTimeAPM = " + endTimeAPM;
                     //outString = "rawRoom = " + rawRoom + "building = " + building + " roomPrefix = " + roomPrefix + " room = " + room + " roomPostfix = " + roomPostfix;
-                    outString = "subject =" + c.Subject + " catalog =" + c.Catalog + " section =" + c.Section + " title=" + c.Title + " credit =" + c.Credit; 
+                    outString = "subject =" + c.Subject + " catalog =" + c.Catalog + " section =" + c.Section + " title=" + c.Title + " credit =" + c.Credit;
 
                     //                 var match = Regex.Match(ws.excelArray[currentRow, 0], pattern, RegexOptions.IgnoreCase);
 
@@ -85,9 +88,12 @@ namespace LabManagement
                     //Regex.Replace(ws.excelArray[currentRow, 0], pattern, String.Empty)
                  //   Console.WriteLine(outString);
                 }
-                //                System.Console.WriteLine(" ");
+                //System.Console.WriteLine("in loop ");
             }
 
+          //Marshal.ReleaseComObject(ws);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             //            System.Environment.Exit(1);
         }
 
