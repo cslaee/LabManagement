@@ -105,6 +105,9 @@ namespace LabManagement
             }
         }
 
+
+
+
         static public long GetSingleInt(string table, string searchColumn, string matchString, string returnColumn)
         {
             var returnString = new List<string>();
@@ -112,7 +115,7 @@ namespace LabManagement
             SQLiteCommand command = connection.CreateCommand();
             string sqlStr = "select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
             Console.WriteLine("sqlStr = " + sqlStr);
-            command.CommandText = sqlStr; 
+            command.CommandText = sqlStr;
             connection.Open();
             long value = -1;
 
@@ -124,6 +127,49 @@ namespace LabManagement
 
             connection.Close();
             return value;
+        }
+
+
+        /*
+         * Parameterized SQL Statement  
+         * Change other methods to look like this
+         */
+        static public int SqlInsertDeleteMe(string name, string[] column, object[] values)
+        {
+            int result = -1;
+            int numberOfColumns = column.Length;
+            var val = new System.Text.StringBuilder();
+            var commandText = new System.Text.StringBuilder();
+
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    commandText.Append("INSERT INTO " + name + " (");
+                    val.Append(") VALUES (");
+                    for (int i = 0; i < numberOfColumns; i++)
+                    {
+                        commandText.Append(column[i] +  ", ");
+                        val.Append("?, ");
+                        cmd.Parameters.Add(new SQLiteParameter(column[i], values[i]));
+                    }
+                    commandText.Remove(commandText.Length - 2, 2);
+                    val.Remove(val.Length - 2, 2);
+                    commandText.Append(val + ")");
+                    cmd.CommandText = commandText.ToString(); 
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException with SqlInsert()" + commandText);
+                    }
+                }
+                conn.Close();
+            }
+            return result;
         }
 
 
@@ -229,7 +275,7 @@ namespace LabManagement
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
-                    string comboQuery = "UPDATE " + table + " SET " + colNameAndValue +  " WHERE " + idName + " = " + id;
+                    string comboQuery = "UPDATE " + table + " SET " + colNameAndValue + " WHERE " + idName + " = " + id;
                     System.Console.WriteLine(comboQuery);
                     cmd.CommandText = comboQuery;
 
@@ -276,7 +322,51 @@ namespace LabManagement
         }
 
 
-        static public int SqlInsert(string name, string column, string values)
+
+        /*
+         * Parameterized SQL Statement  
+         * Change other methods to look like this
+         */
+        static public int SqlInsert(string name, string[] column, object[] values)
+        {
+            int result = -1;
+            int numberOfColumns = column.Length;
+            var val = new System.Text.StringBuilder();
+            var commandText = new System.Text.StringBuilder();
+
+            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    commandText.Append("INSERT INTO " + name + " (");
+                    val.Append(") VALUES (");
+                    for (int i = 0; i < numberOfColumns; i++)
+                    {
+                        commandText.Append(column[i] +  ", ");
+                        val.Append("?, ");
+                        cmd.Parameters.Add(new SQLiteParameter(column[i], values[i]));
+                    }
+                    commandText.Remove(commandText.Length - 2, 2);
+                    val.Remove(val.Length - 2, 2);
+                    commandText.Append(val + ")");
+                    cmd.CommandText = commandText.ToString(); 
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (SQLiteException)
+                    {
+                        System.Console.WriteLine("SQLiteException with SqlInsert()" + commandText);
+                    }
+                }
+                conn.Close();
+            }
+            return result;
+        }
+
+
+        static public int SqlInsertOld(string name, string column, string values)
         {
             int result = -1;
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))

@@ -66,7 +66,9 @@ namespace LabManagement
             string colName = User.getColumnName(e.ColumnIndex);
             if (sqlId == 0)
             {
-                sqlId = Db.SqlInsert("User", "'" + colName + "'", "'" + newCellValue + "'");
+                string[] colname = new[] { colName };
+                var  coldata = new object[] { newCellValue };
+                sqlId = Db.SqlInsert("User", colname, coldata); 
                 userDataGrid[0, e.RowIndex].Value = sqlId;
                 return;
             }

@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LabManagement
+﻿namespace LabManagement
 {
     internal class User
     {
-        public int UserID;
-        public string First;
-        public string Last;
-        public string Sid;
-        public string Email;
-        public string Phone;
-        public string Cell;
-        public int UserType;
+        public int UserID { get; set; }
+        public string First { get; set; }
+        public string Last { get; set; }
+        public string Sid { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Cell { get; set; }
+        public int UserType { get; set; }
+
 
         public User()
         {
@@ -30,12 +25,12 @@ namespace LabManagement
             if (noUserInDb)
             {
                 UserType = 4;
-                string insertColumns = "last, userTypeFK";
-                string insertData = "'" + Last + "', '" + UserType + "'";
-                UserID = Db.SqlInsert("User", insertColumns, insertData);
-                Console.Write("Inserting User" + insertColumns + " " + insertData + "Returned UserID =" + UserID);
-            }
+                string[] colname = new[] { "last", "userTypeFK" };
+                var  coldata = new object[] { Last,  UserType  };
+                Db.SqlInsert("User", colname, coldata); 
+           }
         }
+
 
         public static string getColumnName(int colNumber)
         {
@@ -49,12 +44,7 @@ namespace LabManagement
                     return "email";
                 case 4:
                     return "user_type";
-
-
-
-
             }
-
             return " ";
         }
     }

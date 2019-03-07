@@ -42,10 +42,10 @@ namespace LabManagement
                     bool isSpecialTopic = Catalog == 4540;
                     if (isSpecialTopic)
                     {
-                        string insertColumns = "subject, catalog, title, credit";
-                        string insertData = "'" + Subject + "', '" + Catalog + "', '" + Title + "', '" + Credit + "'";
-                        CourseID = Db.SqlInsert("Course", insertColumns, insertData);
-                        Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
+                        string[] colname = new[] { "subject", "catalog", "title", "credit" };
+                        var coldata = new object[] { Subject, Catalog, Title, Credit };
+                        Db.SqlInsert("Course", colname, coldata);
+                        //                 Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
                     }
                     else
                     {
@@ -57,10 +57,10 @@ namespace LabManagement
             }
             else
             {
-                string insertColumns = "subject, catalog, title, credit";
-                string insertData = "'" + Subject + "', '" + Catalog + "', '" + Title + "', '" + Credit + "'";
-                CourseID = Db.SqlInsert("Course", insertColumns, insertData);
-                Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
+                string[] colname = new[] { "subject", "catalog", "title", "credit" };
+                var coldata = new object[] { Subject, Catalog, Title, Credit };
+                Db.SqlInsert("Course", colname, coldata);
+                //Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
             }
         }
 

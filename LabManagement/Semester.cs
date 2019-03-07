@@ -35,6 +35,7 @@ namespace LabManagement
             SchedulePostDateStr = DateTime.Now.ToString("yyyy-M-d HH:mm:ss");
             ScheduleDateStr = y + "-" + m + "-" + d;  
 
+            //NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
             NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
             var semesterTuple = Db.GetTuple(this, "year = '" + Year + "' AND nameFK = '" + NameFK + "'");
 
@@ -50,7 +51,7 @@ namespace LabManagement
             {
                 string insertColumns = "version, nameFK, year, scheduleDate, schedulePostDate";
                 string insertData = 1 + ", " + NameFK + "," + Year + ",'" + ScheduleDateStr  + "','" + SchedulePostDateStr + "'";
-                SemesterID = Db.SqlInsert("Semester", insertColumns, insertData); 
+                SemesterID = Db.SqlInsertOld("Semester", insertColumns, insertData); 
                 Console.Write("Inserting Semester" + insertColumns + " " + insertData + "ReturnedId =" + SemesterID);
             }
         }
