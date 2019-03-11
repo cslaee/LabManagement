@@ -15,7 +15,7 @@ namespace LabManagement
         public int PrerequisiteFK { get; set; }
         public int ClassCol { get; set; }
         public int Section { get; set; }
-
+        static readonly bool debug = Constants.courseDebug;
 
         public Course(string rawCourse, string title, string creditStr)
         {
@@ -45,12 +45,12 @@ namespace LabManagement
                         string[] colname = new[] { "subject", "catalog", "title", "credit" };
                         var coldata = new object[] { Subject, Catalog, Title, Credit };
                         Db.SqlInsert("Course", colname, coldata);
-                        //                 Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
+                        Common.DebugMessageCR(debug, "Inserting Course" + colname + " " + coldata + "Returned CourseId =" + CourseID);
                     }
                     else
                     {
                         string updateStr = "title = '" + Title + "'";
-                        Console.WriteLine("Updated this coarse name from " + dbTitle + " to " + Title);
+                        Common.DebugMessageCR(debug, "Updated this coarse name from " + dbTitle + " to " + Title);
                         Db.UpdateID("Course", "courseID", CourseID, updateStr);
                     }
                 }

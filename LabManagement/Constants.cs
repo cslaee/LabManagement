@@ -4,9 +4,11 @@ namespace LabManagement
 {
     class Constants
     {
-        public const Boolean wipeDB = false;
-        public const Boolean dbDebug = true;
-        public const Boolean importScheduleDebug = false;
+        public const bool wipeDB = false;
+        public const bool dbDebug = true;
+        public const bool importScheduleDebug = false;
+        public const bool semesterDebug = true;
+        public const bool courseDebug = true;
 
         public const string username = "John Doe";
         public const string email = "test@test.test";

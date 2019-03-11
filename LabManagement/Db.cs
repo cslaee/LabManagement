@@ -41,9 +41,9 @@ namespace LabManagement
             //--   Tools>Catalog>ExportSqliteTableCoumns"
             if (!File.Exists("./" + Constants.databaseName))
             {
-                System.Console.WriteLine("No Database exsist, Creating one");
+                Common.DebugMessageCR(debug, "No Database exsist, Creating one");
                 SQLiteConnection.CreateFile(Constants.databaseName);
-                System.Console.WriteLine("Building Tables");
+                Common.DebugMessageCR(debug, "Building Tables");
                 BuildDbTables(GetDbSchema());
                 //todo Add PRAGMA foreign_keys=ON
                 ImportExcelData();
@@ -55,7 +55,7 @@ namespace LabManagement
             if (Constants.wipeDB && File.Exists("./" + Constants.databaseName))
             {
                 File.Delete("./" + Constants.databaseName);
-                System.Console.WriteLine("Database file deleted");
+                Common.DebugMessageCR(debug, "Database file deleted");
             }
         }
 
@@ -73,7 +73,7 @@ namespace LabManagement
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        System.Console.WriteLine("Created Table");
+                        Common.DebugMessageCR(debug, "Created Table");
                     }
                     catch (SQLiteException)
                     {
@@ -129,48 +129,6 @@ namespace LabManagement
             return value;
         }
 
-
-        /*
-         * Parameterized SQL Statement  
-         * Change other methods to look like this
-         */
-        static public int SqlInsertDeleteMe(string name, string[] column, object[] values)
-        {
-            int result = -1;
-            int numberOfColumns = column.Length;
-            var val = new System.Text.StringBuilder();
-            var commandText = new System.Text.StringBuilder();
-
-            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
-            {
-                conn.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(conn))
-                {
-                    commandText.Append("INSERT INTO " + name + " (");
-                    val.Append(") VALUES (");
-                    for (int i = 0; i < numberOfColumns; i++)
-                    {
-                        commandText.Append(column[i] +  ", ");
-                        val.Append("?, ");
-                        cmd.Parameters.Add(new SQLiteParameter(column[i], values[i]));
-                    }
-                    commandText.Remove(commandText.Length - 2, 2);
-                    val.Remove(val.Length - 2, 2);
-                    commandText.Append(val + ")");
-                    cmd.CommandText = commandText.ToString(); 
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (SQLiteException)
-                    {
-                        System.Console.WriteLine("SQLiteException with SqlInsert()" + commandText);
-                    }
-                }
-                conn.Close();
-            }
-            return result;
-        }
 
 
         static public string GetSingleString(string table, string searchColumn, string matchString, string returnColumn)
@@ -276,7 +234,7 @@ namespace LabManagement
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
                     string comboQuery = "UPDATE " + table + " SET " + colNameAndValue + " WHERE " + idName + " = " + id;
-                    System.Console.WriteLine(comboQuery);
+                    Common.DebugMessageCR(debug, comboQuery);
                     cmd.CommandText = comboQuery;
 
                     try
@@ -303,13 +261,13 @@ namespace LabManagement
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
                     string comboQuery = "DELETE FROM " + table + " WHERE " + idName + " = " + id;
-                    System.Console.WriteLine(comboQuery);
+                    Common.DebugMessageCR(debug, comboQuery);
                     cmd.CommandText = comboQuery;
 
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        System.Console.WriteLine("Deleted ID " + id);
+                        Common.DebugMessageCR(debug, "Deleted ID " + id);
                     }
                     catch (SQLiteException)
                     {
@@ -327,7 +285,7 @@ namespace LabManagement
          * Parameterized SQL Statement  
          * Change other methods to look like this
          */
-        static public int SqlInsert(string name, string[] column, object[] values)
+        static public int SqlInsert(string tableName, string[] column, object[] values)
         {
             int result = -1;
             int numberOfColumns = column.Length;
@@ -339,52 +297,23 @@ namespace LabManagement
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
-                    commandText.Append("INSERT INTO " + name + " (");
+                    commandText.Append("INSERT INTO " + tableName + " (");
                     val.Append(") VALUES (");
                     for (int i = 0; i < numberOfColumns; i++)
                     {
-                        commandText.Append(column[i] +  ", ");
+                        commandText.Append(column[i] + ", ");
                         val.Append("?, ");
                         cmd.Parameters.Add(new SQLiteParameter(column[i], values[i]));
                     }
                     commandText.Remove(commandText.Length - 2, 2);
                     val.Remove(val.Length - 2, 2);
                     commandText.Append(val + ")");
-                    cmd.CommandText = commandText.ToString(); 
+                    cmd.CommandText = commandText.ToString();
+                    Common.DebugMessageCR(debug, "SqlInsert()" + commandText);
                     try
                     {
                         cmd.ExecuteNonQuery();
-                    }
-                    catch (SQLiteException)
-                    {
-                        System.Console.WriteLine("SQLiteException with SqlInsert()" + commandText);
-                    }
-                }
-                conn.Close();
-            }
-            return result;
-        }
-
-
-        static public int SqlInsertOld(string name, string column, string values)
-        {
-            int result = -1;
-            using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
-            {
-                conn.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(conn))
-                {
-                    string comboQuery = "INSERT INTO " + name + " (" + column + ") VALUES(" + values + ")";
-                    cmd.CommandText = comboQuery;
-
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                        System.Console.WriteLine("SqlInsert ()" + comboQuery);
-
                         cmd.CommandText = "SELECT LAST_INSERT_ROWID()";
-                        //System.Console.WriteLine("Return ID = " + reader.GetValue(i).ToString());
-                        //result = cmd.ExecuteNonQuery();
                         using (SQLiteDataReader reader = cmd.ExecuteReader())
                         {
                             reader.Read();
@@ -393,7 +322,7 @@ namespace LabManagement
                     }
                     catch (SQLiteException)
                     {
-                        System.Console.WriteLine("SQLiteException Creating table");
+                        Console.WriteLine("SQLiteException with SqlInsert()" + commandText);
                     }
                 }
                 conn.Close();
@@ -412,7 +341,7 @@ namespace LabManagement
             int queryLen = SqlInsertArrayQuery.Length;
             val.Append(SqlInsertArrayQuery);
             if (debug)
-                System.Console.WriteLine("* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
+                Common.DebugMessageCR(debug, "* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
 
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
@@ -431,11 +360,11 @@ namespace LabManagement
                             val.Append(")");
                             cmd.CommandText = val.ToString();
                             if (debug)
-                                System.Console.WriteLine("query = " + val.ToString());
+                                Common.DebugMessageCR(debug, "query = " + val.ToString());
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLen, val.Length - queryLen);
                         }
-                        System.Console.WriteLine("Finished Inserting Array into table");
+                        Common.DebugMessageCR(debug, "Finished Inserting Array into table");
                     }
                     catch (SQLiteException)
                     {
@@ -471,7 +400,7 @@ namespace LabManagement
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);
                         }
-                        System.Console.WriteLine("Finished Creating Table");
+                        Common.DebugMessageCR(debug, "Finished Creating Table");
                     }
                     catch (SQLiteException)
                     {

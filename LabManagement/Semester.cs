@@ -14,6 +14,7 @@ namespace LabManagement
         public string Name { get; set; }
         public string ScheduleDateStr { get; set; }
         public string SchedulePostDateStr { get; set; }
+        static readonly bool debug = Constants.semesterDebug;
 
         public Semester() { }
 
@@ -24,7 +25,7 @@ namespace LabManagement
             string revisionMonth = semesterPattern.Match(rawSemester).Groups[1].Value;
             string revisionDay = semesterPattern.Match(rawSemester).Groups[2].Value;
             string revisionYear = semesterPattern.Match(rawSemester).Groups[3].Value;
-            Name = semesterPattern.Match(rawSemester).Groups[4].Value ;
+            Name = semesterPattern.Match(rawSemester).Groups[4].Value;
             string semesterYear = semesterPattern.Match(rawSemester).Groups[5].Value;
 
             int.TryParse(semesterYear, out int semesterYearTemp);
@@ -33,9 +34,8 @@ namespace LabManagement
             int.TryParse(revisionYear, out int y);
             Year = semesterYearTemp;
             SchedulePostDateStr = DateTime.Now.ToString("yyyy-M-d HH:mm:ss");
-            ScheduleDateStr = y + "-" + m + "-" + d;  
+            ScheduleDateStr = y + "-" + m + "-" + d;
 
-            //NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
             NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
             var semesterTuple = Db.GetTuple(this, "year = '" + Year + "' AND nameFK = '" + NameFK + "'");
 
@@ -45,14 +45,14 @@ namespace LabManagement
                 Version = Convert.ToInt32(semesterTuple[1].ToString()) + 1;
                 string updateStr = "version = '" + Version + "'" + ", scheduleDate = '" + ScheduleDateStr + "', schedulePostDate = '" + SchedulePostDateStr + "'";
                 Db.UpdateID("Semester", "semesterID", SemesterID, updateStr);
-                Console.Write("Updating SemesterID " + SemesterID + " " + updateStr); 
+                Common.DebugMessageCR(debug, "Updating SemesterID " + SemesterID + " " + updateStr);
             }
             else
             {
-                string insertColumns = "version, nameFK, year, scheduleDate, schedulePostDate";
-                string insertData = 1 + ", " + NameFK + "," + Year + ",'" + ScheduleDateStr  + "','" + SchedulePostDateStr + "'";
-                SemesterID = Db.SqlInsertOld("Semester", insertColumns, insertData); 
-                Console.Write("Inserting Semester" + insertColumns + " " + insertData + "ReturnedId =" + SemesterID);
+                string[] colname = new[] { "version", "nameFK", "year", "scheduleDate", "schedulePostDate" };
+                var coldata = new object[] { 1, NameFK, Year, ScheduleDateStr, SchedulePostDateStr };
+                SemesterID = Db.SqlInsert("Semester", colname, coldata);
+                Common.DebugMessageCR(debug, "Inserting Semester" + colname + " " + coldata + "ReturnedId =" + SemesterID);
             }
         }
 

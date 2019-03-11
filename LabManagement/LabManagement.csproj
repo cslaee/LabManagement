@@ -93,6 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Course.cs" />
     <Compile Include="Db.cs" />

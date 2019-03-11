@@ -33,7 +33,7 @@ namespace LabManagement
             Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{3,4})([AP]?M?)-(\d{3,4})([AP]?M?)");
             //Regex roomPatternOld = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
             //            Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
-            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\sum2019.xlsx";
+            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall2018.xlsx";
             //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\sum2019.xlsx";
             //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
             ExcelData ws = new ExcelData(fileName, 1);
@@ -43,13 +43,13 @@ namespace LabManagement
             string rawTime, day1, day2, day3, day4, startTime, startTimeAPM, endTime, endTimeAPM;
             string outString;
             Semester semester = new Semester(ws);
-            Console.WriteLine("name = " + semester.Name);
+            //Console.WriteLine("name = " + semester.Name);
             for (int currentRow = 4; currentRow <= ws.rowCount - 1; currentRow++)
             {
                 rawCourse = ws.excelArray[currentRow, 0];
                 bool isCourse = coursePattern.IsMatch(rawCourse);
 
-                //System.Console.WriteLine(" 0 = " + ws.excelArray[currentRow, 0] + " 1 = " + ws.excelArray[currentRow, 1] + " 2 = " + ws.excelArray[currentRow, 2] + " 3 = " + ws.excelArray[currentRow, 3]);
+                //Common.DebugMessageCR(debug, (" 0 = " + ws.excelArray[currentRow, 0] + " 1 = " + ws.excelArray[currentRow, 1] + " 2 = " + ws.excelArray[currentRow, 2] + " 3 = " + ws.excelArray[currentRow, 3]);
                 if (isCourse)
                 {
                     title = ws.excelArray[currentRow, 1].Trim();
@@ -104,7 +104,7 @@ namespace LabManagement
                     //Regex.Replace(ws.excelArray[currentRow, 0], pattern, String.Empty)
                     //Console.WriteLine(classTest + " " + users);
                 }
-                //System.Console.WriteLine("in loop ");
+                //Common.DebugMessageCR(debug, ("in loop ");
             }
 
             //Marshal.ReleaseComObject(ws);
