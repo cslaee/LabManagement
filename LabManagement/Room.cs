@@ -29,9 +29,9 @@ namespace LabManagement
 
             string[] colname = new[] { "building", "wing", "roomNumber", "subRoom" };
             var coldata = new object[] { Building, Wing, RoomNumber, SubRoom }; 
-            var roomTuple = Db.GetTuple("Room", colname, coldata);
+            var tuple = Db.GetTuple("Room", "*", colname, coldata);
 
-            bool noRoomInDb = roomTuple.Count == 0;
+            bool noRoomInDb = tuple.Count == 0;
             if (noRoomInDb)
             {
                 Db.SqlInsert("Room", colname, coldata); 

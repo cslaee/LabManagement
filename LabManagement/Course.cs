@@ -28,12 +28,12 @@ namespace LabManagement
             Title = title;
             int.TryParse(creditStr, out int credit);
             Credit = credit;
-                        string[] colname = new[] { "subject", "catalog", "title", "credit" };
-                        var coldata = new object[] { Subject, Catalog, Title, Credit };
-                        string[] colnameLookup = new[] { "subject", "catalog", "credit" };
-                        var coldataLookup = new object[] { Subject, Catalog, Credit };
+            string[] colname = new[] { "subject", "catalog", "title", "credit" };
+            var coldata = new object[] { Subject, Catalog, Title, Credit };
+            string[] colnameLookup = new[] { "subject", "catalog", "credit" };
+            var coldataLookup = new object[] { Subject, Catalog, Credit };
 
-            var tuple = Db.GetTuple("Course", colnameLookup, coldataLookup);
+            var tuple = Db.GetTuple("Course", "*", colnameLookup, coldataLookup);
             bool coarseIsInDb = tuple.Count > 0;
 
             if (coarseIsInDb)

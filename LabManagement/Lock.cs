@@ -27,7 +27,7 @@ namespace LabManagement
             //var returnedSQL = Db.GetTuple("Lock", "lockID", n.ToString());
             string[] colname = new[] { "lockID" };
             var coldata = new object[] { n };
-            var tuple = Db.GetTuple("Lock", colname, coldata);
+            var tuple = Db.GetTuple("Lock", "*", colname, coldata);
             bool noLockInDb = tuple.Count == 0;
 
 

@@ -108,63 +108,11 @@ namespace LabManagement
 
 
 
-        static public long GetSingleInt(string table, string searchColumn, string matchString, string returnColumn)
-        {
-            var returnString = new List<string>();
-            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
-            SQLiteCommand command = connection.CreateCommand();
-            string sqlStr = "select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
-            Console.WriteLine("sqlStr = " + sqlStr);
-            command.CommandText = sqlStr;
-            connection.Open();
-            long value = -1;
-
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                reader.Read();
-                value = Convert.ToInt64(reader[returnColumn]);
-            }
-
-            connection.Close();
-            return value;
-        }
-
-
-
-        static public string GetSingleString(string table, string searchColumn, string matchString, string returnColumn)
-        {
-            var returnString = new List<string>();
-            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
-            SQLiteCommand command = connection.CreateCommand();
-            command.CommandText = "select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
-            //Console.WriteLine("select " + returnColumn + " from " + table + " where " + searchColumn + " = " + matchValue + " COLLATE NOCASE");
-            connection.Open();
-            string value = "";
-            try
-            {
-                value = (string)command.ExecuteScalar();
-            }
-            catch (SQLiteException)
-            {
-                System.Console.WriteLine("SQLiteException GetSingleValue ");
-            }
-            connection.Close();
-            return value;
-        }
-
-
-
-
-
-
-
-
-
         /*
          * Parameterized SQL Statement  
          * Change other methods to look like this
          */
-        static public List<object> GetTuple(string tableName, string[] column, object[] values)
+        static public List<object> GetTuple(string tableName, string returnColumn, string[] column, object[] values)
         {
             var returnString = new List<object>();
             string type;
@@ -173,14 +121,14 @@ namespace LabManagement
             SQLiteCommand cmd = connection.CreateCommand();
             var commandText = new System.Text.StringBuilder();
 
-            commandText.Append("SELECT * FROM " + tableName + " WHERE ");
+            commandText.Append("SELECT " + returnColumn + " FROM " + tableName + " WHERE ");
             for (int i = 0; i < numberOfColumns; i++)
             {
                 commandText.Append(column[i] + " = @" + column[i] + " AND ");
                 cmd.Parameters.AddWithValue("@" + column[i], values[i]);
             }
             commandText.Remove(commandText.Length - 4, 4);
-            cmd.CommandText = commandText.ToString();
+            cmd.CommandText = commandText.ToString() + " COLLATE NOCASE";
             Common.DebugMessageCR(debug, "SqlInsertNewStuff()" + commandText);
 
             connection.Open();
@@ -216,6 +164,32 @@ namespace LabManagement
             }
             connection.Close();
             return returnString;
+        }
+
+        
+        static public long GetTupleInt(string tableName, string returnColumn, string column, string values)
+        {
+            string tupleString = GetTupleString(tableName, returnColumn, column, values);
+            bool hasValue = tupleString.Length > 0;
+            if (hasValue)
+            {
+                return Convert.ToInt64(tupleString);
+            }
+            return -1;
+        }
+
+
+        static public string GetTupleString(string tableName, string returnColumn, string column, string values)
+        {
+            string[] colname = new[] { column };
+            var coldata = new object[] { values };
+            var tuple = Db.GetTuple(tableName, returnColumn, colname, coldata);
+            bool hasValue = tuple.Count > 0;
+            if (hasValue)
+            {
+                return tuple[0].ToString();
+            }
+            return "";
         }
 
 
