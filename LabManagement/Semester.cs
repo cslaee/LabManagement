@@ -37,12 +37,15 @@ namespace LabManagement
             ScheduleDateStr = y + "-" + m + "-" + d;
 
             NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
-            var semesterTuple = Db.GetTuple(this, "year = '" + Year + "' AND nameFK = '" + NameFK + "'");
+            string[] colnameLookup = new[] { "year", "nameFK" };
+            var coldataLookup = new object[] { Year, NameFK }; 
+            var tuple = Db.GetTupleOldTwo("Semester", colnameLookup, coldataLookup);
+            bool hasSemesterInDb = tuple.Count > 0;
 
-            if (semesterTuple.Count > 0)
+            if (hasSemesterInDb)
             {
-                SemesterID = Convert.ToInt32(semesterTuple[0].ToString());
-                Version = Convert.ToInt32(semesterTuple[1].ToString()) + 1;
+                SemesterID = Convert.ToInt32(tuple[0].ToString());
+                Version = Convert.ToInt32(tuple[1].ToString()) + 1;
                 string updateStr = "version = '" + Version + "'" + ", scheduleDate = '" + ScheduleDateStr + "', schedulePostDate = '" + SchedulePostDateStr + "'";
                 Db.UpdateID("Semester", "semesterID", SemesterID, updateStr);
                 Common.DebugMessageCR(debug, "Updating SemesterID " + SemesterID + " " + updateStr);

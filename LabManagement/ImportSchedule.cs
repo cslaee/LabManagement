@@ -31,9 +31,10 @@ namespace LabManagement
             Regex coursePattern = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
             Regex facultyPattern = new Regex(@"(\w+)\/?(\w+)?");
             Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{3,4})([AP]?M?)-(\d{3,4})([AP]?M?)");
+            Regex buildingPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)");
             //Regex roomPatternOld = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
-            //            Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
-            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall2018.xlsx";
+            Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
+            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall2019.xlsx";
             //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\sum2019.xlsx";
             //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
             ExcelData ws = new ExcelData(fileName, 1);
@@ -49,7 +50,7 @@ namespace LabManagement
                 rawCourse = ws.excelArray[currentRow, 0];
                 bool isCourse = coursePattern.IsMatch(rawCourse);
 
-                //Common.DebugMessageCR(debug, (" 0 = " + ws.excelArray[currentRow, 0] + " 1 = " + ws.excelArray[currentRow, 1] + " 2 = " + ws.excelArray[currentRow, 2] + " 3 = " + ws.excelArray[currentRow, 3]);
+                //Common.DebugMessageCR(debug, " 0 = " + ws.excelArray[currentRow, 0] + " 1 = " + ws.excelArray[currentRow, 1] + " 2 = " + ws.excelArray[currentRow, 2] + " 3 = " + ws.excelArray[currentRow, 3]);
                 if (isCourse)
                 {
                     title = ws.excelArray[currentRow, 1].Trim();
@@ -87,16 +88,36 @@ namespace LabManagement
                     endTime = timePattern.Match(rawTime).Groups[7].Value;
                     endTimeAPM = timePattern.Match(rawTime).Groups[8].Value;
 
+//                    Room r = new Room(rawRoom);
+
+
                     string rawRoom = ws.excelArray[currentRow, 5].Trim();
-                    Room r = new Room(rawRoom);
+                    Room r1, r2;
+                    string building1 = roomPattern.Match(rawRoom).Groups[1].Value;
+                    string building2 = roomPattern.Match(rawRoom).Groups[6].Value;
+                    bool hasFirstBuilding = building1.Length != 0;
+                    bool hasSecondBuilding = building2.Length != 0;
+                    if (hasFirstBuilding)
+                    {
+                        r1 = new Room(roomPattern.Match(rawRoom).Groups[0].Value);
+                        Common.DebugMessageCR(debug, "b1 = " + r1.Building+r1.Wing+r1.RoomNumber+r1.SubRoom);
+                    }
+                    if (hasSecondBuilding)
+                    {
+                        r2 = new Room(roomPattern.Match(rawRoom).Groups[5].Value);
+                        Common.DebugMessageCR(debug, "b2 = " + r2.Building+r2.Wing+r2.RoomNumber+r2.SubRoom);
+                    }
+
+
+
 
                     //string outString = courseNumber + " " + section + " " + title + " " + credit + " " + faculty + " " + days + " " + startTime + " " + endTime + " " + room;
                     //string outString = "course letters = " + courseLetters+ " number = " + courseNumber + " section ='" + section + "'";
                     //string outString = "faculty 1 = " + faculty1 + " faculty 2 = " + "'" + faculty2 + "'";
                     //string outString = "rawCourse = " + rawCourse + " day 1 = " + day1 + " day 2 = " + day2+ " day 3 = " + day3+ " day 4 = " + day4 + " startTime = " + startTime + " startTimeAPM = " + startTimeAPM + " endTime = " + endTime + " endTimeAPM = " + endTimeAPM;
                     //string roomTest = "building = " + building + " wing = " + wing + " room = " + room + " roomPostfix = " + subRoom;
-                    string roomTest = r.Building + r.Wing + r.RoomNumber + r.SubRoom;
-                    string classTest = c.Subject + c.Catalog + c.Section + " " + c.Title;
+                   // string roomTest = r.Building + r.Wing + r.RoomNumber + r.SubRoom;
+                   // string classTest = c.Subject + c.Catalog + c.Section + " " + c.Title;
 
                     //                 var match = Regex.Match(ws.excelArray[currentRow, 0], pattern, RegexOptions.IgnoreCase);
 

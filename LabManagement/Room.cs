@@ -15,31 +15,29 @@ namespace LabManagement
         public int RoomNumber { get; set; }
         public string SubRoom { get; set; }
         public string Name { get; set; }
+        static readonly bool debug = Constants.roomDebug;
 
+        
         public Room(string rawRoom)
         {
-            Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
-            int.TryParse(roomPattern.Match(rawRoom).Groups[3].Value, out int roomNumber);
-            RoomNumber = roomNumber;
+            Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
             Building = roomPattern.Match(rawRoom).Groups[1].Value;
             Wing = roomPattern.Match(rawRoom).Groups[2].Value;
+            int.TryParse(roomPattern.Match(rawRoom).Groups[3].Value, out int roomNumber);
+            RoomNumber = roomNumber;
             SubRoom = roomPattern.Match(rawRoom).Groups[4].Value;
 
-            //    var userTuple = Db.GetTuple(this, "last = '" + Last + "'");
-            //    bool noUserInDb = userTuple.Count == 0;
-            //    if (noUserInDb)
-            //    {
-            //        UserType = 4;
-            //        string insertColumns = "last, userTypeFK";
-            //        string insertData = "'" + Last + "', '" + UserType + "'";
-            //        UserID = Db.SqlInsert("User", insertColumns, insertData);
-            //        Console.Write("Inserting User" + insertColumns + " " + insertData + "Returned UserID =" + UserID);
-            //    }
+            string[] colname = new[] { "building", "wing", "roomNumber", "subRoom" };
+            var coldata = new object[] { Building, Wing, RoomNumber, SubRoom }; 
+            var roomTuple = Db.GetTupleOldTwo("Room", colname, coldata);
+
+            bool noRoomInDb = roomTuple.Count == 0;
+            if (noRoomInDb)
+            {
+                Db.SqlInsert("Room", colname, coldata); 
+            }
+
         }
-
-
-
-
 
     }
 }

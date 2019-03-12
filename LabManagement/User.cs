@@ -1,4 +1,6 @@
-﻿namespace LabManagement
+﻿using System.Linq;
+
+namespace LabManagement
 {
     internal class User
     {
@@ -20,15 +22,18 @@
         public User(string newUser)
         {
             Last = newUser;
-            var userTuple = Db.GetTuple(this, "last = '" + Last + "'");
-            bool noUserInDb = userTuple.Count == 0;
+
+            string[] colname = new[] { "last" };
+            var coldata = new object[] { Last };
+            var tuple = Db.GetTupleOldTwo("User", colname, coldata);
+            bool noUserInDb = tuple.Count == 0;
             if (noUserInDb)
             {
                 UserType = 4;
-                string[] colname = new[] { "last", "userTypeFK" };
-                var  coldata = new object[] { Last,  UserType  };
-                Db.SqlInsert("User", colname, coldata); 
-           }
+                string[] colnameI = new[] { "last", "userTypeFK" };
+                var coldataI = new object[] { Last, UserType };
+                Db.SqlInsert("User", colnameI, coldataI);
+            }
         }
 
 

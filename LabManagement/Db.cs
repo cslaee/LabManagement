@@ -153,24 +153,39 @@ namespace LabManagement
         }
 
 
-        static public List<object> GetTuple(object obj, string searchString)
+
+
+
+
+
+
+
+        /*
+         * Parameterized SQL Statement  
+         * Change other methods to look like this
+         */
+        static public List<object> GetTupleOldTwo(string tableName, string[] column, object[] values)
         {
-            string tableName = Regex.Match(obj.ToString(), @"(\w+)\.(\w+)").Groups[2].Value;
             var returnString = new List<object>();
-            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
-            SQLiteCommand command = connection.CreateCommand();
-            command.CommandText = "select * from " + tableName + " where " + searchString + " COLLATE NOCASE";
-            connection.Open();
             string type;
+            int numberOfColumns = column.Length;
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand cmd = connection.CreateCommand();
+            var commandText = new System.Text.StringBuilder();
 
-            // ** useful 
-            //  obj.GetType().GetProperty("year").SetValue(obj, 9999, null);// pretty cool
-            //foreach (var prop in obj.GetType().GetProperties())
-            //{
-            //    Console.WriteLine("{0}={1}", prop.Name, prop.GetValue(obj, null));
-            //}
+            commandText.Append("SELECT * FROM " + tableName + " WHERE ");
+            for (int i = 0; i < numberOfColumns; i++)
+            {
+                commandText.Append(column[i] + " = @" + column[i] + " AND ");
+                cmd.Parameters.AddWithValue("@" + column[i], values[i]);
+            }
+            commandText.Remove(commandText.Length - 4, 4);
+            cmd.CommandText = commandText.ToString();
+            Common.DebugMessageCR(debug, "SqlInsertNewStuff()" + commandText);
 
-            using (SQLiteDataReader reader = command.ExecuteReader())
+            connection.Open();
+
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
                 {
@@ -202,6 +217,8 @@ namespace LabManagement
             connection.Close();
             return returnString;
         }
+
+
 
 
         static public List<string> GetTuple(string table, string searchColumn, string matchString)

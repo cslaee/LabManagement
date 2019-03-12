@@ -28,13 +28,18 @@ namespace LabManagement
             Title = title;
             int.TryParse(creditStr, out int credit);
             Credit = credit;
-            var courseTuple = Db.GetTuple(this, "subject = '" + Subject + "' AND catalog = '" + Catalog + "' AND credit = '" + Credit + "'");
-            bool coarseIsInDb = courseTuple.Count > 0;
+                        string[] colname = new[] { "subject", "catalog", "title", "credit" };
+                        var coldata = new object[] { Subject, Catalog, Title, Credit };
+                        string[] colnameLookup = new[] { "subject", "catalog", "credit" };
+                        var coldataLookup = new object[] { Subject, Catalog, Credit };
+
+            var tuple = Db.GetTupleOldTwo("Course", colnameLookup, coldataLookup);
+            bool coarseIsInDb = tuple.Count > 0;
 
             if (coarseIsInDb)
             {
-                CourseID = Convert.ToInt32(courseTuple[0].ToString());
-                string dbTitle = courseTuple[3].ToString();
+                CourseID = Convert.ToInt32(tuple[0].ToString());
+                string dbTitle = tuple[3].ToString();
                 bool isTitleUnique = dbTitle != Title;
 
                 if (isTitleUnique)
@@ -42,8 +47,6 @@ namespace LabManagement
                     bool isSpecialTopic = Catalog == 4540;
                     if (isSpecialTopic)
                     {
-                        string[] colname = new[] { "subject", "catalog", "title", "credit" };
-                        var coldata = new object[] { Subject, Catalog, Title, Credit };
                         Db.SqlInsert("Course", colname, coldata);
                         Common.DebugMessageCR(debug, "Inserting Course" + colname + " " + coldata + "Returned CourseId =" + CourseID);
                     }
@@ -57,8 +60,6 @@ namespace LabManagement
             }
             else
             {
-                string[] colname = new[] { "subject", "catalog", "title", "credit" };
-                var coldata = new object[] { Subject, Catalog, Title, Credit };
                 Db.SqlInsert("Course", colname, coldata);
                 //Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
             }
