@@ -39,7 +39,7 @@ namespace LabManagement
             NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
             string[] colnameLookup = new[] { "year", "nameFK" };
             var coldataLookup = new object[] { Year, NameFK }; 
-            var tuple = Db.GetTupleOldTwo("Semester", colnameLookup, coldataLookup);
+            var tuple = Db.GetTuple("Semester", colnameLookup, coldataLookup);
             bool hasSemesterInDb = tuple.Count > 0;
 
             if (hasSemesterInDb)

@@ -1,12 +1,14 @@
-﻿namespace LabManagement
+﻿using System;
+
+namespace LabManagement
 
 {
     internal class Lock
     {
-        public int id;
-        public int cw1;
-        public int ccw;
-        public int cw2;
+        public int Id { get; set; }
+        public int Cw1 { get; set; }
+        public int Ccw { get; set; }
+        public int Cw2 { get; set; }
 
         public Lock()
         {
@@ -18,33 +20,48 @@
             bool notNumeric = !int.TryParse(lockNumber, out int n);
             if (notNumeric)
             {
-                cw1 = -1;
+                Cw1 = -1;
                 return;
             }
-            var returnedSQL = Db.GetTuple("Lock", "lockID", n.ToString());
-            if (returnedSQL.Count == 0)
+
+            //var returnedSQL = Db.GetTuple("Lock", "lockID", n.ToString());
+            string[] colname = new[] { "lockID" };
+            var coldata = new object[] { n };
+            var tuple = Db.GetTuple("Lock", colname, coldata);
+            bool noLockInDb = tuple.Count == 0;
+
+
+            if (noLockInDb)
             {
-                cw1 = -1;
+                Cw1 = -1;
                 return;
             }
-            int.TryParse(returnedSQL[0], out id);
-            int.TryParse(returnedSQL[1], out cw1);
-            int.TryParse(returnedSQL[2], out ccw);
-            int.TryParse(returnedSQL[3], out cw2);
+
+            Id = Convert.ToInt32(tuple[0].ToString());
+            Cw1 = Convert.ToInt32(tuple[1].ToString());
+            Ccw = Convert.ToInt32(tuple[2].ToString());
+            Cw2 = Convert.ToInt32(tuple[3].ToString());
+            
+            //int.TryParse(tuple[0], out Id);
+            //int.TryParse(tuple[1], out Cw1);
+            //int.TryParse(tuple[2], out ccw);
+            //int.TryParse(tuple[3], out Cw2);
         }
+
+
         public Lock(int _number, int _cw1, int _ccw, int _cw2)
         {
-            id = _number;
-            cw1 = _cw1;
-            ccw = _ccw;
-            cw2 = _cw2;
+            Id = _number;
+            Cw1 = _cw1;
+            Ccw = _ccw;
+            Cw2 = _cw2;
         }
         public void SetLock(int _number, int _cw1, int _ccw, int _cw2)
         {
-            id = _number;
-            cw1 = _cw1;
-            ccw = _ccw;
-            cw2 = _cw2;
+            Id = _number;
+            Cw1 = _cw1;
+            Ccw = _ccw;
+            Cw2 = _cw2;
         }
         public static bool IsValidLockNumber(string lockNumber)
         {

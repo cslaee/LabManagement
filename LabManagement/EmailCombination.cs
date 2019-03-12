@@ -32,7 +32,7 @@ namespace LabManagement
             outGoingMessage.Text = diologText.ToString();
             Lock temp = new Lock(lockNumber.Text);
 
-            Console.WriteLine("EmailCombinations.add_Click = " + temp.id + " = " + temp.cw1 + "-" + temp.ccw + "-" + temp.cw2);
+            Console.WriteLine("EmailCombinations.add_Click = " + temp.Id + " = " + temp.Cw1 + "-" + temp.Ccw + "-" + temp.Cw2);
             lockNumber.Text = "";
             lockerNumber.Text = "";
 
@@ -112,8 +112,8 @@ namespace LabManagement
         private void lockNumber_TextChanged(object sender, EventArgs e)
         {
             Lock l = new Lock(lockNumber.Text);
-            if (l.cw1 > 0)
-                combination.Text = l.cw1 + "-" + l.ccw + "-" + l.cw2;
+            if (l.Cw1 > 0)
+                combination.Text = l.Cw1 + "-" + l.Ccw + "-" + l.Cw2;
             else
                 combination.Text = "";
         }

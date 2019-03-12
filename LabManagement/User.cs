@@ -25,7 +25,7 @@ namespace LabManagement
 
             string[] colname = new[] { "last" };
             var coldata = new object[] { Last };
-            var tuple = Db.GetTupleOldTwo("User", colname, coldata);
+            var tuple = Db.GetTuple("User", colname, coldata);
             bool noUserInDb = tuple.Count == 0;
             if (noUserInDb)
             {

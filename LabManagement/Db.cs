@@ -164,7 +164,7 @@ namespace LabManagement
          * Parameterized SQL Statement  
          * Change other methods to look like this
          */
-        static public List<object> GetTupleOldTwo(string tableName, string[] column, object[] values)
+        static public List<object> GetTuple(string tableName, string[] column, object[] values)
         {
             var returnString = new List<object>();
             string type;
@@ -218,28 +218,6 @@ namespace LabManagement
             return returnString;
         }
 
-
-
-
-        static public List<string> GetTuple(string table, string searchColumn, string matchString)
-        {
-            var returnString = new List<string>();
-            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
-            SQLiteCommand command = connection.CreateCommand();
-            command.CommandText = "select * from " + table + " where " + searchColumn + " = " + matchString + " COLLATE NOCASE";
-            connection.Open();
-
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                        returnString.Add(reader.GetValue(i).ToString());
-                }
-            }
-            connection.Close();
-            return returnString;
-        }
 
 
         static public int UpdateID(string table, string idName, int id, string colNameAndValue)
@@ -412,7 +390,7 @@ namespace LabManagement
                         for (int j = 0; j < numRow; ++j)
                         {
 
-                            val.Append(locks[j].id + ", " + locks[j].cw1 + ", " + locks[j].ccw + ", " + locks[j].cw2 + ")");
+                            val.Append(locks[j].Id + ", " + locks[j].Cw1 + ", " + locks[j].Ccw + ", " + locks[j].Cw2 + ")");
                             cmd.CommandText = val.ToString();
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);
