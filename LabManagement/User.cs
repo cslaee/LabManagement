@@ -13,7 +13,6 @@ namespace LabManagement
         public string Cell { get; set; }
         public int UserType { get; set; }
 
-
         public User()
         {
 

@@ -17,7 +17,11 @@ namespace LabManagement
         public string Name { get; set; }
         static readonly bool debug = Constants.roomDebug;
 
-        
+        public Room()
+        {
+
+        }
+
         public Room(string rawRoom)
         {
             Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
@@ -28,13 +32,13 @@ namespace LabManagement
             SubRoom = roomPattern.Match(rawRoom).Groups[4].Value;
 
             string[] colname = new[] { "building", "wing", "roomNumber", "subRoom" };
-            var coldata = new object[] { Building, Wing, RoomNumber, SubRoom }; 
+            var coldata = new object[] { Building, Wing, RoomNumber, SubRoom };
             var tuple = Db.GetTuple("Room", "*", colname, coldata);
 
             bool noRoomInDb = tuple.Count == 0;
             if (noRoomInDb)
             {
-                Db.SqlInsert("Room", colname, coldata); 
+                Db.SqlInsert("Room", colname, coldata);
             }
 
         }

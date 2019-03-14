@@ -5,7 +5,7 @@ namespace LabManagement
 {
     internal class Course
     {
-        public int CourseID { get; set; }
+        public int CourseFK { get; set; }
         public string Subject { get; set; }
         public int Catalog { get; set; }
         public string Title { get; set; }
@@ -14,7 +14,7 @@ namespace LabManagement
         public int Laboratory { get; set; }
         public int PrerequisiteFK { get; set; }
         public int ClassCol { get; set; }
-        public int Section { get; set; }
+        public int Section { get; set; }  //Not stored in Db.  Only for excel import.
         static readonly bool debug = Constants.courseDebug;
 
         public Course(string rawCourse, string title, string creditStr)
@@ -38,7 +38,7 @@ namespace LabManagement
 
             if (coarseIsInDb)
             {
-                CourseID = Convert.ToInt32(tuple[0].ToString());
+                CourseFK = Convert.ToInt32(tuple[0].ToString());
                 string dbTitle = tuple[3].ToString();
                 bool isTitleUnique = dbTitle != Title;
 
@@ -48,13 +48,13 @@ namespace LabManagement
                     if (isSpecialTopic)
                     {
                         Db.SqlInsert("Course", colname, coldata);
-                        Common.DebugMessageCR(debug, "Inserting Course" + colname + " " + coldata + "Returned CourseId =" + CourseID);
+                        Common.DebugMessageCR(debug, "Inserting Course" + colname + " " + coldata + "Returned CourseId =" + CourseFK);
                     }
                     else
                     {
                         string updateStr = "title = '" + Title + "'";
                         Common.DebugMessageCR(debug, "Updated this coarse name from " + dbTitle + " to " + Title);
-                        Db.UpdateID("Course", "courseID", CourseID, updateStr);
+                        Db.UpdateID("Course", "courseID", CourseFK, updateStr);
                     }
                 }
             }

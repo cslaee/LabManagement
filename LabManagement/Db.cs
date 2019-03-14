@@ -166,7 +166,7 @@ namespace LabManagement
             return returnString;
         }
 
-        
+
         static public long GetTupleInt(string tableName, string returnColumn, string column, string values)
         {
             string tupleString = GetTupleString(tableName, returnColumn, column, values);
@@ -309,8 +309,7 @@ namespace LabManagement
             string SqlInsertArrayQuery = "INSERT INTO " + name + " (" + column + ") VALUES(";
             int queryLen = SqlInsertArrayQuery.Length;
             val.Append(SqlInsertArrayQuery);
-            if (debug)
-                Common.DebugMessageCR(debug, "* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
+            Common.DebugMessageCR(debug, "* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
 
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {

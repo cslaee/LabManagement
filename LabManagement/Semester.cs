@@ -36,7 +36,6 @@ namespace LabManagement
             SchedulePostDateStr = DateTime.Now.ToString("yyyy-M-d HH:mm:ss");
             ScheduleDateStr = y + "-" + m + "-" + d;
 
-            //NameFK = Db.GetSingleInt("SemesterName", "name", "'" + Name + "'", "semesterNameID");
             NameFK = Db.GetTupleInt("SemesterName", "semesterNameID", "name", Name);
             string[] colnameLookup = new[] { "year", "nameFK" };
             var coldataLookup = new object[] { Year, NameFK }; 

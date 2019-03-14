@@ -41,11 +41,6 @@ namespace LabManagement
             Cw1 = Convert.ToInt32(tuple[1].ToString());
             Ccw = Convert.ToInt32(tuple[2].ToString());
             Cw2 = Convert.ToInt32(tuple[3].ToString());
-            
-            //int.TryParse(tuple[0], out Id);
-            //int.TryParse(tuple[1], out Cw1);
-            //int.TryParse(tuple[2], out ccw);
-            //int.TryParse(tuple[3], out Cw2);
         }
 
 
