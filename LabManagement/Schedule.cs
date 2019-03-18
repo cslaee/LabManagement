@@ -24,7 +24,7 @@ namespace LabManagement
 
         public Schedule(Course c, int semesterFK, int instructor1FK, int instructor2FK, int room1FK, int room2FK, string rawTime)
         {
-            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4})([AP]?M?)-(\d{1,4})([AP]?M?)");
+            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4}):?(\d{2})?([aApP]?[mM]?)-(\d{1,4}):?(\d{2})?([aApP]?[mM]?)");
             CourseFK = c.CourseFK;
             Section = c.Section;
             SemesterFK = semesterFK;
@@ -34,30 +34,85 @@ namespace LabManagement
             Room2FK = room2FK;
             StatusFK = 1;
             Days = SetDaysOfWeek(rawTime);
-            //Console.WriteLine(Days);
-            TestDaysOfWeek(rawTime);
-            //GetDaysOfWeek(Days);
-            //string day1 = timePattern.Match(rawTime).Groups[1].Value;
-            //Console.Write(timePattern.Match(rawTime).Groups[1].Value +"1="+SetDaysOfWeek(timePattern.Match(rawTime).Groups[1].Value) + ", ");
-            //Console.Write(timePattern.Match(rawTime).Groups[2].Value +"2="+SetDaysOfWeek(timePattern.Match(rawTime).Groups[2].Value) + ", ");
-            //Console.Write(timePattern.Match(rawTime).Groups[3].Value +"3="+SetDaysOfWeek(timePattern.Match(rawTime).Groups[3].Value) + ", ");
-            //Console.WriteLine(timePattern.Match(rawTime).Groups[4].Value +"4="+SetDaysOfWeek(timePattern.Match(rawTime).Groups[4].Value) );
-            string startTime = timePattern.Match(rawTime).Groups[5].Value;
-            string startTimeAPM = timePattern.Match(rawTime).Groups[6].Value;
-            string endTime = timePattern.Match(rawTime).Groups[7].Value;
-            string endTimeAPM = timePattern.Match(rawTime).Groups[8].Value;
+            //TestDaysOfWeek(rawTime);
+            string startTimeHours = timePattern.Match(rawTime).Groups[5].Value;
+            string startTimeMinutes = timePattern.Match(rawTime).Groups[6].Value;
+            string startTimeAPM = timePattern.Match(rawTime).Groups[7].Value;
+            string endTimeHours = timePattern.Match(rawTime).Groups[8].Value;
+            string endTimeMinutes = timePattern.Match(rawTime).Groups[9].Value;
+            string endTimeAPM = timePattern.Match(rawTime).Groups[10].Value.ToLower();
+
+            int hoursLength = endTimeHours.Length;
+            bool isMinutesEmpty = endTimeMinutes.Length == 0;
+            bool isMinutesPartOfHours = hoursLength > 2;
+            if (isMinutesPartOfHours)
+            {
+                endTimeMinutes = endTimeHours.Substring(hoursLength - 2);
+                endTimeHours = endTimeHours.Substring(0, hoursLength - 2);
+            }
+            else if (isMinutesEmpty)
+            {
+                endTimeMinutes = "00";
+            }
+            bool isEndTimePM = endTimeAPM.Equals("pm");
+
+            int.TryParse(endTimeHours, out int endTimeHoursInt);
+            bool isTimeHoursNot12 = endTimeHoursInt != 12;
+            bool isPm = isEndTimePM & isTimeHoursNot12;
+            endTimeHoursInt = ConvertToMilitaryTime(isPm, endTimeHoursInt);
+            endTimeHours = endTimeHoursInt.ToString();
+
+            hoursLength = startTimeHours.Length;
+            isMinutesEmpty = startTimeMinutes.Length == 0;
+            isMinutesPartOfHours = hoursLength > 2;
+            if (isMinutesPartOfHours)
+            {
+                startTimeMinutes = startTimeHours.Substring(hoursLength - 2);
+                startTimeHours = startTimeHours.Substring(0, hoursLength - 2);
+            }
+            else if (isMinutesEmpty)
+            {
+                startTimeMinutes = "00";
+            }
+
+            int.TryParse(startTimeHours, out int startTimeHoursInt);
+            isPm = endTimeHoursInt - startTimeHoursInt > 10;
+            startTimeHoursInt = ConvertToMilitaryTime(isPm, startTimeHoursInt);
+            startTimeHours = startTimeHoursInt.ToString();
+
+            Console.WriteLine(startTimeHours + ":" + startTimeMinutes + " " + endTimeHours + ":" + endTimeMinutes);
+
+
+            string[] colname = new[] { "classFK", "section", "semesterFK", "days", "startTime", "endTime", "statusFK", "roomFK" };
+            //var coldata = new object[] { c.CourseFK, c.Section, semester.SemesterID, };
+            //var tuple = Db.GetTuple("Schedule", "*", colname, coldata);
+
+            //bool noCourseInDb = tuple.Count == 0;
+            //if (noCourseInDb)
+            //{
+            //    Db.SqlInsert("Schedule", colname, coldata);
+            //}
 
 
         }
 
+
+        static int ConvertToMilitaryTime(bool isPm, int hours)
+        {
+            if (isPm)
+            {
+                hours = hours + 12;
+            }
+            return hours;
+        }
+
         static int SetDaysOfWeek(string rawTime)
         {
-            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4})([AP]?M?)-(\d{1,4})([AP]?M?)");
+            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4}):?(\d{2})?([aApP]?[mM]?)-(\d{1,4}):?(\d{2})?([aApP]?[mM]?)");
             int daysOfWeekBits = 0;
-            string currentDay;
             for (int i = 1; i < 5; i++)
             {
-                currentDay = timePattern.Match(rawTime).Groups[i].Value.Trim().ToLower();
+                string currentDay = timePattern.Match(rawTime).Groups[i].Value.Trim().ToLower();
                 switch (currentDay)
                 {
                     case "s":
@@ -124,19 +179,20 @@ namespace LabManagement
             return daysString.ToString();
         }
 
+
         static void TestDaysOfWeek(string rawTime)
         {
-            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4})([AP]?M?)-(\d{1,4})([AP]?M?)");
+            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4}):?(\d{2})?([aApP]?[mM]?)-(\d{1,4}):?(\d{2})?([aApP]?[mM]?)");
             string dow = timePattern.Match(rawTime).Groups[1].Value + timePattern.Match(rawTime).Groups[2].Value + timePattern.Match(rawTime).Groups[3].Value + timePattern.Match(rawTime).Groups[4].Value;
             int daysInt = SetDaysOfWeek(rawTime);
             string daysString = GetDaysOfWeek(daysInt);
             if (daysString.Equals(dow))
             {
-            Console.WriteLine("Pass " + dow + "=" + daysString);
+                Console.WriteLine("Pass " + dow + "=" + daysString);
             }
             else
             {
-            Console.WriteLine("Fail " + dow + "!=" + daysString);
+                Console.WriteLine("Fail " + dow + "!=" + daysString);
             }
         }
     }

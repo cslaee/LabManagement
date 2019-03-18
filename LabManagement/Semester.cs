@@ -18,10 +18,9 @@ namespace LabManagement
 
         public Semester() { }
 
-        public Semester(ExcelData ws)
+        public Semester(string rawSemester)
         {
             Regex semesterPattern = new Regex(@"^(\d{1,2})\/(\d{1,2})\/(\d{4}).*?(FALL|WINTER|SPRING|SUMMER)\s(\d{4})");
-            string rawSemester = ws.excelArray[2, 0].Trim();
             string revisionMonth = semesterPattern.Match(rawSemester).Groups[1].Value;
             string revisionDay = semesterPattern.Match(rawSemester).Groups[2].Value;
             string revisionYear = semesterPattern.Match(rawSemester).Groups[3].Value;

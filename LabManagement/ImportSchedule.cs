@@ -11,61 +11,45 @@ namespace LabManagement
 {
     static class ImportSchedule
     {
-
         static readonly bool debug = Constants.importScheduleDebug;
-        //*todo get Semester name & year
-        //*toto get semester dates
-        //*todo get revision date
-
-        //todo Insert Semester season, year, scheduleDate, schedulePostDate
-
-        //todo Insert Course | Subject, catalog, Title, Credit
-        //todo Insert User
         //todo Insert Schedule | lookup ClassID, Insert ClassID, Section, SemesesterID, Days, StartTime, EndTime, InstructorID, RoomID
         //todo Does Class DefaultRoom match Schedule Room?
         //todo Does Class maxSections match Schedule Section?
-        //todo Does default room = scheduled room?
+
 
         static public void GetExcelSchedule()
         {
             Regex coursePattern = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
-            Regex facultyPattern = new Regex(@"(\w+)\/?(\w+)?");
-            Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4})([AP]?M?)-(\d{1,4})([AP]?M?)");
-            Regex buildingPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)");
+            Regex userPattern = new Regex(@"(\w+)\/?(\w+)?");
             Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
             string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall2019.xlsx";
             //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\sum2019.xlsx";
             //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
             ExcelData ws = new ExcelData(fileName, 1);
 
-            string rawCourse, title, credit;
-            string rawFaculty, faculty1, faculty2;
-            string rawTime, day1, day2, day3, day4, startTime, startTimeAPM, endTime, endTimeAPM;
-            string outString;
-            Semester semester = new Semester(ws);
-            //Console.WriteLine("name = " + semester.Name);
+            string rawSemester = ws.excelArray[2, 0].Trim();
+            Semester semester = new Semester(rawSemester);
             for (int currentRow = 4; currentRow <= ws.rowCount - 1; currentRow++)
             {
-                rawCourse = ws.excelArray[currentRow, 0];
+                string rawCourse = ws.excelArray[currentRow, 0];
                 bool isCourse = coursePattern.IsMatch(rawCourse);
 
-                //Common.DebugMessageCR(debug, " 0 = " + ws.excelArray[currentRow, 0] + " 1 = " + ws.excelArray[currentRow, 1] + " 2 = " + ws.excelArray[currentRow, 2] + " 3 = " + ws.excelArray[currentRow, 3]);
                 if (isCourse)
                 {
-                    title = ws.excelArray[currentRow, 1].Trim();
-                    credit = ws.excelArray[currentRow, 2].Trim();
+                    string title = ws.excelArray[currentRow, 1].Trim();
+                    string credit = ws.excelArray[currentRow, 2].Trim();
                     Course c = new Course(rawCourse, title, credit);
 
                     string coarseAndSection = c.Catalog + "-" + c.Section;
                     User u1, u2;
-                    rawFaculty = ws.excelArray[currentRow, 3].Trim();
-                    faculty1 = facultyPattern.Match(rawFaculty).Groups[1].Value;
-                    faculty2 = facultyPattern.Match(rawFaculty).Groups[2].Value;
-                    bool hasFirstUser = faculty1.Length != 0;
-                    bool hasSecondUser = faculty2.Length != 0;
+                    string rawUser = ws.excelArray[currentRow, 3].Trim();
+                    string user1 = userPattern.Match(rawUser).Groups[1].Value;
+                    string user2 = userPattern.Match(rawUser).Groups[2].Value;
+                    bool hasFirstUser = user1.Length != 0;
+                    bool hasSecondUser = user2.Length != 0;
                     if (hasFirstUser)
                     {
-                        u1 = new User(faculty1);
+                        u1 = new User(user1);
                     }
                     else
                     {
@@ -73,8 +57,7 @@ namespace LabManagement
                     }
                     if (hasSecondUser)
                     {
-                        u2 = new User(faculty2);
-                        //Console.WriteLine(coarseAndSection + " u2 = " + u2.Last);
+                        u2 = new User(user2);
                     }
                     else
                     {
@@ -82,25 +65,13 @@ namespace LabManagement
                     }
                     string users = u1.Last;
 
-                    //day1 = timePattern.Match(rawTime).Groups[1].Value;
-                    //day2 = timePattern.Match(rawTime).Groups[2].Value;
-                    //day3 = timePattern.Match(rawTime).Groups[3].Value;
-                    //day4 = timePattern.Match(rawTime).Groups[4].Value;
-                    //startTime = timePattern.Match(rawTime).Groups[5].Value;
-                    //startTimeAPM = timePattern.Match(rawTime).Groups[6].Value;
-                    //endTime = timePattern.Match(rawTime).Groups[7].Value;
-                    //endTimeAPM = timePattern.Match(rawTime).Groups[8].Value;
-
-                    //                    Room r = new Room(rawRoom);
-
-
                     string rawRoom = ws.excelArray[currentRow, 5].Trim();
                     Room r1, r2;
-                    string building1 = roomPattern.Match(rawRoom).Groups[1].Value;
-                    string building2 = roomPattern.Match(rawRoom).Groups[6].Value;
-                    bool hasFirstBuilding = building1.Length != 0;
-                    bool hasSecondBuilding = building2.Length != 0;
-                    if (hasFirstBuilding)
+                    string room1 = roomPattern.Match(rawRoom).Groups[1].Value;
+                    string room2 = roomPattern.Match(rawRoom).Groups[6].Value;
+                    bool hasFirstRoom = room1.Length != 0;
+                    bool hasSecondRoom = room2.Length != 0;
+                    if (hasFirstRoom)
                     {
                         r1 = new Room(roomPattern.Match(rawRoom).Groups[0].Value);
                         Common.DebugMessageCR(debug, "b1 = " + r1.Building + r1.Wing + r1.RoomNumber + r1.SubRoom);
@@ -109,7 +80,7 @@ namespace LabManagement
                     {
                         r1 = new Room();
                     }
-                    if (hasSecondBuilding)
+                    if (hasSecondRoom)
                     {
                         r2 = new Room(roomPattern.Match(rawRoom).Groups[5].Value);
                         Common.DebugMessageCR(debug, "b2 = " + r2.Building + r2.Wing + r2.RoomNumber + r2.SubRoom);
@@ -119,44 +90,9 @@ namespace LabManagement
                         r2 = new Room();
                     }
 
-
-
-
-                    //string outString = courseNumber + " " + section + " " + title + " " + credit + " " + faculty + " " + days + " " + startTime + " " + endTime + " " + room;
-                    //string outString = "course letters = " + courseLetters+ " number = " + courseNumber + " section ='" + section + "'";
-                    //string outString = "faculty 1 = " + faculty1 + " faculty 2 = " + "'" + faculty2 + "'";
-                    //outString = " day 1 = " + day1 + " day 2 = " + day2 + " day 3 = " + day3 + " day 4 = " + day4 + " startTime = " + startTime + " startTimeAPM = " + startTimeAPM + " endTime = " + endTime + " endTimeAPM = " + endTimeAPM;
-                    //outString = "rawCourse = " + rawCourse + " day 1 = " + day1 + " day 2 = " + day2+ " day 3 = " + day3+ " day 4 = " + day4 + " startTime = " + startTime + " startTimeAPM = " + startTimeAPM + " endTime = " + endTime + " endTimeAPM = " + endTimeAPM;
-                    //string roomTest = "building = " + building + " wing = " + wing + " room = " + room + " roomPostfix = " + subRoom;
-                    // string roomTest = r.Building + r.Wing + r.RoomNumber + r.SubRoom;
-                    // string classTest = c.Subject + c.Catalog + c.Section + " " + c.Title;
-
-                    //                 var match = Regex.Match(ws.excelArray[currentRow, 0], pattern, RegexOptions.IgnoreCase);
-
-                    //courseNumber = course_Number.Match(ws.excelArray[currentRow, 0], "").Value;
-                    //Regex.Replace(ws.excelArray[currentRow, 0], pattern, String.Empty)
-                    //Console.WriteLine(classTest + " " + users);
-                    //Console.WriteLine(outString);
-
-
-
-
-                    rawTime = ws.excelArray[currentRow, 4].Trim();
+                    string rawTime = ws.excelArray[currentRow, 4].Trim();
                     Schedule s = new Schedule(c, semester.SemesterID, u1.UserID, u2.UserID, r1.RoomID, r2.RoomID, rawTime);
-                    //string[] colname = new[] { "classFK", "section", "semesterFK", "days", "startTime", "endTime", "statusFK", "roomFK" };
-                    //var coldata = new object[] { c.CourseFK, c.Section, semester.SemesterID,  };
-                    //var tuple = Db.GetTuple("Schedule", "*", colname, coldata);
-
-                    //bool noCourseInDb = tuple.Count == 0;
-                    //if (noCourseInDb)
-                    //{
-                    //    Db.SqlInsert("Schedule", colname, coldata);
-                    //}
-
-
-
                 }
-                //Common.DebugMessageCR(debug, ("in loop ");
             }
 
             //Marshal.ReleaseComObject(ws);
@@ -164,7 +100,6 @@ namespace LabManagement
             GC.WaitForPendingFinalizers();
             //            System.Environment.Exit(1);
         }
-
 
 
         static public string GetFileName()
@@ -184,7 +119,6 @@ namespace LabManagement
             }
             return filePath;
         }
-
 
 
     }
