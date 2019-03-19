@@ -47,20 +47,20 @@ namespace LabManagement
                     bool isSpecialTopic = Catalog == 4540;
                     if (isSpecialTopic)
                     {
-                        Db.SqlInsert("Course", colname, coldata);
+                        CourseFK = Db.Insert("Course", colname, coldata);
                         Common.DebugMessageCR(debug, "Inserting Course" + colname + " " + coldata + "Returned CourseId =" + CourseFK);
                     }
                     else
                     {
                         string updateStr = "title = '" + Title + "'";
                         Common.DebugMessageCR(debug, "Updated this coarse name from " + dbTitle + " to " + Title);
-                        Db.UpdateID("Course", "courseID", CourseFK, updateStr);
+                        CourseFK = Db.Update("Course", "courseID", CourseFK, updateStr);
                     }
                 }
             }
             else
             {
-                Db.SqlInsert("Course", colname, coldata);
+                CourseFK = Db.Insert("Course", colname, coldata);
                 //Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
             }
         }

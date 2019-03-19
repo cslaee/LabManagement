@@ -68,17 +68,21 @@ namespace LabManagement
             {
                 string[] colname = new[] { colName };
                 var  coldata = new object[] { newCellValue };
-                sqlId = Db.SqlInsert("User", colname, coldata); 
+                sqlId = Db.Insert("User", colname, coldata); 
                 userDataGrid[0, e.RowIndex].Value = sqlId;
                 return;
             }
-            Db.UpdateID("User", "userID", sqlId, colName + " = '" + newCellValue + "'");
+            Db.Update("User", "userID", sqlId, colName + " = '" + newCellValue + "'");
         }
 
         private void dataGridView1_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
             Console.WriteLine("userID" + sqlId);
-            Db.DeleteID("User", "userID", sqlId.ToString());
+            //Db.DeleteIDOld("User", "userID", sqlId.ToString());
+
+            string[] colname = new[] { "userID" };
+            var coldata = new object[] { sqlId.ToString() };
+            Db.Delete("User", colname, coldata);
         }
 
         private void userDataGrid_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)

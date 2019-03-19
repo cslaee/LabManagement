@@ -20,10 +20,13 @@ namespace LabManagement
         public int StatusFK { set; get; }
         public int Days { set; get; }
         public DateTime StartTime { set; get; }
+        public string StartTimeStr { set; get; }
         public DateTime EndTime { set; get; }
+        public string EndTimeStr { set; get; }
 
         public Schedule(Course c, int semesterFK, int instructor1FK, int instructor2FK, int room1FK, int room2FK, string rawTime)
         {
+            bool debug = Constants.schedule;
             Regex timePattern = new Regex(@"^(TBA|[MTWRFSU])([MTWRFSU]?)([MTWRFSU]?)([MTWRFSU]?)\s(\d{1,4}):?(\d{2})?([aApP]?[mM]?)-(\d{1,4}):?(\d{2})?([aApP]?[mM]?)");
             CourseFK = c.CourseFK;
             Section = c.Section;
@@ -54,13 +57,14 @@ namespace LabManagement
             {
                 endTimeMinutes = "00";
             }
-            bool isEndTimePM = endTimeAPM.Equals("pm");
 
+            bool isEndTimePM = endTimeAPM.Equals("pm");
             int.TryParse(endTimeHours, out int endTimeHoursInt);
             bool isTimeHoursNot12 = endTimeHoursInt != 12;
             bool isPm = isEndTimePM & isTimeHoursNot12;
             endTimeHoursInt = ConvertToMilitaryTime(isPm, endTimeHoursInt);
             endTimeHours = endTimeHoursInt.ToString();
+            EndTimeStr = endTimeHours + ":" + endTimeMinutes;
 
             hoursLength = startTimeHours.Length;
             isMinutesEmpty = startTimeMinutes.Length == 0;
@@ -79,21 +83,13 @@ namespace LabManagement
             isPm = endTimeHoursInt - startTimeHoursInt > 10;
             startTimeHoursInt = ConvertToMilitaryTime(isPm, startTimeHoursInt);
             startTimeHours = startTimeHoursInt.ToString();
+            StartTimeStr = startTimeHours + ":" + startTimeMinutes;
+            //Console.WriteLine(startTimeHours + ":" + startTimeMinutes + " " + endTimeHours + ":" + endTimeMinutes);
+            Common.DebugMessageCR(debug, CourseFK + " Sec=" + Section+ " Sem=" + SemesterFK+ " Ins1=" + Instructor1FK + " Ins2=" + Instructor2FK + " Rm1=" + Room1FK + " Rm2=" + Room2FK + " Status=" + StatusFK + " Days=" + Days + " ST=" + StartTime + " ET=" + EndTime  );
 
-            Console.WriteLine(startTimeHours + ":" + startTimeMinutes + " " + endTimeHours + ":" + endTimeMinutes);
-
-
-            string[] colname = new[] { "classFK", "section", "semesterFK", "days", "startTime", "endTime", "statusFK", "roomFK" };
-            //var coldata = new object[] { c.CourseFK, c.Section, semester.SemesterID, };
-            //var tuple = Db.GetTuple("Schedule", "*", colname, coldata);
-
-            //bool noCourseInDb = tuple.Count == 0;
-            //if (noCourseInDb)
-            //{
-            //    Db.SqlInsert("Schedule", colname, coldata);
-            //}
-
-
+            string[] colname = new[] { "courseFK", "section", "semesterFK", "instructor1FK", "instructor2FK", "room1FK", "room2FK", "statusFK", "days", "startTime", "endTime" };
+            var coldata = new object[] { CourseFK, Section, SemesterFK, Instructor1FK, Instructor2FK, Room1FK, Room2FK, StatusFK, Days, StartTimeStr, EndTimeStr  };
+            Db.Insert("Schedule", colname, coldata);
         }
 
 

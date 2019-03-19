@@ -46,14 +46,14 @@ namespace LabManagement
                 SemesterID = Convert.ToInt32(tuple[0].ToString());
                 Version = Convert.ToInt32(tuple[1].ToString()) + 1;
                 string updateStr = "version = '" + Version + "'" + ", scheduleDate = '" + ScheduleDateStr + "', schedulePostDate = '" + SchedulePostDateStr + "'";
-                Db.UpdateID("Semester", "semesterID", SemesterID, updateStr);
-                Common.DebugMessageCR(debug, "Updating SemesterID " + SemesterID + " " + updateStr);
+                Db.Update("Semester", "semesterID", SemesterID, updateStr);
+                Common.DebugMessageCR(debug, "Updating Semester " + SemesterID + " " + updateStr);
             }
             else
             {
                 string[] colname = new[] { "version", "nameFK", "year", "scheduleDate", "schedulePostDate" };
                 var coldata = new object[] { 1, NameFK, Year, ScheduleDateStr, SchedulePostDateStr };
-                SemesterID = Db.SqlInsert("Semester", colname, coldata);
+                SemesterID = Db.Insert("Semester", colname, coldata);
                 Common.DebugMessageCR(debug, "Inserting Semester" + colname + " " + coldata + "ReturnedId =" + SemesterID);
             }
         }

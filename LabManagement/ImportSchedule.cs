@@ -29,6 +29,11 @@ namespace LabManagement
 
             string rawSemester = ws.excelArray[2, 0].Trim();
             Semester semester = new Semester(rawSemester);
+
+            string[] colname = new[] { "semesterFK" };
+            var coldata = new object[] { semester.SemesterID };
+            Db.Delete("Schedule", colname, coldata);
+
             for (int currentRow = 4; currentRow <= ws.rowCount - 1; currentRow++)
             {
                 string rawCourse = ws.excelArray[currentRow, 0];
@@ -89,7 +94,8 @@ namespace LabManagement
                     {
                         r2 = new Room();
                     }
-
+                    //r1.RoomID = r2.RoomID = u1.UserID = u2.UserID = c.Section = 1;
+                    //c.Section = 1;
                     string rawTime = ws.excelArray[currentRow, 4].Trim();
                     Schedule s = new Schedule(c, semester.SemesterID, u1.UserID, u2.UserID, r1.RoomID, r2.RoomID, rawTime);
                 }

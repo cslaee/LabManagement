@@ -19,7 +19,7 @@ namespace LabManagement
 
         public Room()
         {
-
+            RoomID = 1;
         }
 
         public Room(string rawRoom)
@@ -34,13 +34,17 @@ namespace LabManagement
             string[] colname = new[] { "building", "wing", "roomNumber", "subRoom" };
             var coldata = new object[] { Building, Wing, RoomNumber, SubRoom };
             var tuple = Db.GetTuple("Room", "*", colname, coldata);
-
+            
             bool noRoomInDb = tuple.Count == 0;
             if (noRoomInDb)
             {
-                Db.SqlInsert("Room", colname, coldata);
+                RoomID = Db.Insert("Room", colname, coldata);
             }
-
+            else
+            {
+                RoomID = Convert.ToInt32(tuple[0].ToString());
+            }
+            Common.DebugMessageCR(debug, "Room.cs: RoomID = " + RoomID + " Building =" + Building + " Wing =" + Wing + " RoomNumber =" + RoomNumber + " SubRoom =" + SubRoom);
         }
 
     }

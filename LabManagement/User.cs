@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace LabManagement
 {
@@ -15,7 +16,7 @@ namespace LabManagement
 
         public User()
         {
-
+            UserID = 1;
         }
 
         public User(string newUser)
@@ -31,8 +32,13 @@ namespace LabManagement
                 UserType = 4;
                 string[] colnameI = new[] { "last", "userTypeFK" };
                 var coldataI = new object[] { Last, UserType };
-                Db.SqlInsert("User", colnameI, coldataI);
+                UserID = Db.Insert("User", colnameI, coldataI);
             }
+            else
+            {
+                UserID = Convert.ToInt32(tuple[0].ToString());
+            }
+
         }
 
 

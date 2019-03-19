@@ -107,7 +107,6 @@ namespace LabManagement
 
 
 
-
         /*
          * Parameterized SQL Statement  
          * Change other methods to look like this
@@ -129,8 +128,7 @@ namespace LabManagement
             }
             commandText.Remove(commandText.Length - 4, 4);
             cmd.CommandText = commandText.ToString() + " COLLATE NOCASE";
-            Common.DebugMessageCR(debug, "SqlInsertNewStuff()" + commandText);
-
+            Common.DebugMessageCR(debug, "Db.GetTuple(" + cmd.CommandText + " )");
             connection.Open();
 
             using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -194,7 +192,7 @@ namespace LabManagement
 
 
 
-        static public int UpdateID(string table, string idName, int id, string colNameAndValue)
+        static public int Update(string table, string idName, int id, string colNameAndValue)
         {
             int result = -1;
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
@@ -209,10 +207,11 @@ namespace LabManagement
                     try
                     {
                         result = cmd.ExecuteNonQuery();
+                        Common.DebugMessageCR(debug, "Db.Update(" + cmd.CommandText + " )");
                     }
                     catch (SQLiteException)
                     {
-                        System.Console.WriteLine("SQLiteException Deleting ID " + id);
+                        System.Console.WriteLine("SQLiteException with Db.Update(" + cmd.CommandText + " )");
                     }
                 }
                 conn.Close();
@@ -221,26 +220,33 @@ namespace LabManagement
         }
 
 
-        static public int DeleteID(string table, string idName, string id)
+        static public int Delete(string tableName, string[] column, object[] values)
         {
             int result = -1;
+            int numberOfColumns = column.Length;
+            var commandText = new System.Text.StringBuilder();
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
-                    string comboQuery = "DELETE FROM " + table + " WHERE " + idName + " = " + id;
-                    Common.DebugMessageCR(debug, comboQuery);
-                    cmd.CommandText = comboQuery;
+                    commandText.Append("DELETE FROM " + tableName + " WHERE ");
+                    for (int i = 0; i < numberOfColumns; i++)
+                    {
+                        commandText.Append(column[i] + " = @" + column[i] + " AND ");
+                        cmd.Parameters.AddWithValue("@" + column[i], values[i]);
+                    }
+                    commandText.Remove(commandText.Length - 4, 4);
+                    cmd.CommandText = commandText.ToString();
 
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        Common.DebugMessageCR(debug, "Deleted ID " + id);
+                        Common.DebugMessageCR(debug, "Db.Delete(" + cmd.CommandText + " )");
                     }
                     catch (SQLiteException)
                     {
-                        System.Console.WriteLine("SQLiteException Deleting ID " + id);
+                        System.Console.WriteLine("SQLiteException with Db.Delete(" + cmd.CommandText + " )");
                     }
                 }
                 conn.Close();
@@ -254,7 +260,7 @@ namespace LabManagement
          * Parameterized SQL Statement  
          * Change other methods to look like this
          */
-        static public int SqlInsert(string tableName, string[] column, object[] values)
+        static public int Insert(string tableName, string[] column, object[] values)
         {
             int result = -1;
             int numberOfColumns = column.Length;
@@ -278,7 +284,7 @@ namespace LabManagement
                     val.Remove(val.Length - 2, 2);
                     commandText.Append(val + ")");
                     cmd.CommandText = commandText.ToString();
-                    Common.DebugMessageCR(debug, "SqlInsert()" + commandText);
+                    Common.DebugMessageCR(debug, "Db.Insert(" + cmd.CommandText + " )");
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -291,7 +297,7 @@ namespace LabManagement
                     }
                     catch (SQLiteException)
                     {
-                        Console.WriteLine("SQLiteException with SqlInsert()" + commandText);
+                        Console.WriteLine("SQLiteException with Db.Insert(" + cmd.CommandText + " )");
                     }
                 }
                 conn.Close();
