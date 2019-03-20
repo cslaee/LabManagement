@@ -21,6 +21,7 @@ namespace LabManagement
         public const string locksJsonFileName = "Locks.json";
         public const string sqlFileName = "db.sql";
         public string workingDirectory = System.AppContext.BaseDirectory;
+        public const string webpageDir = @"C:\Users\moberme\Documents\LabManagement\webpage\index_files\";
     }
             // ** useful. Passed from a this obj
             //  obj.GetType().GetProperty("year").SetValue(obj, 9999, null);// pretty cool
@@ -30,4 +31,12 @@ namespace LabManagement
             //}
 
 }
+//todo Add Edit User Panel
+//todo Add Edit Course Panel
+//todo Add Edit Room Panel
+//todo Build Send email to instructor button
+
+        //todo Does Class DefaultRoom match Schedule Room?
+        //todo Does Class maxSections match Schedule Section?
+
 

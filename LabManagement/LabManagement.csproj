@@ -118,6 +118,7 @@
     <Compile Include="Schedule.cs" />
     <Compile Include="Semester.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="Web.cs" />
     <EmbeddedResource Include="EmailCombination.resx">
       <DependentUpon>EmailCombination.cs</DependentUpon>
     </EmbeddedResource>

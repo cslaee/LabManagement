@@ -191,7 +191,7 @@ namespace LabManagement
         }
 
 
-
+        //todo This needs parameters
         static public int Update(string table, string idName, int id, string colNameAndValue)
         {
             int result = -1;

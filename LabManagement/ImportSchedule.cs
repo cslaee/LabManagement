@@ -12,13 +12,14 @@ namespace LabManagement
     static class ImportSchedule
     {
         static readonly bool debug = Constants.importScheduleDebug;
-        //todo Insert Schedule | lookup ClassID, Insert ClassID, Section, SemesesterID, Days, StartTime, EndTime, InstructorID, RoomID
-        //todo Does Class DefaultRoom match Schedule Room?
-        //todo Does Class maxSections match Schedule Section?
-
 
         static public void GetExcelSchedule()
         {
+
+            Web.BuildSchedule();
+            System.Environment.Exit(1);
+
+
             Regex coursePattern = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
             Regex userPattern = new Regex(@"(\w+)\/?(\w+)?");
             Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
@@ -58,7 +59,7 @@ namespace LabManagement
                     }
                     else
                     {
-                        u1 = new User("TBA");
+                        u1 = new User();
                     }
                     if (hasSecondUser)
                     {
