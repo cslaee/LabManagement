@@ -248,36 +248,11 @@ namespace LabManagement
                     string title = ws.excelArray[currentRow, 1].Trim();
                     string credit = ws.excelArray[currentRow, 2].Trim();
                     Course c = new Course(rawCourse, title, credit);
-
                     string coarseAndSection = c.Catalog + "-" + c.Section;
-
-                    User u1 = GetUser(1, ws, currentRow);
-                    User u2 = GetUser(2, ws, currentRow);
-
-                    string rawRoom = ws.excelArray[currentRow, 5].Trim();
-                    Room r1, r2;
-                    string room1 = roomRegex.Match(rawRoom).Groups[1].Value;
-                    string room2 = roomRegex.Match(rawRoom).Groups[6].Value;
-                    bool hasFirstRoom = room1.Length != 0;
-                    bool hasSecondRoom = room2.Length != 0;
-                    if (hasFirstRoom)
-                    {
-                        r1 = new Room(roomRegex.Match(rawRoom).Groups[0].Value);
-                        Common.DebugWriteLine(debug, "b1 = " + r1.Building + r1.Wing + r1.RoomNumber + r1.SubRoom);
-                    }
-                    else
-                    {
-                        r1 = new Room();
-                    }
-                    if (hasSecondRoom)
-                    {
-                        r2 = new Room(roomRegex.Match(rawRoom).Groups[5].Value);
-                        Common.DebugWriteLine(debug, "b2 = " + r2.Building + r2.Wing + r2.RoomNumber + r2.SubRoom);
-                    }
-                    else
-                    {
-                        r2 = new Room();
-                    }
+                    User u1 = new User(1, ws, currentRow);
+                    User u2 = new User(2, ws, currentRow);
+                    Room r1 = new Room(0, ws, currentRow);
+                    Room r2 = new Room(5, ws, currentRow);
                     string rawTime = ws.excelArray[currentRow, 4].Trim();
                     Schedule s = new Schedule(c, semesterId, u1.UserID, u2.UserID, r1.RoomID, r2.RoomID, rawTime);
                 }
@@ -285,28 +260,18 @@ namespace LabManagement
 
         }
 
-        static User GetUser(int userNumber, ExcelData ws, int row)
-        {
-            string rawUser = ws.excelArray[row, 3].Trim();
-            string user = userRegex.Match(rawUser).Groups[userNumber].Value;
-            bool hasUser = user.Length != 0;
-            if (hasUser)
-            {
-                return new User(user);
-            }
-            return new User();
-        }
 
-        static User GetRoom(int roomNumber, ExcelData ws, int row)
+
+        static Room GetRoom(int roomNumber, ExcelData ws, int row)
         {
-            string rawRoom = ws.excelArray[row, 3].Trim();
-            string room = userRegex.Match(rawRoom).Groups[roomNumber].Value;
+            string rawRoom = ws.excelArray[row, 5].Trim();
+            string room = roomRegex.Match(rawRoom).Groups[roomNumber].Value;
             bool hasRoom = room.Length != 0;
             if (hasRoom)
             {
-                return new User(room);
+                return new Room(room);
             }
-            return new User();
+            return new Room();
         }
 
 

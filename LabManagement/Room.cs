@@ -34,7 +34,7 @@ namespace LabManagement
             string[] colname = new[] { "building", "wing", "roomNumber", "subRoom" };
             var coldata = new object[] { Building, Wing, RoomNumber, SubRoom };
             var tuple = Db.GetTuple("Room", "*", colname, coldata);
-            
+
             bool noRoomInDb = tuple.Count == 0;
             if (noRoomInDb)
             {
@@ -46,6 +46,41 @@ namespace LabManagement
             }
             Common.DebugWriteLine(debug, "Room.cs: RoomID = " + RoomID + " Building =" + Building + " Wing =" + Wing + " RoomNumber =" + RoomNumber + " SubRoom =" + SubRoom);
         }
+
+        public Room(int roomIndex, ExcelData ws, int row)
+        {
+            Regex roomRegex = new Regex(Constants.roomPattern);
+            string bothRooms = ws.excelArray[row, 5].Trim();
+            string rawRoom = roomRegex.Match(bothRooms).Groups[roomIndex].Value;
+            bool noRoom = rawRoom.Length == 0;
+            if (noRoom)
+            {
+                RoomID = 1;
+                return;
+            }
+
+            Building = roomRegex.Match(rawRoom).Groups[1].Value;
+            Wing = roomRegex.Match(rawRoom).Groups[2].Value;
+            int.TryParse(roomRegex.Match(rawRoom).Groups[3].Value, out int roomNumber);
+            RoomNumber = roomNumber;
+            SubRoom = roomRegex.Match(rawRoom).Groups[4].Value;
+
+            string[] colname = new[] { "building", "wing", "roomNumber", "subRoom" };
+            var coldata = new object[] { Building, Wing, RoomNumber, SubRoom };
+            var tuple = Db.GetTuple("Room", "*", colname, coldata);
+
+            bool noRoomInDb = tuple.Count == 0;
+            if (noRoomInDb)
+            {
+                RoomID = Db.Insert("Room", colname, coldata);
+            }
+            else
+            {
+                RoomID = Convert.ToInt32(tuple[0].ToString());
+            }
+            Common.DebugWriteLine(debug, "Room.cs: RoomID = " + RoomID + " Building =" + Building + " Wing =" + Wing + " RoomNumber =" + RoomNumber + " SubRoom =" + SubRoom);
+        }
+
 
     }
 }
