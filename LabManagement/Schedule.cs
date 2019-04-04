@@ -85,7 +85,7 @@ namespace LabManagement
             startTimeHours = startTimeHoursInt.ToString();
             StartTimeStr = startTimeHours + ":" + startTimeMinutes;
             //Console.WriteLine(startTimeHours + ":" + startTimeMinutes + " " + endTimeHours + ":" + endTimeMinutes);
-            Common.DebugMessageCR(debug, CourseFK + " Sec=" + Section+ " Sem=" + SemesterFK+ " Ins1=" + Instructor1FK + " Ins2=" + Instructor2FK + " Rm1=" + Room1FK + " Rm2=" + Room2FK + " Status=" + StatusFK + " Days=" + Days + " ST=" + StartTime + " ET=" + EndTime  );
+            Common.DebugWriteLine(debug, "CourseFK=" + CourseFK + " Sec=" + Section+ " Sem=" + SemesterFK+ " Ins1=" + Instructor1FK + " Ins2=" + Instructor2FK + " Rm1=" + Room1FK + " Rm2=" + Room2FK + " Status=" + StatusFK + " Days=" + Days + " ST=" + StartTime + " ET=" + EndTime  );
 
             string[] colname = new[] { "courseFK", "section", "semesterFK", "instructor1FK", "instructor2FK", "room1FK", "room2FK", "statusFK", "days", "startTime", "endTime" };
             var coldata = new object[] { CourseFK, Section, SemesterFK, Instructor1FK, Instructor2FK, Room1FK, Room2FK, StatusFK, Days, StartTimeStr, EndTimeStr  };

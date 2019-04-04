@@ -9,7 +9,7 @@ namespace LabManagement
 {
     class Web
     {
-        static public void BuildSchedule()
+        static public void PublishSchedule()
         {
 
             string[] header = new[]  {"<html>","<head>", "<meta http-equiv=Content-Type content=\"text / html; charset = windows - 1252\">",

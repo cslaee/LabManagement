@@ -20,7 +20,13 @@ namespace LabManagement
 
                 LabManagement.Db.StartDb();
             //Application.Run(new EmailCombinations());
-            ImportSchedule.GetExcelSchedule();
+            //ImportSchedule.GetExcelSchedule();
+
+            Web.PublishSchedule();
+//            System.Environment.Exit(1);
+
+
+
             Application.Run(new Main());
         }
     }

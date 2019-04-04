@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -12,20 +14,18 @@ namespace LabManagement
     static class ImportSchedule
     {
         static readonly bool debug = Constants.importScheduleDebug;
+        static Regex courseRegex = new Regex(Constants.coursePattern);
+        static Regex userRegex = new Regex(Constants.userPattern);
+        static Regex roomRegex = new Regex(Constants.roomPattern);
 
-        static public void GetExcelSchedule()
+
+        static public void GetExcelSchedule(string fileName)
         {
 
-            Web.BuildSchedule();
-            System.Environment.Exit(1);
-
-
-            Regex coursePattern = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
-            Regex userPattern = new Regex(@"(\w+)\/?(\w+)?");
-            Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
-            string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall2019.xlsx";
-            //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\sum2019.xlsx";
-            //string fileName = @"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\ArletteTestSchedule.xlsx";
+            //Regex courseRegex = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
+            //Regex userRegex = new Regex(@"(\w+)\/?(\w+)?");
+            //Regex roomRegex = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
+            Common.DebugWriteLine(debug, "GetExcelSchedule() fileName = " + fileName);
             ExcelData ws = new ExcelData(fileName, 1);
 
             string rawSemester = ws.excelArray[2, 0].Trim();
@@ -38,7 +38,7 @@ namespace LabManagement
             for (int currentRow = 4; currentRow <= ws.rowCount - 1; currentRow++)
             {
                 string rawCourse = ws.excelArray[currentRow, 0];
-                bool isCourse = coursePattern.IsMatch(rawCourse);
+                bool isCourse = courseRegex.IsMatch(rawCourse);
 
                 if (isCourse)
                 {
@@ -49,8 +49,8 @@ namespace LabManagement
                     string coarseAndSection = c.Catalog + "-" + c.Section;
                     User u1, u2;
                     string rawUser = ws.excelArray[currentRow, 3].Trim();
-                    string user1 = userPattern.Match(rawUser).Groups[1].Value;
-                    string user2 = userPattern.Match(rawUser).Groups[2].Value;
+                    string user1 = userRegex.Match(rawUser).Groups[1].Value;
+                    string user2 = userRegex.Match(rawUser).Groups[2].Value;
                     bool hasFirstUser = user1.Length != 0;
                     bool hasSecondUser = user2.Length != 0;
                     if (hasFirstUser)
@@ -73,14 +73,14 @@ namespace LabManagement
 
                     string rawRoom = ws.excelArray[currentRow, 5].Trim();
                     Room r1, r2;
-                    string room1 = roomPattern.Match(rawRoom).Groups[1].Value;
-                    string room2 = roomPattern.Match(rawRoom).Groups[6].Value;
+                    string room1 = roomRegex.Match(rawRoom).Groups[1].Value;
+                    string room2 = roomRegex.Match(rawRoom).Groups[6].Value;
                     bool hasFirstRoom = room1.Length != 0;
                     bool hasSecondRoom = room2.Length != 0;
                     if (hasFirstRoom)
                     {
-                        r1 = new Room(roomPattern.Match(rawRoom).Groups[0].Value);
-                        Common.DebugMessageCR(debug, "b1 = " + r1.Building + r1.Wing + r1.RoomNumber + r1.SubRoom);
+                        r1 = new Room(roomRegex.Match(rawRoom).Groups[0].Value);
+                        Common.DebugWriteLine(debug, "b1 = " + r1.Building + r1.Wing + r1.RoomNumber + r1.SubRoom);
                     }
                     else
                     {
@@ -88,8 +88,8 @@ namespace LabManagement
                     }
                     if (hasSecondRoom)
                     {
-                        r2 = new Room(roomPattern.Match(rawRoom).Groups[5].Value);
-                        Common.DebugMessageCR(debug, "b2 = " + r2.Building + r2.Wing + r2.RoomNumber + r2.SubRoom);
+                        r2 = new Room(roomRegex.Match(rawRoom).Groups[5].Value);
+                        Common.DebugWriteLine(debug, "b2 = " + r2.Building + r2.Wing + r2.RoomNumber + r2.SubRoom);
                     }
                     else
                     {
@@ -103,29 +103,227 @@ namespace LabManagement
             }
 
             //Marshal.ReleaseComObject(ws);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
             //            System.Environment.Exit(1);
         }
 
-
-        static public string GetFileName()
+        static public void TestImportSchedule()
         {
-            var filePath = string.Empty;
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
-                openFileDialog.FilterIndex = 2;
-                openFileDialog.RestoreDirectory = true;
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2015");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2016");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2017");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2019");
+            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\winter 2016");
+
+            watch.Stop();
+            Console.WriteLine("Time elapsed as per stopwatch: {0} ", watch.Elapsed);
+        }
+
+
+        static public void TestImportSemesters()
+        {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2015");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2016");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2017");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2019");
+            TestSemester(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\winter 2016");
+
+            watch.Stop();
+            Console.WriteLine("Time elapsed as per stopwatch: {0} ", watch.Elapsed);
+        }
+
+        //todo If Fall, Spring or Winter semester
+        //todo     Find date range for semester
+        //todo  If Summer
+        //todo    is it Session A B or C
+        //todo    Find Date range.
+        static public void TestSemester(string fileName)
+        {
+            Calendar calendar;
+            bool isSummer = false;
+            bool isValidSemesterDateRange = false;
+            Regex revisionDateRegex = new Regex(Constants.revisionDatePattern);
+            Regex semesterNameAndYearRegex = new Regex(Constants.semesterNameAndYearPattern);
+            Regex dayYearRegex = new Regex(Constants.dayYearPattern);
+            Regex semesterDateRangeRegex = new Regex(Constants.semesterDateRangePattern);
+
+
+            int[,] revisionDateSearchPath = new int[,] { { 1, 0 }, { 2, 0 } };
+            int[,] seasonSearchPath = new int[,] { { 1, 0 }, { 1, 1 }, { 2, 0 } };
+            int[,] semesterDateRangeSearchPath = new int[,] { { 0, 0 }, { 1, 1 }, { 2, 0 } };
+
+            // 2 digit dates not valid
+            Common.DebugWriteLine(true, "");
+            Common.DebugWriteLine(true, "GetExcelSchedule() fileName = " + fileName);
+            ExcelData ws = new ExcelData(fileName, 1);
+
+            string revisionDateString = FindString(revisionDateSearchPath, ws, revisionDateRegex);
+            //Console.WriteLine("revisionDataString = " + revisionDateString);
+
+            string semesterNameAndYear = FindString(seasonSearchPath, ws, semesterNameAndYearRegex);
+            //Console.WriteLine("semesterNameAndYear2 = " + semesterNameAndYear);
+
+            bool notValidSemesterNameAndYear = semesterNameAndYear.Length == 0;
+
+            if (notValidSemesterNameAndYear)
+            {
+                MessageBox.Show("Import Failed.  Can not find semester name and date.");
+            }
+
+            //if (isValidSemesterDateRange)
+            //{
+            //    Semester semester = new Semester(revisionDateString, semesterNameAndYear);
+            //}
+            ////string rawSemester = ws.excelArray[2, 0].Trim();
+            //Semester semester = new Semester(rawSemester);
+
+            Semester semester = new Semester(revisionDateString, semesterNameAndYear);
+            isSummer = semester.NameFK == 4;
+            if (isSummer)
+            {
+                Common.DebugWriteLine(true, "This is summer");
+            }
+            else
+            {
+                string semesterDateRange = FindString(semesterDateRangeSearchPath, ws, semesterDateRangeRegex);
+               Common.DebugWriteLine(true, "semesterDateRangeRegex = " + semesterDateRange);
+                isValidSemesterDateRange = semesterDateRange.Length > 0;
+                if (isValidSemesterDateRange)
                 {
-                    filePath = openFileDialog.FileName;
+                    calendar = new Calendar(semesterDateRange, semester.SemesterID, 1);
+                }
+                InsertCourses(ws, semester.SemesterID, ws.rowCount - 1);
+
+            }
+
+            //string[] colname = new[] { "semesterFK" };
+            //var coldata = new object[] { semester.SemesterID };
+            //Db.Delete("Schedule", colname, coldata);
+
+            //Marshal.ReleaseComObject(ws);
+            //GC.Collect();rr
+            //GC.WaitForPendingFinalizers();
+        }
+
+
+        static public string FindString(int[,] path, ExcelData ws, Regex pattern)
+        {
+            int numPaths = path.Length / 2;
+            for (int y = 0; y < numPaths; y++)
+            {
+                string rawInput = ws.excelArray[path[y, 0], path[y, 1]].Trim();
+                string excelString = pattern.Match(rawInput).Groups[0].Value;
+                //    Console.WriteLine("NumPaths =" +numPaths + " rawInput =" + rawInput);
+                bool hasWhatWeAreLookingFor = excelString.Length != 0;
+                if (hasWhatWeAreLookingFor)
+                {
+                    return excelString;
+                }
+
+            }
+            return "";
+        }
+
+
+
+        static public void InsertCourses(ExcelData ws, int semesterId, int lastRow)
+        {
+            Common.DebugWriteLine(true, "semesterId = " + semesterId);
+
+            for (int currentRow = 4; currentRow <= lastRow; currentRow++)
+            {
+                string rawCourse = ws.excelArray[currentRow, 0];
+                bool isCourse = courseRegex.IsMatch(rawCourse);
+
+                if (isCourse)
+                {
+                    string title = ws.excelArray[currentRow, 1].Trim();
+                    string credit = ws.excelArray[currentRow, 2].Trim();
+                    Course c = new Course(rawCourse, title, credit);
+
+                    string coarseAndSection = c.Catalog + "-" + c.Section;
+                    User u1, u2;
+                    string rawUser = ws.excelArray[currentRow, 3].Trim();
+                    string user1 = userRegex.Match(rawUser).Groups[1].Value;
+                    string user2 = userRegex.Match(rawUser).Groups[2].Value;
+                    bool hasFirstUser = user1.Length != 0;
+                    bool hasSecondUser = user2.Length != 0;
+                    if (hasFirstUser)
+                    {
+                        u1 = new User(user1);
+                    }
+                    else
+                    {
+                        u1 = new User();
+                    }
+                    if (hasSecondUser)
+                    {
+                        u2 = new User(user2);
+                    }
+                    else
+                    {
+                        u2 = new User();
+                    }
+                    string users = u1.Last;
+
+                    string rawRoom = ws.excelArray[currentRow, 5].Trim();
+                    Room r1, r2;
+                    string room1 = roomRegex.Match(rawRoom).Groups[1].Value;
+                    string room2 = roomRegex.Match(rawRoom).Groups[6].Value;
+                    bool hasFirstRoom = room1.Length != 0;
+                    bool hasSecondRoom = room2.Length != 0;
+                    if (hasFirstRoom)
+                    {
+                        r1 = new Room(roomRegex.Match(rawRoom).Groups[0].Value);
+                        Common.DebugWriteLine(debug, "b1 = " + r1.Building + r1.Wing + r1.RoomNumber + r1.SubRoom);
+                    }
+                    else
+                    {
+                        r1 = new Room();
+                    }
+                    if (hasSecondRoom)
+                    {
+                        r2 = new Room(roomRegex.Match(rawRoom).Groups[5].Value);
+                        Common.DebugWriteLine(debug, "b2 = " + r2.Building + r2.Wing + r2.RoomNumber + r2.SubRoom);
+                    }
+                    else
+                    {
+                        r2 = new Room();
+                    }
+                    string rawTime = ws.excelArray[currentRow, 4].Trim();
+                    Schedule s = new Schedule(c, semesterId, u1.UserID, u2.UserID, r1.RoomID, r2.RoomID, rawTime);
                 }
             }
-            return filePath;
+
         }
+
+
 
 
     }

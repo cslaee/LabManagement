@@ -41,9 +41,9 @@ namespace LabManagement
             //--   Tools>Catalog>ExportSqliteTableCoumns"
             if (!File.Exists("./" + Constants.databaseName))
             {
-                Common.DebugMessageCR(debug, "No Database exsist, Creating one");
+                Common.DebugWriteLine(debug, "No Database exsist, Creating one");
                 SQLiteConnection.CreateFile(Constants.databaseName);
-                Common.DebugMessageCR(debug, "Building Tables");
+                Common.DebugWriteLine(debug, "Building Tables");
                 BuildDbTables(GetDbSchema());
                 //todo Add PRAGMA foreign_keys=ON
                 ImportExcelData();
@@ -55,7 +55,7 @@ namespace LabManagement
             if (Constants.wipeDB && File.Exists("./" + Constants.databaseName))
             {
                 File.Delete("./" + Constants.databaseName);
-                Common.DebugMessageCR(debug, "Database file deleted");
+                Common.DebugWriteLine(debug, "Database file deleted");
             }
         }
 
@@ -73,7 +73,7 @@ namespace LabManagement
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        Common.DebugMessageCR(debug, "Created Table");
+                        Common.DebugWriteLine(debug, "Created Table");
                     }
                     catch (SQLiteException)
                     {
@@ -128,7 +128,7 @@ namespace LabManagement
             }
             commandText.Remove(commandText.Length - 4, 4);
             cmd.CommandText = commandText.ToString() + " COLLATE NOCASE";
-            Common.DebugMessageCR(debug, "Db.GetTuple(" + cmd.CommandText + " )");
+            Common.DebugWriteLine(debug, "Db.GetTuple(" + cmd.CommandText + " )");
             connection.Open();
 
             using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -201,13 +201,13 @@ namespace LabManagement
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
                     string comboQuery = "UPDATE " + table + " SET " + colNameAndValue + " WHERE " + idName + " = " + id;
-                    Common.DebugMessageCR(debug, comboQuery);
+                    Common.DebugWriteLine(debug, comboQuery);
                     cmd.CommandText = comboQuery;
 
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        Common.DebugMessageCR(debug, "Db.Update(" + cmd.CommandText + " )");
+                        Common.DebugWriteLine(debug, "Db.Update(" + cmd.CommandText + " )");
                     }
                     catch (SQLiteException)
                     {
@@ -242,7 +242,7 @@ namespace LabManagement
                     try
                     {
                         result = cmd.ExecuteNonQuery();
-                        Common.DebugMessageCR(debug, "Db.Delete(" + cmd.CommandText + " )");
+                        Common.DebugWriteLine(debug, "Db.Delete(" + cmd.CommandText + " )");
                     }
                     catch (SQLiteException)
                     {
@@ -272,6 +272,7 @@ namespace LabManagement
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
+                    Common.DebugWrite(debug, "insert into =" + tableName);
                     commandText.Append("INSERT INTO " + tableName + " (");
                     val.Append(") VALUES (");
                     for (int i = 0; i < numberOfColumns; i++)
@@ -279,12 +280,13 @@ namespace LabManagement
                         commandText.Append(column[i] + ", ");
                         val.Append("?, ");
                         cmd.Parameters.Add(new SQLiteParameter(column[i], values[i]));
+                        Common.DebugWrite(debug, column[i] + "=" + values[i] + ", ");
                     }
                     commandText.Remove(commandText.Length - 2, 2);
                     val.Remove(val.Length - 2, 2);
                     commandText.Append(val + ")");
                     cmd.CommandText = commandText.ToString();
-                    Common.DebugMessageCR(debug, "Db.Insert(" + cmd.CommandText + " )");
+                    Common.DebugWriteLine(debug, "Db.Insert(" + cmd.CommandText + " )");
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -315,7 +317,7 @@ namespace LabManagement
             string SqlInsertArrayQuery = "INSERT INTO " + name + " (" + column + ") VALUES(";
             int queryLen = SqlInsertArrayQuery.Length;
             val.Append(SqlInsertArrayQuery);
-            Common.DebugMessageCR(debug, "* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
+            Common.DebugWriteLine(debug, "* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
 
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
@@ -334,11 +336,11 @@ namespace LabManagement
                             val.Append(")");
                             cmd.CommandText = val.ToString();
                             if (debug)
-                                Common.DebugMessageCR(debug, "query = " + val.ToString());
+                                Common.DebugWriteLine(debug, "query = " + val.ToString());
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLen, val.Length - queryLen);
                         }
-                        Common.DebugMessageCR(debug, "Finished Inserting Array into table");
+                        Common.DebugWriteLine(debug, "Finished Inserting Array into table");
                     }
                     catch (SQLiteException)
                     {
@@ -374,7 +376,7 @@ namespace LabManagement
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLeftLen, val.Length - queryLeftLen);
                         }
-                        Common.DebugMessageCR(debug, "Finished Creating Table");
+                        Common.DebugWriteLine(debug, "Finished Creating Table");
                     }
                     catch (SQLiteException)
                     {

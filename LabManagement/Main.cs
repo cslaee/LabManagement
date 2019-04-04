@@ -186,8 +186,11 @@ namespace LabManagement
         {
 
 
-//            openFileDialog1_FileOk(sender, e.ToString());
-            ImportSchedule.GetExcelSchedule();
+            //            openFileDialog1_FileOk(sender, e.ToString());
+            //string fileName = Common.GetFileName();
+            //ImportSchedule.GetExcelSchedule(fileName);
+            //ImportSchedule.TestImportSchedule();
+            ImportSchedule.TestImportSemesters();
         }
 
         private void Calendar_Click(object sender, EventArgs e)

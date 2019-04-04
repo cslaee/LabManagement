@@ -34,34 +34,17 @@ namespace LabManagement
             var coldataLookup = new object[] { Subject, Catalog, Credit };
 
             var tuple = Db.GetTuple("Course", "*", colnameLookup, coldataLookup);
-            bool coarseIsInDb = tuple.Count > 0;
+            //bool coarseIsInDb = tuple.Count > 0;
+            bool coarseNotInDb = tuple.Count == 0;
 
-            if (coarseIsInDb)
+            if (coarseNotInDb)
             {
-                CourseFK = Convert.ToInt32(tuple[0].ToString());
-                string dbTitle = tuple[3].ToString();
-                bool isTitleUnique = dbTitle != Title;
-
-                if (isTitleUnique)
-                {
-                    bool isSpecialTopic = Catalog == 4540;
-                    if (isSpecialTopic)
-                    {
-                        CourseFK = Db.Insert("Course", colname, coldata);
-                        Common.DebugMessageCR(debug, "Inserting Course" + colname + " " + coldata + "Returned CourseId =" + CourseFK);
-                    }
-                    else
-                    {
-                        string updateStr = "title = '" + Title + "'";
-                        Common.DebugMessageCR(debug, "Updated this coarse name from " + dbTitle + " to " + Title);
-                        CourseFK = Db.Update("Course", "courseID", CourseFK, updateStr);
-                    }
-                }
+                CourseFK = Db.Insert("Course", colname, coldata);
+                Common.DebugWriteLine(debug, "else coarseIsInDb " + colname + " " + coldata + " Returned CourseFK =" + CourseFK);
             }
             else
             {
-                CourseFK = Db.Insert("Course", colname, coldata);
-                //Console.Write("Inserting Course" + insertColumns + " " + insertData + "Returned CourseId =" + CourseID);
+                CourseFK = Convert.ToInt32(tuple[0].ToString());
             }
         }
 

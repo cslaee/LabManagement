@@ -44,7 +44,7 @@ namespace LabManagement
             {
                 RoomID = Convert.ToInt32(tuple[0].ToString());
             }
-            Common.DebugMessageCR(debug, "Room.cs: RoomID = " + RoomID + " Building =" + Building + " Wing =" + Wing + " RoomNumber =" + RoomNumber + " SubRoom =" + SubRoom);
+            Common.DebugWriteLine(debug, "Room.cs: RoomID = " + RoomID + " Building =" + Building + " Wing =" + Wing + " RoomNumber =" + RoomNumber + " SubRoom =" + SubRoom);
         }
 
     }
