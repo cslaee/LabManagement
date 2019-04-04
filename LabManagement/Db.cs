@@ -299,7 +299,9 @@ namespace LabManagement
                     }
                     catch (SQLiteException)
                     {
-                        Console.WriteLine("SQLiteException with Db.Insert(" + cmd.CommandText + " )");
+                        Common.DebugWriteLine(true,  cmd.CommandText);
+                        Common.DebugWrite(true,  values.ToString());
+                        //Console.WriteLine("SQLiteException with Db.Insert(" + cmd.CommandText + " )");
                     }
                 }
                 conn.Close();

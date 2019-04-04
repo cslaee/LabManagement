@@ -93,6 +93,13 @@ namespace LabManagement
         }
 
 
+        static public void DeleteSchedule(int semesterID)
+        {
+            string[] colname = new[] { "semesterFK" };
+            var coldata = new object[] { semesterID };
+            Db.Delete("Schedule", colname, coldata);
+        }
+
         static int ConvertToMilitaryTime(bool isPm, int hours)
         {
             if (isPm)

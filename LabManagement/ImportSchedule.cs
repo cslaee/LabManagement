@@ -21,10 +21,6 @@ namespace LabManagement
 
         static public void GetExcelSchedule(string fileName)
         {
-
-            //Regex courseRegex = new Regex(@"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})");
-            //Regex userRegex = new Regex(@"(\w+)\/?(\w+)?");
-            //Regex roomRegex = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?");
             Common.DebugWriteLine(debug, "GetExcelSchedule() fileName = " + fileName);
             ExcelData ws = new ExcelData(fileName, 1);
 
@@ -173,7 +169,6 @@ namespace LabManagement
             Regex dayYearRegex = new Regex(Constants.dayYearPattern);
             Regex semesterDateRangeRegex = new Regex(Constants.semesterDateRangePattern);
 
-
             int[,] revisionDateSearchPath = new int[,] { { 1, 0 }, { 2, 0 } };
             int[,] seasonSearchPath = new int[,] { { 1, 0 }, { 1, 1 }, { 2, 0 } };
             int[,] semesterDateRangeSearchPath = new int[,] { { 0, 0 }, { 1, 1 }, { 2, 0 } };
@@ -184,11 +179,7 @@ namespace LabManagement
             ExcelData ws = new ExcelData(fileName, 1);
 
             string revisionDateString = FindString(revisionDateSearchPath, ws, revisionDateRegex);
-            //Console.WriteLine("revisionDataString = " + revisionDateString);
-
             string semesterNameAndYear = FindString(seasonSearchPath, ws, semesterNameAndYearRegex);
-            //Console.WriteLine("semesterNameAndYear2 = " + semesterNameAndYear);
-
             bool notValidSemesterNameAndYear = semesterNameAndYear.Length == 0;
 
             if (notValidSemesterNameAndYear)
@@ -196,14 +187,9 @@ namespace LabManagement
                 MessageBox.Show("Import Failed.  Can not find semester name and date.");
             }
 
-            //if (isValidSemesterDateRange)
-            //{
-            //    Semester semester = new Semester(revisionDateString, semesterNameAndYear);
-            //}
-            ////string rawSemester = ws.excelArray[2, 0].Trim();
-            //Semester semester = new Semester(rawSemester);
-
             Semester semester = new Semester(revisionDateString, semesterNameAndYear);
+            Schedule.DeleteSchedule(semester.SemesterID);
+
             isSummer = semester.NameFK == 4;
             if (isSummer)
             {
@@ -212,7 +198,7 @@ namespace LabManagement
             else
             {
                 string semesterDateRange = FindString(semesterDateRangeSearchPath, ws, semesterDateRangeRegex);
-               Common.DebugWriteLine(true, "semesterDateRangeRegex = " + semesterDateRange);
+                Common.DebugWriteLine(true, "semesterDateRangeRegex = " + semesterDateRange);
                 isValidSemesterDateRange = semesterDateRange.Length > 0;
                 if (isValidSemesterDateRange)
                 {
@@ -221,10 +207,6 @@ namespace LabManagement
                 InsertCourses(ws, semester.SemesterID, ws.rowCount - 1);
 
             }
-
-            //string[] colname = new[] { "semesterFK" };
-            //var coldata = new object[] { semester.SemesterID };
-            //Db.Delete("Schedule", colname, coldata);
 
             //Marshal.ReleaseComObject(ws);
             //GC.Collect();rr
@@ -252,7 +234,7 @@ namespace LabManagement
 
 
 
-        static public void InsertCourses(ExcelData ws, int semesterId, int lastRow)
+        static void InsertCourses(ExcelData ws, int semesterId, int lastRow)
         {
             Common.DebugWriteLine(true, "semesterId = " + semesterId);
 
@@ -268,29 +250,9 @@ namespace LabManagement
                     Course c = new Course(rawCourse, title, credit);
 
                     string coarseAndSection = c.Catalog + "-" + c.Section;
-                    User u1, u2;
-                    string rawUser = ws.excelArray[currentRow, 3].Trim();
-                    string user1 = userRegex.Match(rawUser).Groups[1].Value;
-                    string user2 = userRegex.Match(rawUser).Groups[2].Value;
-                    bool hasFirstUser = user1.Length != 0;
-                    bool hasSecondUser = user2.Length != 0;
-                    if (hasFirstUser)
-                    {
-                        u1 = new User(user1);
-                    }
-                    else
-                    {
-                        u1 = new User();
-                    }
-                    if (hasSecondUser)
-                    {
-                        u2 = new User(user2);
-                    }
-                    else
-                    {
-                        u2 = new User();
-                    }
-                    string users = u1.Last;
+
+                    User u1 = GetUser(1, ws, currentRow);
+                    User u2 = GetUser(2, ws, currentRow);
 
                     string rawRoom = ws.excelArray[currentRow, 5].Trim();
                     Room r1, r2;
@@ -323,8 +285,36 @@ namespace LabManagement
 
         }
 
+        static User GetUser(int userNumber, ExcelData ws, int row)
+        {
+            string rawUser = ws.excelArray[row, 3].Trim();
+            string user = userRegex.Match(rawUser).Groups[userNumber].Value;
+            bool hasUser = user.Length != 0;
+            if (hasUser)
+            {
+                return new User(user);
+            }
+            return new User();
+        }
+
+        static User GetRoom(int roomNumber, ExcelData ws, int row)
+        {
+            string rawRoom = ws.excelArray[row, 3].Trim();
+            string room = userRegex.Match(rawRoom).Groups[roomNumber].Value;
+            bool hasRoom = room.Length != 0;
+            if (hasRoom)
+            {
+                return new User(room);
+            }
+            return new User();
+        }
+
 
 
 
     }
+
+
+
+
 }
