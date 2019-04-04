@@ -20,6 +20,8 @@ namespace LabManagement
             UserID = 1;
         }
 
+
+        //todo this is not needed anymore.
         public User(string newUser)
         {
             Last = newUser;

@@ -22,6 +22,7 @@ namespace LabManagement
             RoomID = 1;
         }
 
+        //todo this is not needed anymore.
         public Room(string rawRoom)
         {
             Regex roomPattern = new Regex(@"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?");
