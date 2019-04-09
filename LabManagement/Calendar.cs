@@ -11,53 +11,62 @@ namespace LabManagement
     internal class Calendar
     {
         public int CalendarID { get; set; }
-        public int Subject { get; set; }
+        public string Subject { get; set; }
         public int SemesterFK { get; set; }
         public int EventTypeFK { get; set; }
         public DateTime StartDate { get; set; }
+        public string StartDateStr { get; set; }
         public DateTime EndDate { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public string EndDateStr { get; set; }
         static readonly bool debug = Constants.calendarDebug;
 
         public Calendar() { }
 
-        public Calendar(string dateRange, int semesterFK, int eventTypeFK)
+        public Calendar(string dateRange, Semester semester, int eventTypeFK)
         {
             Regex semesterDateRangeRegex = new Regex(Constants.semesterDateRangePattern);
-            SemesterFK = semesterFK;
+            SemesterFK = semester.SemesterID;
             EventTypeFK = eventTypeFK;
-            string monthStartStr = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(semesterDateRangeRegex.Match(dateRange).Groups[1].Value.ToLower());
-            string dayStart = semesterDateRangeRegex.Match(dateRange).Groups[2].Value;
-            string yearStart = semesterDateRangeRegex.Match(dateRange).Groups[3].Value;
-            string monthEndStr = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(semesterDateRangeRegex.Match(dateRange).Groups[5].Value.ToLower());
-            string dayEnd = semesterDateRangeRegex.Match(dateRange).Groups[6].Value;
-            string yearEnd = semesterDateRangeRegex.Match(dateRange).Groups[7].Value;
-            int  monthStart = DateTimeFormatInfo.CurrentInfo.MonthNames.ToList().IndexOf(monthStartStr) + 1;
-            int  monthEnd = DateTimeFormatInfo.CurrentInfo.MonthNames.ToList().IndexOf(monthEndStr.ToLower()) + 1;
-            string output = "mss=" + monthStartStr + " ms=" + monthStart + " ds=" + dayStart  + " ys=" + yearStart + "mes=" + monthEndStr + " me=" + monthEnd + " de=" + dayEnd + " ye=" + yearEnd;
-            Common.DebugWriteLine(debug, output);
-            //Name = semesterNameAndYearRegex .Match(rawSemester).Groups[1].Value;
-            //string semesterYear = semesterNameAndYearRegex .Match(rawSemester).Groups[2].Value;
+            StartDateStr = GetDateString(semesterDateRangeRegex, dateRange, 1);
+            EndDateStr = GetDateString(semesterDateRangeRegex, dateRange, 5);
+            Common.DebugWriteLine(debug, StartDateStr);
+            Common.DebugWriteLine(debug, EndDateStr);
 
-            //int.TryParse(semesterYear, out int semesterYearTemp);
-            //int.TryParse(revisionMonth, out int m);
-            //int.TryParse(revisionDay, out int d);
-            //int.TryParse(revisionYear, out int y);
-            //Year = semesterYearTemp;
-            //SchedulePostDateStr = DateTime.Now.ToString("yyyy-M-d HH:mm:ss");
-            //ScheduleDateStr = y + "-" + m + "-" + d;
-
-
-
-
-
-
-
-
-
-
-            Common.DebugWriteLine(debug, "Creating a new Calendar");
+            string[] colname = new[] { "semesterFK", "eventTypeFK"};
+            var coldata = new object[] { SemesterFK, "1" };
+            Db.Delete("Calendar", colname, coldata);
+                
+            colname = new[] { "semesterNameID" };
+            coldata = new object[] { semester.NameFK };
+            var tuple = Db.GetTuple("SemesterName", "name", colname, coldata);
+            bool hasSemesterName = tuple.Count > 0;
+            if (hasSemesterName)
+            {
+            Subject = tuple[0].ToString() + " " + semester.Year;
+            }
+ 
+            colname = new[] { "semesterFK", "eventTypeFK", "subject", "startDate", "endDate"};
+            coldata = new object[] { SemesterFK, EventTypeFK, Subject, StartDateStr, EndDateStr };
+            Db.Insert("Calendar", colname, coldata);
         }
+
+
+        string GetDateString(Regex dateRegex, string dateRange, int dateIndex)
+        {
+            string monthStr = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(dateRegex.Match(dateRange).Groups[dateIndex].Value.ToLower());
+            string dayStr = dateRegex.Match(dateRange).Groups[dateIndex + 1].Value;
+            string yearStr = dateRegex.Match(dateRange).Groups[dateIndex + 2].Value;
+
+            bool hasMonth = monthStr.Length > 2;
+            if (hasMonth)
+            {
+                string monthShortStr = monthStr.Substring(0, 3);
+                int monthInt = DateTime.ParseExact(monthShortStr, "MMM", CultureInfo.InvariantCulture).Month;
+                return yearStr + "-" + monthInt + "-" + dayStr;
+            }
+            return "";
+        }
+
+
     }
 }

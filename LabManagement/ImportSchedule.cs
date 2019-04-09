@@ -8,21 +8,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-
-namespace LabManagement
-{
-    static class ImportSchedule
-    {
-        static readonly bool debug = Constants.importScheduleDebug;
-        static Regex courseRegex = new Regex(Constants.coursePattern);
-
-
         //todo If Fall, Spring or Winter semester
         //todo     Find date range for semester
         //todo  If Summer
         //todo    is it Session A B or C
         //todo    Find Date range.
-        static public void GetExcelSchedule(string fileName)
+ 
+namespace LabManagement
+{
+    static class ImportSchedule
+    {
+        static readonly bool debug = Constants.importScheduleDebug;
+
+       static public void GetExcelSchedule(string fileName)
         {
             Calendar calendar;
             bool isSummer = false;
@@ -37,8 +35,8 @@ namespace LabManagement
             int[,] semesterDateRangeSearchPath = new int[,] { { 0, 0 }, { 1, 1 }, { 2, 0 } };
 
             // 2 digit dates not valid
-            Common.DebugWriteLine(true, "");
-            Common.DebugWriteLine(true, "GetExcelSchedule() fileName = " + fileName);
+            Common.DebugWriteLine(debug, "");
+            Common.DebugWriteLine(debug, "GetExcelSchedule() fileName = " + fileName);
             ExcelData ws = new ExcelData(fileName, 1);
 
             string revisionDateString = FindString(revisionDateSearchPath, ws, revisionDateRegex);
@@ -56,24 +54,19 @@ namespace LabManagement
             isSummer = semester.NameFK == 4;
             if (isSummer)
             {
-                Common.DebugWriteLine(true, "This is summer");
+                Common.DebugWriteLine(debug, "This is summer");
             }
             else
             {
                 string semesterDateRange = FindString(semesterDateRangeSearchPath, ws, semesterDateRangeRegex);
-                Common.DebugWriteLine(true, "semesterDateRangeRegex = " + semesterDateRange);
+                Common.DebugWriteLine(debug, "semesterDateRangeRegex = " + semesterDateRange);
                 isValidSemesterDateRange = semesterDateRange.Length > 0;
                 if (isValidSemesterDateRange)
                 {
-                    calendar = new Calendar(semesterDateRange, semester.SemesterID, 1);
+                    calendar = new Calendar(semesterDateRange, semester, 1);
                 }
-                InsertCourses(ws, semester.SemesterID, ws.rowCount - 1);
-
+                BuildSchedule(ws, semester.SemesterID, ws.rowCount - 1);
             }
-
-            //Marshal.ReleaseComObject(ws);
-            //GC.Collect();rr
-            //GC.WaitForPendingFinalizers();
         }
 
 
@@ -96,10 +89,10 @@ namespace LabManagement
         }
 
 
-
-        static void InsertCourses(ExcelData ws, int semesterId, int lastRow)
+        static void BuildSchedule(ExcelData ws, int semesterId, int lastRow)
         {
-            Common.DebugWriteLine(true, "semesterId = " + semesterId);
+            Regex courseRegex = new Regex(Constants.coursePattern);
+            Common.DebugWriteLine(debug, "semesterId = " + semesterId);
 
             for (int currentRow = 4; currentRow <= lastRow; currentRow++)
             {
@@ -123,11 +116,11 @@ namespace LabManagement
 
         }
 
+
         static public void TestImportSemesters()
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
-
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2015");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
@@ -142,16 +135,10 @@ namespace LabManagement
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2019");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\winter 2016");
-
             watch.Stop();
             Console.WriteLine("Time elapsed as per stopwatch: {0} ", watch.Elapsed);
         }
 
 
-
     }
-
-
-
-
 }
