@@ -1,12 +1,8 @@
-﻿using System;
-using System.Text.RegularExpressions;
-
-namespace LabManagement
+﻿namespace LabManagement
 {
     class Constants
     {
         public const bool wipeDB = false;
-    
         public const bool dbDebug = false;
         public const bool importScheduleDebug = true;
         public const bool semesterDebug = false;
@@ -38,9 +34,17 @@ namespace LabManagement
         public const string summerDateRangePattern = datePattern + dashPattern + datePattern;
         public const string summerDateRangeNoYearPattern = datePattern + dashPattern + datePattern;
 
+        public const string toPattern = @"(?i)(\s?to\s?)";
+        public const string sessionWeekPattern = @"Session\s([A,B,C]):\s(\d{1,2})\s(?i)(WEEK\sSESSION,\s)";
+        public const string monthDayPattern = monthPattern + @"\s(\d{1,2})"; 
+        public const string summerSessionABCPattern = sessionWeekPattern + monthDayPattern + toPattern + monthDayPattern; //https://regex101.com/r/2F40G2/5/
+
         public const string coursePattern = @"([A-Z]{1,4})\s?(\d{4})-?(\d{0,2})";
         public const string userPattern = @"(\w+)\/?(\w+)?";
-        public const string roomPattern = @"^(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?\/?((ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?([A-F]|LH)?(\d{1,4})([A-G])?)?";
+
+        public const string buildingPattern = @"(ASCB|ASCL|BIOS|ET|FA|HDFC|KH|LACHSA|MUS|PE|SH|ST|TA|TVFM)\s?";
+        public const string roomNumberPattern = @"([A-F]|LH)?(\d{1,4})([A-G])?";
+        public const string roomPattern = "^" + buildingPattern + roomNumberPattern + @"\/?(" + buildingPattern + roomNumberPattern + ")?";
 
 
 

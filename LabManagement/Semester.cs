@@ -18,15 +18,17 @@ namespace LabManagement
 
         public Semester() { }
 
-        public Semester(string rawRevisionDate, string rawSemester)
+        //public Semester(string rawRevisionDate, string rawSemester)
+        public Semester(string rawRevisionDate, string name, string semesterYear, long nameFK)
         {
             Regex revisionDateRegex = new Regex(Constants.revisionDatePattern);
             Regex semesterNameAndYearRegex = new Regex(Constants.semesterNameAndYearPattern);
             string revisionMonth = revisionDateRegex.Match(rawRevisionDate).Groups[1].Value;
             string revisionDay = revisionDateRegex.Match(rawRevisionDate).Groups[2].Value;
             string revisionYear = revisionDateRegex.Match(rawRevisionDate).Groups[3].Value;
-            Name = semesterNameAndYearRegex .Match(rawSemester).Groups[1].Value;
-            string semesterYear = semesterNameAndYearRegex .Match(rawSemester).Groups[2].Value;
+            Name = name; 
+            // Name = semesterNameAndYearRegex.Match(rawSemester).Groups[1].Value;
+            // string semesterYear = semesterNameAndYearRegex .Match(rawSemester).Groups[2].Value;
 
             int.TryParse(semesterYear, out int semesterYearTemp);
             int.TryParse(revisionMonth, out int m);
@@ -36,7 +38,8 @@ namespace LabManagement
             SchedulePostDateStr = DateTime.Now.ToString("yyyy-M-d HH:mm:ss");
             ScheduleDateStr = y + "-" + m + "-" + d;
 
-            NameFK = Db.GetTupleInt("SemesterName", "semesterNameID", "name", Name);
+            //NameFK = Db.GetTupleInt("SemesterName", "semesterNameID", "name", Name);
+            NameFK = nameFK;
             string[] colnameLookup = new[] { "year", "nameFK" };
             var coldataLookup = new object[] { Year, NameFK }; 
             var tuple = Db.GetTuple("Semester", "*", colnameLookup, coldataLookup);

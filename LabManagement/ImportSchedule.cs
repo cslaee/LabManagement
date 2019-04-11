@@ -8,19 +8,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-        //todo If Fall, Spring or Winter semester
-        //todo     Find date range for semester
-        //todo  If Summer
-        //todo    is it Session A B or C
-        //todo    Find Date range.
- 
+//todo If Fall, Spring or Winter semester
+//todo     Find date range for semester
+//todo  If Summer
+//todo    is it Session A B or C
+//todo    Find Date range.
+
 namespace LabManagement
 {
     static class ImportSchedule
     {
         static readonly bool debug = Constants.importScheduleDebug;
 
-       static public void GetExcelSchedule(string fileName)
+        static public void GetExcelSchedule(string fileName)
         {
             Calendar calendar;
             bool isSummer = false;
@@ -29,6 +29,7 @@ namespace LabManagement
             Regex semesterNameAndYearRegex = new Regex(Constants.semesterNameAndYearPattern);
             Regex dayYearRegex = new Regex(Constants.dayYearPattern);
             Regex semesterDateRangeRegex = new Regex(Constants.semesterDateRangePattern);
+            Regex summerSessionABCRegex = new Regex(Constants.summerSessionABCPattern);
 
             int[,] revisionDateSearchPath = new int[,] { { 1, 0 }, { 2, 0 } };
             int[,] seasonSearchPath = new int[,] { { 1, 0 }, { 1, 1 }, { 2, 0 } };
@@ -38,6 +39,7 @@ namespace LabManagement
             Common.DebugWriteLine(debug, "");
             Common.DebugWriteLine(debug, "GetExcelSchedule() fileName = " + fileName);
             ExcelData ws = new ExcelData(fileName, 1);
+            int numberOfWsRows = ws.rowCount - 1;
 
             string revisionDateString = FindString(revisionDateSearchPath, ws, revisionDateRegex);
             string semesterNameAndYear = FindString(seasonSearchPath, ws, semesterNameAndYearRegex);
@@ -48,16 +50,77 @@ namespace LabManagement
                 MessageBox.Show("Import Failed.  Can not find semester name and date.");
             }
 
-            Semester semester = new Semester(revisionDateString, semesterNameAndYear);
-            Schedule.DeleteSchedule(semester.SemesterID);
 
-            isSummer = semester.NameFK == 4;
+            string semesterName = semesterNameAndYearRegex.Match(semesterNameAndYear).Groups[1].Value;
+            string semesterYear = semesterNameAndYearRegex.Match(semesterNameAndYear).Groups[2].Value;
+            long semesterNameFK = 0;
+            //long semesterNameFK = Db.GetTupleInt("SemesterName", "semesterNameID", "name", semesterName);
+
+
+
+            string[] colname = new[] { "name" };
+            var coldata = new object[] { semesterName };
+            var tuple = Db.GetTuple("SemesterName", "semesterNameID", colname, coldata);
+
+            bool hasSemesterNameFK = tuple.Count > 0;
+            if (hasSemesterNameFK)
+            {
+                semesterNameFK = Convert.ToInt32(tuple[0].ToString());
+            }
+
+
+
+
+
+
+
+            isSummer = semesterNameFK == 4;
             if (isSummer)
             {
-                Common.DebugWriteLine(debug, "This is summer");
+
+                Common.DebugWriteLine(debug, "******  This is summer    *****");
+                List<int> sessionRows = FindSummerSessions(ws, numberOfWsRows, summerSessionABCRegex);
+
+                Common.DebugWriteLine(debug, "found " + sessionRows.Count);
+                int numberOfSessionRows = sessionRows.Count;
+                bool hasABCSessions = numberOfSessionRows > 0;
+
+                if (hasABCSessions)
+                {
+                    for (int currentSession = 0; currentSession < numberOfSessionRows - 1; currentSession++)
+                    {
+                        int rowOfDateRange = sessionRows[currentSession];
+
+                        string excelData = ws.excelArray[rowOfDateRange, 1].Trim();
+                        string session = summerSessionABCRegex.Match(excelData).Groups[1].Value;
+                        string weeks = summerSessionABCRegex.Match(excelData).Groups[2].Value;
+                        string startMonth = summerSessionABCRegex.Match(excelData).Groups[4].Value;
+                        string startDay = summerSessionABCRegex.Match(excelData).Groups[5].Value;
+                        string endMonth = summerSessionABCRegex.Match(excelData).Groups[7].Value;
+                        string endDay = summerSessionABCRegex.Match(excelData).Groups[8].Value;
+                        string output = session + weeks + startMonth + startDay + endMonth + endDay;
+                        Common.DebugWriteLine(debug, excelData);
+                        Common.DebugWriteLine(debug, output);
+
+                        for (int rows = rowOfDateRange + 1; rows < sessionRows[currentSession + 1]; rows++)
+                        {
+                            Common.DebugWriteLine(debug, rows + " = " + ws.excelArray[rows, 1]);
+// ************************** Start Here  **************
+
+
+                        }
+                    }
+                }
+                else
+                {
+                    Common.DebugWriteLine(debug, "******  This is summer Old   *****");
+                }
             }
             else
             {
+                Semester semester = new Semester(revisionDateString, semesterName, semesterYear, semesterNameFK);
+                Schedule.DeleteSchedule(semester.SemesterID);
+
                 string semesterDateRange = FindString(semesterDateRangeSearchPath, ws, semesterDateRangeRegex);
                 Common.DebugWriteLine(debug, "semesterDateRangeRegex = " + semesterDateRange);
                 isValidSemesterDateRange = semesterDateRange.Length > 0;
@@ -65,9 +128,35 @@ namespace LabManagement
                 {
                     calendar = new Calendar(semesterDateRange, semester, 1);
                 }
-                BuildSchedule(ws, semester.SemesterID, ws.rowCount - 1);
+                BuildSchedule(ws, semester.SemesterID, 4, numberOfWsRows);
             }
         }
+
+
+
+        static List<int> FindSummerSessions(ExcelData ws, int numberOfWsRows, Regex summerSessionABCRegex)
+        {
+            List<int> summerSessionLineNumber = new List<int>();
+
+            for (int row = 0; row < numberOfWsRows; row++)
+            {
+                string excelData = ws.excelArray[row, 1].Trim();
+                string summerSessionDateRange = summerSessionABCRegex.Match(excelData).Groups[0].Value;
+                bool hasDateRange = summerSessionDateRange.Length != 0;
+                if (hasDateRange)
+                {
+                    summerSessionLineNumber.Add(row);
+                }
+            }
+
+            bool isABCsessionSummer = summerSessionLineNumber.Count > 0;
+            if (isABCsessionSummer)
+            {
+                summerSessionLineNumber.Add(numberOfWsRows + 1);
+            }
+            return summerSessionLineNumber;
+        }
+
 
 
         static public string FindString(int[,] path, ExcelData ws, Regex pattern)
@@ -89,12 +178,12 @@ namespace LabManagement
         }
 
 
-        static void BuildSchedule(ExcelData ws, int semesterId, int lastRow)
+        static void BuildSchedule(ExcelData ws, int semesterId, int firstRow, int lastRow)
         {
             Regex courseRegex = new Regex(Constants.coursePattern);
             Common.DebugWriteLine(debug, "semesterId = " + semesterId);
 
-            for (int currentRow = 4; currentRow <= lastRow; currentRow++)
+            for (int currentRow = firstRow; currentRow <= lastRow; currentRow++)
             {
                 string rawCourse = ws.excelArray[currentRow, 0];
                 bool isCourse = courseRegex.IsMatch(rawCourse);
@@ -121,15 +210,15 @@ namespace LabManagement
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2015");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2015");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
+            //GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2016");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2017");
             GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
