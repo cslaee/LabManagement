@@ -28,23 +28,25 @@ namespace LabManagement
             Title = title;
             int.TryParse(creditStr, out int credit);
             Credit = credit;
+            Common.DebugWriteLine(debug, "Incoming Subject = " + Subject + ", Catalog = " + Catalog + ", Title = " + Title + " Credit = " + Credit);
             string[] colname = new[] { "subject", "catalog", "title", "credit" };
             var coldata = new object[] { Subject, Catalog, Title, Credit };
-            string[] colnameLookup = new[] { "subject", "catalog", "credit" };
-            var coldataLookup = new object[] { Subject, Catalog, Credit };
+            //string[] colnameLookup = new[] { "subject", "catalog", "credit" };
+            //var coldataLookup = new object[] { Subject, Catalog, Credit };
 
-            var tuple = Db.GetTuple("Course", "*", colnameLookup, coldataLookup);
+            var tuple = Db.GetTuple("Course", "*", colname, coldata);
             //bool coarseIsInDb = tuple.Count > 0;
             bool coarseNotInDb = tuple.Count == 0;
 
             if (coarseNotInDb)
             {
                 CourseFK = Db.Insert("Course", colname, coldata);
-                Common.DebugWriteLine(debug, "else coarseIsInDb " + colname + " " + coldata + " Returned CourseFK =" + CourseFK);
+                Common.DebugWriteLine(debug, "Course  " + Title + " with CourseFK = " + CourseFK + ", inserted into Db");
             }
             else
             {
                 CourseFK = Convert.ToInt32(tuple[0].ToString());
+                Common.DebugWriteLine(debug, "Course  " + Title + " with CourseFK = " + CourseFK + ", was in Db");
             }
         }
 
