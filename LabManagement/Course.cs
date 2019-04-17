@@ -31,8 +31,6 @@ namespace LabManagement
             Common.DebugWriteLine(debug, "Incoming Subject = " + Subject + ", Catalog = " + Catalog + ", Title = " + Title + " Credit = " + Credit);
             string[] colname = new[] { "subject", "catalog", "title", "credit" };
             var coldata = new object[] { Subject, Catalog, Title, Credit };
-            //string[] colnameLookup = new[] { "subject", "catalog", "credit" };
-            //var coldataLookup = new object[] { Subject, Catalog, Credit };
 
             var tuple = Db.GetTuple("Course", "*", colname, coldata);
             //bool coarseIsInDb = tuple.Count > 0;

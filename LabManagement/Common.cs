@@ -49,31 +49,21 @@ namespace LabManagement
             }
             return filePath;
         }
-
-        public static List<object> GetStartAndStopMonthDay(Regex inputRegex, string dateRange, int startIndex, int endIndex)
-        {
-            var startAndStopDates = new List<object>
-            {
-                GetMonthDayString(inputRegex, dateRange, startIndex),
-                GetMonthDayString(inputRegex, dateRange, endIndex)
-            };
-            return startAndStopDates;
-        }
         
-        public static string GetMonthDayString(Regex dateRegex, string dateRange, int dateIndex)
-        {
-            string monthStr = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(dateRegex.Match(dateRange).Groups[dateIndex].Value.ToLower());
-            string dayStr = dateRegex.Match(dateRange).Groups[dateIndex + 1].Value;
+        //public static string GetMonthDayString(Regex dateRegex, string dateRange, int dateIndex)
+        //{
+        //    string monthStr = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(dateRegex.Match(dateRange).Groups[dateIndex].Value.ToLower());
+        //    string dayStr = dateRegex.Match(dateRange).Groups[dateIndex + 1].Value;
 
-            bool hasMonth = monthStr.Length > 2;
-            if (hasMonth)
-            {
-                string monthShortStr = monthStr.Substring(0, 3);
-                int monthInt = DateTime.ParseExact(monthShortStr, "MMM", CultureInfo.InvariantCulture).Month;
-                return "-" + monthInt + "-" + dayStr;
-            }
-            return "";
-        }
+        //    bool hasMonth = monthStr.Length > 2;
+        //    if (hasMonth)
+        //    {
+        //        string monthShortStr = monthStr.Substring(0, 3);
+        //        int monthInt = DateTime.ParseExact(monthShortStr, "MMM", CultureInfo.InvariantCulture).Month;
+        //        return "-" + monthInt + "-" + dayStr;
+        //    }
+        //    return "";
+        //}
 
 
 
