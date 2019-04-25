@@ -107,6 +107,30 @@ namespace LabManagement
 
 
 
+        static public string[] GetTuple(string sqlStatement)
+        {
+            var returnString = new List<string>();
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = sqlStatement;
+            
+            connection.Open();
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    returnString.Add(reader.GetValue(0).ToString());
+                }
+            }
+            connection.Close();
+            return returnString.ToArray();
+        }
+
+
+
+
+
+
         /*
          * Parameterized SQL Statement  
          * Change other methods to look like this
@@ -299,8 +323,8 @@ namespace LabManagement
                     }
                     catch (SQLiteException)
                     {
-                        Common.DebugWriteLine(true,  cmd.CommandText);
-                        Common.DebugWrite(true,  values.ToString());
+                        Common.DebugWriteLine(true, cmd.CommandText);
+                        Common.DebugWrite(true, values.ToString());
                         //Console.WriteLine("SQLiteException with Db.Insert(" + cmd.CommandText + " )");
                     }
                 }

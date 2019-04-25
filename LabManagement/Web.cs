@@ -9,7 +9,19 @@ namespace LabManagement
 {
     class Web
     {
+
+        static readonly bool debug = Constants.webDebug;
         static public void PublishSchedule()
+        {
+            string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
+            Common.DebugWriteLine(debug, "Web Debug");
+
+            var tuple = Db.GetTuple(semesterNamesSQL);
+            TabStripTop(tuple);
+        }
+
+
+        static public void TabStripTop(string[] semesterNames)
         {
 
             string[] header = new[]  {"<html>","<head>", "<meta http-equiv=Content-Type content=\"text / html; charset = windows - 1252\">",
@@ -30,27 +42,33 @@ namespace LabManagement
             string tabColor = "FFFFFF";
             string textColor = "000000";
             string linkName = "sheet001.htm";
-            string tabName = "sum20";
+            string tabNameOld = "sum20";
 
             using (FileStream fs = new FileStream(Constants.webpageDir + "tabstrip.htm", FileMode.Create))
             {
                 using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                 {
-                    foreach(string item in header)
+                    foreach (string item in header)
                     {
-                    w.WriteLine(item);
+                        w.WriteLine(item);
                     }
 
-                    
-                    w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabName + e);
-
-                    foreach(string item in footer)
+                    foreach (string tabName in semesterNames)
                     {
-                    w.WriteLine(item);
+                        Common.DebugWriteLine(debug, tabName);
+                        w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabName + e);
+                    }
+
+
+                    w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabNameOld + e);
+
+                    foreach (string item in footer)
+                    {
+                        w.WriteLine(item);
                     }
                 }
             }
-        }
 
+        }
     }
 }

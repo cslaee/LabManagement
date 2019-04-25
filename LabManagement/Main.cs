@@ -202,5 +202,10 @@ namespace LabManagement
         {
             //deleted and not used
         }
+
+        private void Button6_Click(object sender, EventArgs e)
+        {
+            Web.PublishSchedule();
+        }
     }
 }

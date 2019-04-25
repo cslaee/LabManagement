@@ -22,7 +22,6 @@ namespace LabManagement
         public Semester(string rawRevisionDate, string name, string semesterYear, long nameFK)
         {
             Regex revisionDateRegex = new Regex(Constants.revisionDatePattern);
-            Regex semesterNameAndYearRegex = new Regex(Constants.semesterNameAndYearPattern);
             string revisionMonth = revisionDateRegex.Match(rawRevisionDate).Groups[1].Value;
             string revisionDay = revisionDateRegex.Match(rawRevisionDate).Groups[2].Value;
             string revisionYear = revisionDateRegex.Match(rawRevisionDate).Groups[3].Value;
