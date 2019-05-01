@@ -21,7 +21,7 @@
         public const string locksJsonFileName = "Locks.json";
         public const string sqlFileName = "db.sql";
         public string workingDirectory = System.AppContext.BaseDirectory;
-        public const string webpageDir = @"C:\Users\moberme\Documents\LabManagement\webpage\index_files\";
+        public const string webpageDir = @"C:\Users\moberme\Documents\LabManagement\webpage\";
 
         public const string dashPattern = @"(\s?-\s?)";
         public const string yearPattern = @"(\d{4})";
