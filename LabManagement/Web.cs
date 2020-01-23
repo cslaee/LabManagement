@@ -8,28 +8,30 @@ namespace LabManagement
         static readonly bool debug = Constants.webDebug;
         static public void PublishSchedule()
         {
+            Common.DebugWriteLine(debug, "Web.PublishSchedule()");
             string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester " +
                                       "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
-            Common.DebugWriteLine(debug, "Web Debug");
 
             var tuple = Db.GetTuple(semesterNamesSQL);
-            StoreTabStrip(tuple);
+            Common.DebugWriteLine(debug, "Number of Semesters = " + tuple.Length);
+            StoreTabStrip(tuple, "index");
+            StoreFileList(tuple.Length, "index");
             StoreIndex(tuple);
         }
 
 
-        static public void StoreTabStrip(string[] semesterNames)
+        static public void StoreTabStrip(string[] semesterNames, string sheetName)
         {
             #region html Content Strings
             string[] header = new[]  {"<html>","<head>", "<meta http-equiv=Content-Type content=\"text/html; charset=windows-1252\">",
                 "<meta name=ProgId content=Excel.Sheet>", "<meta name=Generator content=\"Microsoft Excel 15\">",
-                "<link id=Main-File rel=Main-File href=\"../index.htm\">", "<script language=\"JavaScript\">", "<!--", "if (window.name!=\"frTabs\")",
+                "<link id=Main-File rel=Main-File href=\"../" + sheetName + ".htm\">", "", "<script language=\"JavaScript\">", "<!--", "if (window.name!=\"frTabs\")",
                 " window.location.replace(document.all.item(\"Main-File\").href);", "//-->", "</script>", "<style>", "<!--", "A {",
                 "    text-decoration:none;", "    color:#000000;", "    font-size:9pt;", "}", "-->", "</style>", "</head>",
                 "<body topmargin=0 leftmargin=0 bgcolor=\"#808080\">", "<table border=0 cellspacing=1>", " <tr>"};
-            string[] footer = new[] { " </tr>", "</table>", "</body>", "</html>" };
+            string[] footer = new[] { "", " </tr>", "</table>", "</body>", "</html>" };
 
-            string a = "<td bgcolor=\"#";
+            string a = " <td bgcolor=\"#";
             string b = "\" nowrap><b><small><small>&nbsp;<a href=\"";
             string c = "\" target=\"frSheet\"><font face=\"Arial\" color=\"#";
             string d = "\">";
@@ -49,6 +51,35 @@ namespace LabManagement
                     {
                         Common.DebugWriteLine(debug, tabName);
                         w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabName + e);
+                    }
+                    WriteToFile(footer, w);
+                }
+            }
+
+        }
+
+        static public void StoreFileList(int numberOfSchedules, string sheetName)
+        {
+            #region html Content Strings
+            string currentSheet; 
+            string[] header = new[] { "<xml xmlns:o=\"urn:schemas-microsoft-com:office:office\">", 
+                " <o:MainFile HRef=\"../" + sheetName + ".htm\"/>",
+                " <o:File HRef=\"stylesheet.css\"/>",
+                " <o:File HRef=\"tabstrip.htm\"/>"};
+            string[] footer = new[] { " <o:File HRef=\"filelist.xml\"/>",
+                "</xml>" };
+            #endregion
+
+            using (FileStream fs = new FileStream(Constants.webpageDir + @"index_files\filelist.xml", FileMode.Create))
+            {
+                using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+                {
+                    WriteToFile(header, w);
+                    for (int i = 1; i <= numberOfSchedules; i++)
+                    {
+                        currentSheet = "sheet" + i.ToString("000") + ".htm";
+                        Common.DebugWriteLine(debug, currentSheet);
+                        w.WriteLine(" <o:File HRef=\"" + currentSheet + "\"/>" );
                     }
                     WriteToFile(footer, w);
                 }
@@ -216,6 +247,52 @@ namespace LabManagement
 
         }
 
+
+        static public void StoreSheets()
+        {
+            #region html Content Strings
+            string[] header = new[]  {"<html>","<head>", "<meta http-equiv=Content-Type content=\"text/html; charset=windows-1252\">",
+                "<meta name=ProgId content=Excel.Sheet>", "<meta name=Generator content=\"Microsoft Excel 15\">",
+                "<link id=Main-File rel=Main-File href=\"../index.htm\">", "<script language=\"JavaScript\">", "<!--", "if (window.name!=\"frTabs\")",
+                " window.location.replace(document.all.item(\"Main-File\").href);", "//-->", "</script>", "<style>", "<!--", "A {",
+                "    text-decoration:none;", "    color:#000000;", "    font-size:9pt;", "}", "-->", "</style>", "</head>",
+                "<body topmargin=0 leftmargin=0 bgcolor=\"#808080\">", "<table border=0 cellspacing=1>", " <tr>"};
+            string[] footer = new[] { " </tr>", "</table>", "</body>", "</html>" };
+
+            string a = "<td bgcolor=\"#";
+            string b = "\" nowrap><b><small><small>&nbsp;<a href=\"";
+            string c = "\" target=\"frSheet\"><font face=\"Arial\" color=\"#";
+            string d = "\">";
+            string e = "</font></a>&nbsp;</small></small></b></td>";
+
+            string tabColor = "FFFFFF";
+            string textColor = "000000";
+            string linkName = "sheet001.htm";
+            #endregion
+
+
+            string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester " +
+                                      "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
+            Common.DebugWriteLine(debug, "Web Debug");
+
+            var tuple = Db.GetTuple(semesterNamesSQL);
+
+
+            using (FileStream fs = new FileStream(Constants.webpageDir + @"index_files\sheet.htm", FileMode.Create))
+            {
+                using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+                {
+                    WriteToFile(header, w);
+                    foreach (string tabName in tuple)
+                    {
+                        Common.DebugWriteLine(debug, tabName);
+                        w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabName + e);
+                    }
+                    WriteToFile(footer, w);
+                }
+            }
+
+        }
 
         static void WriteToFile(string[] content, StreamWriter w)
         {

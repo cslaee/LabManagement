@@ -2,7 +2,7 @@
 {
     class Constants
     {
-        public const bool wipeDB = false;
+        public const bool wipeDB = true;
         public const bool dbDebug = false;
         public const bool importScheduleDebug = false;
         public const bool semesterDebug = false;

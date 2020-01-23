@@ -59,7 +59,7 @@ namespace LabManagement
             bool isTimeHoursNot12 = endTimeHoursInt != 12;
             bool isPm = isEndTimePM & isTimeHoursNot12;
             endTimeHoursInt = ConvertToMilitaryTime(isPm, endTimeHoursInt);
-            endTimeHours = endTimeHoursInt.ToString();
+            endTimeHours = endTimeHoursInt.ToString("D2");
             EndTimeStr = endTimeHours + ":" + endTimeMinutes;
 
             hoursLength = startTimeHours.Length;
@@ -78,7 +78,7 @@ namespace LabManagement
             int.TryParse(startTimeHours, out int startTimeHoursInt);
             isPm = endTimeHoursInt - startTimeHoursInt > 10;
             startTimeHoursInt = ConvertToMilitaryTime(isPm, startTimeHoursInt);
-            startTimeHours = startTimeHoursInt.ToString();
+            startTimeHours = startTimeHoursInt.ToString("D2");
             StartTimeStr = startTimeHours + ":" + startTimeMinutes;
             //Console.WriteLine(startTimeHours + ":" + startTimeMinutes + " " + endTimeHours + ":" + endTimeMinutes);
             Common.DebugWriteLine(debug, "CourseFK=" + CourseFK + " Sec=" + Section+ " Sem=" + SemesterFK+ " Ins1=" + Instructor1FK + " Ins2=" + Instructor2FK + " Rm1=" + Room1FK + " Rm2=" + Room2FK + " Status=" + StatusFK + " Days=" + Days + " ST=" + StartTime + " ET=" + EndTime  );
