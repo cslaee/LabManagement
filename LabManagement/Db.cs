@@ -23,7 +23,8 @@ namespace LabManagement
 
         public static string GetDbSchema()
         {
-            string sqlFile = System.AppContext.BaseDirectory + Constants.sqlFileName;
+            //string sqlFile = System.AppContext.BaseDirectory + Constants.sqlFileName;
+            string sqlFile =  Constants.sqlPathAndFileName;
             string pattern = @"""mydb""" + @"\.|ATTACH(?:.*?);|BEGIN;|COMMIT;";
             string lines;
             using (var streamReader = File.OpenText(sqlFile))

@@ -4,7 +4,8 @@ namespace LabManagement
 {
     class Web
     {
-
+//        static string workingDirectory = Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\"));
+       
         static readonly bool debug = Constants.webDebug;
         static public void PublishSchedule()
         {
@@ -209,6 +210,9 @@ namespace LabManagement
                 "       cells[iCol].style.background=c_rgszClr[fActive?2:4];",
                 "     }", "    }", "   }", "   with (aTab[iTab].style) {", "    cursor=(fActive?\"default\":\"hand\");",
                 "    color=c_rgszClr[3];", "   }", "  }", " }", "}", "" };
+//        static string path = @"C:\Folder1\Folder2\Folder3\Folder4";
+        string upTwoDir = Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\"));
+ 
             string[] fnMouseOverScroll = new[] {"function fnMouseOverScroll(iCtl)","{",
                 " frames['frScroll'].document.all.tdScroll[iCtl].style.color=c_rgszClr[7];","}","",
                 "function fnMouseOutScroll(iCtl)",
@@ -228,9 +232,11 @@ namespace LabManagement
                 "{"," if (iSh!=g_iShCur) {", "  fnSetTabProps(g_iShCur,false);",
                 "  fnSetTabProps(iSh,true);","  g_iShCur=iSh;"," }","}","",
                 " window.g_iIEVer=fnGetIEVer();",
-                " if (window.g_iIEVer>=4)","  fnBuildFrameset();","//-->","</script>","<![endif]><!--[if gte mso 9]><xml>"
-                ," <x:ExcelWorkbook>","  <x:ExcelWorksheets>"};
-
+                " if (window.g_iIEVer>=4)","  fnBuildFrameset();","//-->","</script>","<![endif]><!--[if gte mso 9]><xml>",
+                " <x:ExcelWorkbook>","  <x:ExcelWorksheets>",
+                " --> " + Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\")) + " <--",
+                " --> " + Constants.workingDirectory + " <--"};
+//            Constants.workingDirectory;
 /*
  
 </x:ExcelWorksheets>

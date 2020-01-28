@@ -1,4 +1,6 @@
-﻿namespace LabManagement
+﻿using System.IO;
+
+namespace LabManagement
 {
     class Constants
     {
@@ -17,12 +19,12 @@
         public const string databaseName = "CalStateLAeeDB.sqlite3";
         public const string connectionString = @"Data Source=|DataDirectory|" + databaseName + "; Version=3; FailIfMissing=True; Foreign Keys=True;";
 
-        //    static string connectionString = @"Data Source=" + Constants.databaseName + "; Version=3; FailIfMissing=True; Foreign Keys=True;";
         public const string locksJsonFileName = "Locks.json";
-        public const string sqlFileName = "db.sql";
-        public string workingDirectory = System.AppContext.BaseDirectory;
-        public const string webpageDir = @"C:\Users\moberme\Documents\LabManagement\webpage\";
 
+        public static string workingDirectory = Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\..\"));
+        public static string webpageDir = workingDirectory + @"webpage\"; 
+        public static string sqlPathAndFileName = workingDirectory + "db.sql";
+        
         public const string dashPattern = @"(\s?-\s?)";
         public const string yearPattern = @"(\d{4})";
         public const string dayYearPattern = @"\s(\d{1,2}),\s" + yearPattern;
