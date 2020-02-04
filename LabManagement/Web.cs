@@ -19,7 +19,8 @@ namespace LabManagement
 
             SetupDirectories(ws);
             StoreTabStrip(tuple, ws);
-            StoreFileList(tuple.Length, ws);
+            //StoreFileList(tuple.Length, ws);
+            StoreFileList(tuple, ws);
             StoreIndex(tuple, ws);
             StoreSheets(tuple, ws);
 
@@ -72,7 +73,7 @@ namespace LabManagement
 
         }
 
-        static public void StoreFileList(int numberOfSchedules, string sheetName)
+        static public void StoreFileList(string[] semesterNames, string sheetName)
         {
             #region html Content Strings
             string currentSheet; 
@@ -89,7 +90,7 @@ namespace LabManagement
                 using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                 {
                     WriteToFile(header, w);
-                    for (int i = 1; i <= numberOfSchedules; i++)
+                    for (int i = 1; i <= semesterNames.Length; i++)
                     {
                         currentSheet = "sheet" + i.ToString("000") + ".htm";
                         Common.DebugWriteLine(debug, currentSheet);

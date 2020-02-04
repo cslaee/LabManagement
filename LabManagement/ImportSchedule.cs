@@ -203,11 +203,13 @@ namespace LabManagement
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
+            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\fall 2019");
+//            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
-            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
+//            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
+            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\spring 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
