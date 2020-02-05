@@ -130,8 +130,6 @@ namespace LabManagement
 
 
 
-
-
         /*
          * Parameterized SQL Statement  
          * Change other methods to look like this
@@ -146,6 +144,65 @@ namespace LabManagement
             var commandText = new System.Text.StringBuilder();
 
             commandText.Append("SELECT " + returnColumn + " FROM " + tableName + " WHERE ");
+            for (int i = 0; i < numberOfColumns; i++)
+            {
+                commandText.Append(column[i] + " = @" + column[i] + " AND ");
+                cmd.Parameters.AddWithValue("@" + column[i], values[i]);
+            }
+            commandText.Remove(commandText.Length - 4, 4);
+            cmd.CommandText = commandText.ToString() + " COLLATE NOCASE";
+            Common.DebugWriteLine(debug, "Db.GetTuple(" + cmd.CommandText + " )");
+            connection.Open();
+
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        type = Regex.Match(reader.GetDataTypeName(i), @"(\w+)").Groups[1].Value;
+                        switch (type)
+                        {
+                            case "INTEGER":
+                                //Console.WriteLine("found int");
+                                returnString.Add(reader.GetValue(i).ToString());
+                                //bool notNumeric = !int.TryParse(lockNumber, out int n);
+                                break;
+                            case "DATE":
+                                //Console.WriteLine("found date");
+                                //returnString.Add(reader.GetValue(i).ToString());
+                                break;
+                            case "VARCHAR":
+                                returnString.Add(reader.GetValue(i).ToString());
+                                //Console.WriteLine("type = " + type);
+                                break;
+                        }
+                        //returnString.Add(reader.GetValue(i));
+                        //returnString.Add(reader.GetValue(i).ToString());
+                        //Console.WriteLine("returnString = " + returnString[i]);
+                    }
+                }
+            }
+            connection.Close();
+            return returnString;
+        }
+
+
+
+        /*
+         * Parameterized SQL Statement  
+         * Change other methods to look like this
+         */
+        static public List<object> GetTuple(string selectStatment, string tableName, string returnColumn, string[] column, object[] values)
+        {
+            var returnString = new List<object>();
+            string type;
+            int numberOfColumns = column.Length;
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand cmd = connection.CreateCommand();
+            var commandText = new System.Text.StringBuilder();
+
+            commandText.Append(selectStatment + " " + returnColumn + " FROM " + tableName + " WHERE ");
             for (int i = 0; i < numberOfColumns; i++)
             {
                 commandText.Append(column[i] + " = @" + column[i] + " AND ");

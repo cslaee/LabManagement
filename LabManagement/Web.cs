@@ -10,8 +10,13 @@ namespace LabManagement
         static public void PublishSchedule()
         {
             Common.DebugWriteLine(debug, "Web.PublishSchedule()");
-            string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester " +
+ //          string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester " +
+ //                                     "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
+
+           string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), scheduleDate FROM Semester " +
                                       "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
+//            var tuple2 = Db.GetTuple("SELECT DISTINCT", "substr(name, 1, 3) ||  substr(year, 3, 4), scheduleDate", colname, coldata);
+
 
             var tuple = Db.GetTuple(semesterNamesSQL);
             Common.DebugWriteLine(debug, "Number of Semesters = " + tuple.Length);
@@ -19,10 +24,10 @@ namespace LabManagement
 
             SetupDirectories(ws);
             StoreTabStrip(tuple, ws);
-            //StoreFileList(tuple.Length, ws);
             StoreFileList(tuple, ws);
             StoreIndex(tuple, ws);
             StoreSheets(tuple, ws);
+            StoreStyleSheet(ws);
 
         }
         static public void SetupDirectories(string sheetName)
@@ -53,19 +58,21 @@ namespace LabManagement
 
             string tabColor = "FFFFFF";
             string textColor = "000000";
-            string linkName = "sheet001.htm";
             #endregion
 
+            string currentSheet;
+            int i = 1;
             using (FileStream fs = new FileStream(Constants.webpageDir + sheetName + @"_files\tabstrip.htm", FileMode.Create))
-//            using (FileStream fs = new FileStream(Constants.webpageDir + @"index_files\tabstrip.htm", FileMode.Create))
             {
                 using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                 {
                     WriteToFile(header, w);
                     foreach (string tabName in semesterNames)
                     {
+                        currentSheet = "sheet" + i.ToString("000") + ".htm";
                         Common.DebugWriteLine(debug, tabName);
-                        w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabName + e);
+                        w.WriteLine(a + tabColor + b + currentSheet + c + textColor + d + tabName + e);
+                        i++;
                     }
                     WriteToFile(footer, w);
                 }
@@ -75,8 +82,8 @@ namespace LabManagement
 
         static public void StoreFileList(string[] semesterNames, string sheetName)
         {
-            #region html Content Strings
             string currentSheet; 
+            #region html Content Strings
             string[] header = new[] { "<xml xmlns:o=\"urn:schemas-microsoft-com:office:office\">", 
                 " <o:MainFile HRef=\"../" + sheetName + ".htm\"/>",
                 " <o:File HRef=\"stylesheet.css\"/>",
@@ -105,8 +112,8 @@ namespace LabManagement
         static public void StoreIndex(string[] semesterNames, string sheetName)
         {
             int numberOfSheets = semesterNames.Length;
+            string currentSheet; 
             #region html Content Strings
-            string currentSheet;
             int i;
             string[] header = new[]  {"<html xmlns:v=\"urn:schemas-microsoft-com:vml\"", "xmlns:o=\"urn:schemas-microsoft-com:office:office\"",
                 "xmlns:x=\"urn:schemas-microsoft-com:office:excel\"", "xmlns=\"http://www.w3.org/TR/REC-html40\">", "", "<head>",
@@ -257,55 +264,58 @@ namespace LabManagement
                 " <frame src=\"schedule_files/tabstrip.htm\" name=\"frTabs\" marginwidth=0 marginheight=0>",
                 " <noframes>", "  <body>", "   <p>This page uses frames, but your browser doesn't support them.</p>",
                 "  </body>", " </noframes>", "</frameset>", "</html>"};
-           
+
             #endregion
 
-            using (FileStream fs = new FileStream(Constants.webpageDir + sheetName + ".htm", FileMode.Create))
-            {
-                using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+
+
+                using (FileStream fs = new FileStream(Constants.webpageDir + sheetName + ".htm", FileMode.Create))
                 {
-                    WriteToFile(header, w);
-                    for (i = 1; i <= numberOfSheets; i++)
+                    using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                     {
-                        currentSheet = sheetName + "_files/sheet" + i.ToString("000") + ".htm";
-                        Common.DebugWriteLine(debug, currentSheet);
-                        w.WriteLine("<link id=\"shLink\" href=" + currentSheet + "\"/>" );
-                    }
+                        WriteToFile(header, w);
+                        for (i = 1; i <= numberOfSheets; i++)
+                        {
+                            currentSheet = sheetName + "_files/sheet" + i.ToString("000") + ".htm";
+                            Common.DebugWriteLine(debug, currentSheet);
+                            w.WriteLine("<link id=\"shLink\" href=" + currentSheet + "\"/>");
+                        }
 
-                    WriteToFile(footer, w);
-                    i = 0;                    
-                    foreach (string tabName in semesterNames)
-                    {
-                        Common.DebugWriteLine(debug, tabName);
-                        w.WriteLine(" c_rgszSh[" + i + "] = \"" + tabName + "\";");
-                        i++;
-                    }
+                        WriteToFile(footer, w);
+                        i = 0;
+                        foreach (string tabName in semesterNames)
+                        {
+                            Common.DebugWriteLine(debug, tabName);
+                            w.WriteLine(" c_rgszSh[" + i + "] = \"" + tabName + "\";");
+                            i++;
+                        }
 
-                    WriteToFile(arrays, w);
-                    WriteToFile(fnGetIEVer, w);
-                    WriteToFile(fnBuildFrameset , w);
-                    WriteToFile(fnBuildTabStrip , w);
-                    WriteToFile(fnInit, w);
-                    WriteToFile(fnNextTab, w);
-                    WriteToFile(fnScrollTabs, w);
-                    WriteToFile(fnSetTabProps , w);
-                    WriteToFile(fnMouseOverScroll , w);
-                    i = 1;
-                    
-                    foreach (string tabName in semesterNames)
-                    {
-                        Common.DebugWriteLine(debug, tabName);
-                        currentSheet = "sheet" + i.ToString("000") + ".htm";
-                        w.WriteLine("   <x:ExcelWorksheet>");
-                        w.WriteLine("    <x:Name>" + tabName + "</x:Name>");
-                        w.WriteLine("    <x:WorksheetSource HRef=" + sheetName + "_files/" + currentSheet + "\"/>");
-                        w.WriteLine("   </x:ExcelWorksheet>");
-                        i++;
+                        WriteToFile(arrays, w);
+                        WriteToFile(fnGetIEVer, w);
+                        WriteToFile(fnBuildFrameset, w);
+                        WriteToFile(fnBuildTabStrip, w);
+                        WriteToFile(fnInit, w);
+                        WriteToFile(fnNextTab, w);
+                        WriteToFile(fnScrollTabs, w);
+                        WriteToFile(fnSetTabProps, w);
+                        WriteToFile(fnMouseOverScroll, w);
+                        i = 1;
+
+                        foreach (string tabName in semesterNames)
+                        {
+                            Common.DebugWriteLine(debug, tabName);
+                            currentSheet = "sheet" + i.ToString("000") + ".htm";
+                            w.WriteLine("   <x:ExcelWorksheet>");
+                            w.WriteLine("    <x:Name>" + tabName + "</x:Name>");
+                            w.WriteLine("    <x:WorksheetSource HRef=" + sheetName + "_files/" + currentSheet + "\"/>");
+                            w.WriteLine("   </x:ExcelWorksheet>");
+                            i++;
+                        }
+
+                        WriteToFile(bottom, w);
                     }
-                   
-                    WriteToFile(bottom, w);
                 }
-            }
+            
 
         }
 
@@ -313,6 +323,8 @@ namespace LabManagement
 
         static public void StoreSheets(string[] semesterNames, string sheetName)
         {
+
+            string currentSheet;
             #region html Content Strings
 
             string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
@@ -341,100 +353,96 @@ namespace LabManagement
                 " <col class=xl155 width=188 style='mso-width-source:userset;mso-width-alt:6875;", " width:141pt'>", 
                 " <col class=xl155 width=64 style='mso-width-source:userset;mso-width-alt:2340;", " width:48pt'>" };
 
-           string[] footer = new[] { " </tr>", "</table>", "</body>", "</html>" };
-/*
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td height=12 class=xl150 width=73 style='height:9.0pt;width:55pt'>Posted
-  8/26/2019</td>
-  <td class=xl151 width=458 style='width:344pt'>&nbsp;</td>
-  <td class=xl152 width=30 style='width:23pt'>&nbsp;</td>
-  <td class=xl160 colspan=2 width=291 style='mso-ignore:colspan;width:218pt'><a
-  href="http://www.calstatela.edu/univ/ppa/acadcal.htm" target="_parent"><span
-  style='font-size:7.0pt;font-weight:700'>Click here to verify Key Dates</span></a></td>
-  <td rowspan=2 class=xl162 width=64 style='width:48pt'><a
-  href="http://download.cslaee.com/" target="_parent"><span style='font-size:
-  7.0pt'>Download page to print</span></a></td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>
-  <td class=xl152>&nbsp;</td>
-  <td class=xl152>&nbsp;</td>
-  <td class=xl149>August 19&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-  &nbsp; &nbsp;&nbsp;</td>
-  <td class=xl149>University Convocation, Fall semester begins</td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>
-  <td class=xl152>&nbsp;</td>
-  <td class=xl152>&nbsp;</td>
-  <td class=xl149>August 20</td>
-  <td class=xl149>Fall classes begin</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span
-  style='mso-spacerun:yes'> </span>ELECTRICAL AND COMPUTER ENGINEERING</td>
-  <td class=xl149>September 2</td>
-  <td class=xl149>Labor Day, University closed</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td height=12 class=xl149 style='height:9.0pt'>November 11</td>
-  <td class=xl149>Veterans Day, University closed</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td height=12 class=xl149 style='height:9.0pt'>November 25-27</td>
-  <td class=xl149>Fall Recess</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>Fall
-  SEMESTER 2019 COURSE LIST</td>
-  <td class=xl149>November 28-30</td>
-  <td class=xl149>Thanksgiving Holiday, University closed</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>
-  <td height=12 class=xl149 style='height:9.0pt'>December 10-16</td>
-  <td class=xl149>Final Examinations</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='height:9.0pt'>
-  <td height=12 class=xl149 style='height:9.0pt'>December 20</td>
-  <td class=xl149>Fall semester ends</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='height:9.0pt'>
-  <td height=12 class=xl152 style='height:9.0pt'>&nbsp;</td>
-  <td class=xl152>&nbsp;</td>
-  <td class=xl152>&nbsp;</td>
-  <td class=xl153>&nbsp;</td>
-  <td class=xl150>&nbsp;</td>
-  <td class=xl150>&nbsp;</td>
- </tr>
- <tr class=xl153 height=12 style='height:9.0pt'>
-  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>
-  <td class=xl153>&nbsp;</td>
-  <td class=xl154>&nbsp;</td>
-  <td class=xl148>&nbsp;</td>
-  <td class=xl153>&nbsp;</td>
-  <td class=xl153>&nbsp;</td>
- </tr>
- <tr class=xl153 height=13 style='height:9.75pt'>
-  <td height=13 class=xl158 style='height:9.75pt'>COURSE</td>
-  <td class=xl159>TITLE</td>
-  <td class=xl159>CR</td>
-  <td class=xl158>FACULTY</td>
-  <td class=xl158>DAYS/TIMES</td>
-  <td class=xl158>ROOM</td>
- </tr>
+            string[] h1 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td height=12 class=xl150 width=73 style='height:9.0pt;width:55pt'>Posted","  8/26/2019</td>",
+                "  <td class=xl151 width=458 style='width:344pt'>&nbsp;</td>",
+                "  <td class=xl152 width=30 style='width:23pt'>&nbsp;</td>",
+                "  <td class=xl160 colspan=2 width=291 style='mso-ignore:colspan;width:218pt'><a",
+                "  href=\"http://www.calstatela.edu/univ/ppa/acadcal.htm\" target=\"_parent\"><span",
+                "  style='font-size:7.0pt;font-weight:700'>Click here to verify Key Dates</span></a></td>",
+                "  <td rowspan=2 class=xl162 width=64 style='width:48pt'><a", 
+                "  href=\"http://download.cslaee.com/\" target=\"_parent\"><span style='font-size:",
+                "  7.0pt'>Download page to print</span></a></td>", " </tr>" };
 
-*/
+            string[] h2 = new[] {"  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
+                "  <td class=xl152>&nbsp;</td>",
+                "  <td class=xl152>&nbsp;</td>",
+                "  <td class=xl149>August 19&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;",
+                "  &nbsp; &nbsp;&nbsp;</td>",
+                "  <td class=xl149>University Convocation, Fall semester begins</td>", " </tr>" };
 
 
 
+            string[] footer = new[] { "</table>", "</body>", "</html>" };
+            string[] h3 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
+                "  <td class=xl152>&nbsp;</td>",
+                "  <td class=xl152>&nbsp;</td>",
+                "  <td class=xl149>August 20</td>",
+                "  <td class=xl149>Fall classes begin</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span",
+                "  style='mso-spacerun:yes'> </span>ELECTRICAL AND COMPUTER ENGINEERING</td>",
+                "  <td class=xl149>September 2</td>",
+                "  <td class=xl149>Labor Day, University closed</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td height=12 class=xl149 style='height:9.0pt'>November 11</td>",
+                "  <td class=xl149>Veterans Day, University closed</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td height=12 class=xl149 style='height:9.0pt'>November 25-27</td>",
+                "  <td class=xl149>Fall Recess</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>Fall",
+                "  SEMESTER 2019 COURSE LIST</td>",
+                "  <td class=xl149>November 28-30</td>",
+                "  <td class=xl149>Thanksgiving Holiday, University closed</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "  <td height=12 class=xl149 style='height:9.0pt'>December 10-16</td>",
+                "  <td class=xl149>Final Examinations</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='height:9.0pt'>",
+                "  <td height=12 class=xl149 style='height:9.0pt'>December 20</td>",
+                "  <td class=xl149>Fall semester ends</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='height:9.0pt'>",
+                "  <td height=12 class=xl152 style='height:9.0pt'>&nbsp;</td>",
+                "  <td class=xl152>&nbsp;</td>",
+                "  <td class=xl152>&nbsp;</td>",
+                "  <td class=xl153>&nbsp;</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                "  <td class=xl150>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=12 style='height:9.0pt'>",
+                "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
+                "  <td class=xl153>&nbsp;</td>",
+                "  <td class=xl154>&nbsp;</td>",
+                "  <td class=xl148>&nbsp;</td>",
+                "  <td class=xl153>&nbsp;</td>",
+                "  <td class=xl153>&nbsp;</td>",
+                " </tr>",
+                " <tr class=xl153 height=13 style='height:9.75pt'>",
+                "  <td height=13 class=xl158 style='height:9.75pt'>COURSE</td>",
+                "  <td class=xl159>TITLE</td>",
+                "  <td class=xl159>CR</td>",
+                "  <td class=xl158>FACULTY</td>",
+                "  <td class=xl158>DAYS/TIMES</td>",
+                "  <td class=xl158>ROOM</td>",
+                " </tr>"};
 
+            string tdData = "  <td class=xl155>";
 
 
 
@@ -449,31 +457,279 @@ namespace LabManagement
             string linkName = "sheet001.htm";
             #endregion
 
-
-            string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester " +
-                                      "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
-            Common.DebugWriteLine(debug, "Web Debug");
-
-            var tuple = Db.GetTuple(semesterNamesSQL);
-
-
-            using (FileStream fs = new FileStream(Constants.webpageDir + sheetName + @"_files\sheet001.htm", FileMode.Create))
+            for (int i = 1; i <= semesterNames.Length; i++)
             {
-                using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+                currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + i.ToString("000") + ".htm";
+
+                Common.DebugWriteLine(debug, "Web Debug.StoreSheets: " + currentSheet);
+
+
+                using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
                 {
-                    WriteToFile(header, w);
-                    WriteToFile(fnUpdateTabs, w);
-                    WriteToFile(table, w);
-                    foreach (string tabName in tuple)
+                    using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                     {
-                        Common.DebugWriteLine(debug, tabName);
-                        w.WriteLine(a + tabColor + b + linkName + c + textColor + d + tabName + e);
+                        WriteToFile(header, w);
+                        WriteToFile(fnUpdateTabs, w);
+                        WriteToFile(table, w);
+                        WriteToFile(h1, w);
+                        WriteToFile(h2, w);
+                        WriteToFile(h3, w);
+                        for (int j = 0; j<6; j++)
+                       {
+                            w.WriteLine(" <tr height=15 style='height:11.25pt'>");
+                            w.WriteLine(tdData + "EE3810-01" + "</td>");
+                            w.WriteLine(tdData + "Sensors, Data Acquisition, and Instrumentation with application to Biomedical Engineering" + "</td>");
+                            w.WriteLine(tdData + "2" + "</td>");
+                            w.WriteLine(tdData + "Won" + "</td>");
+                            w.WriteLine(tdData + "F 1055AM-125PM" + "</td>");
+                            w.WriteLine(tdData + "ETC255G" + "</td>");
+                            w.WriteLine(" </tr>");
+                        }
+                        WriteToFile(footer, w);
                     }
-                    WriteToFile(footer, w);
                 }
+
             }
 
+
         }
+
+		static public void StoreStyleSheet(string sheetName)
+		{
+			#region html Content Strings
+			string[] cssString = new[] {"tr",
+				"	{mso-height-source:auto;}",
+                "col",
+                "	{mso-width-source:auto;}",
+                "br",
+                "	{mso-data-placement:same-cell;}",
+                ".style126",
+                "	{color:blue;",
+                "	font-size:10.0pt;",
+                "	font-weight:400;",
+                "	font-style:normal;",
+                "	text-decoration:underline;",
+                "	text-underline-style:single;",
+                "	font-family:Arial, sans-serif;",
+                "	mso-font-charset:0;",
+                "	mso-style-name:Hyperlink;",
+                "	mso-style-id:8;}",
+                "a:link",
+                "	{color:blue;",
+                "	font-size:10.0pt;",
+                "	font-weight:400;",
+                "	font-style:normal;",
+                "	text-decoration:underline;",
+                "	text-underline-style:single;",
+                "	font-family:Arial, sans-serif;",
+                "	mso-font-charset:0;}",
+                "a:visited",
+                "	{color:purple;",
+                "	font-size:10.0pt;",
+                "	font-weight:400;",
+                "	font-style:normal;",
+                "	text-decoration:underline;",
+                "	text-underline-style:single;",
+                "	font-family:Arial;",
+                "	mso-generic-font-family:auto;",
+                "	mso-font-charset:0;}",
+                ".style0",
+                "	{mso-number-format:General;",
+                "	text-align:general;",
+                "	vertical-align:bottom;",
+                "	white-space:nowrap;",
+                "	mso-rotate:0;",
+                "	mso-background-source:auto;",
+                "	mso-pattern:auto;",
+                "	color:windowtext;",
+                "	font-size:10.0pt;",
+                "	font-weight:400;",
+                "	font-style:normal;",
+                "	text-decoration:none;",
+                "	font-family:Arial;",
+                "	mso-generic-font-family:auto;",
+                "	mso-font-charset:0;",
+                "	border:none;",
+                "	mso-protection:locked visible;",
+                "	mso-style-name:Normal;",
+                "	mso-style-id:0;}",
+                ".style113",
+                "	{mso-number-format:General;",
+                "	text-align:general;",
+                "	vertical-align:bottom;",
+                "	white-space:nowrap;",
+                "	mso-rotate:0;",
+                "	mso-background-source:auto;",
+                "	mso-pattern:auto;",
+                "	color:black;",
+                "	font-size:11.0pt;",
+                "	font-weight:400;",
+                "	font-style:normal;",
+                "	text-decoration:none;",
+                "	font-family:Calibri, sans-serif;",
+                "	mso-font-charset:0;",
+                "	border:none;",
+                "	mso-protection:locked visible;",
+                "	mso-style-name:\"Normal 14\";}",
+                "td",
+                "	{mso-style-parent:style0;",
+                "	padding-top:1px;",
+                "	padding-right:1px;",
+                "	padding-left:1px;",
+                "	mso-ignore:padding;",
+                "	color:windowtext;",
+                "	font-size:10.0pt;",
+                "	font-weight:400;",
+                "	font-style:normal;",
+                "	text-decoration:none;",
+                "	font-family:Arial, sans-serif;",
+                "	mso-font-charset:0;",
+                "	mso-number-format:General;",
+                "	text-align:general;",
+                "	vertical-align:bottom;",
+                "	border:none;",
+                "	mso-background-source:auto;",
+                "	mso-pattern:auto;",
+                "	mso-protection:locked visible;",
+                "	white-space:nowrap;",
+                "	mso-rotate:0;",
+                "	background:white;}",
+                ".xl148",
+                "	{mso-style-parent:style113;",
+                "	font-size:7.0pt;",
+                "	font-style:italic;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl149",
+                "	{mso-style-parent:style0;",
+                "	font-size:7.0pt;",
+                "	text-align:left;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl150",
+                "	{mso-style-parent:style0;",
+                "	font-size:7.0pt;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl151",
+                "	{mso-style-parent:style113;",
+                "	color:black;",
+                "	font-size:7.0pt;",
+                "	mso-number-format:\"Short Date\";",
+                "	text-align:left;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl152",
+                "	{mso-style-parent:style113;",
+                "	font-size:7.0pt;",
+                "	font-weight:700;",
+                "	font-style:italic;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl153",
+                "	{mso-style-parent:style0;",
+                "	font-size:7.0pt;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl154",
+                "	{mso-style-parent:style113;",
+                "	font-size:7.0pt;",
+                "	font-weight:700;",
+                "	font-style:italic;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl155",
+                "	{mso-style-parent:style0;",
+                "	font-size:8.0pt;",
+                "",
+                "	mso-pattern:black none;}",
+                ".xl156",
+                "	{mso-style-parent:style0;",
+                "	font-size:8.0pt;",
+                "	text-align:left;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl157",
+                "	{mso-style-parent:style0;",
+                "	font-size:8.0pt;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl158",
+                "	{mso-style-parent:style113;",
+                "	font-size:7.0pt;",
+                "	font-weight:700;",
+                "	font-style:italic;",
+                "	text-align:left;",
+                "	border-top:none;",
+                "	border-right:none;",
+                "	border-bottom:1.5pt solid windowtext;",
+                "	border-left:none;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl159",
+                "	{mso-style-parent:style113;",
+                "	font-size:7.0pt;",
+                "	font-weight:700;",
+                "	font-style:italic;",
+                "	text-align:center;",
+                "	border-top:none;",
+                "	border-right:none;",
+                "	border-bottom:1.5pt solid windowtext;",
+                "	border-left:none;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl160",
+                "	{mso-style-parent:style126;",
+                "	color:blue;",
+                "	font-size:7.0pt;",
+                "	font-weight:700;",
+                "	text-decoration:underline;",
+                "	text-underline-style:single;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl161",
+                "	{mso-style-parent:style113;",
+                "	font-size:14.0pt;",
+                "	font-weight:700;",
+                "	font-style:italic;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;}",
+                ".xl162",
+                "	{mso-style-parent:style126;",
+                "	color:blue;",
+                "	font-size:7.0pt;",
+                "	text-decoration:underline;",
+                "	text-underline-style:single;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;",
+                "	white-space:normal;}",
+                ".xl163",
+                "	{mso-style-parent:style113;",
+                "	font-size:12.0pt;",
+                "	font-weight:700;",
+                "	text-align:center;",
+                "	background:white;",
+                "	mso-pattern:black none;}" };
+            #endregion
+
+            string currentSheet = Constants.webpageDir + sheetName + @"_files\stylesheet.css";
+			Common.DebugWriteLine(debug, "Web Debug.StoreSheets: " + currentSheet);
+
+			using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
+			{
+				using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+				{
+					WriteToFile(cssString, w);
+				}
+			}
+		}
+
 
         static void WriteToFile(string[] content, StreamWriter w)
         {
