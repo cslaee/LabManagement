@@ -49,7 +49,12 @@ namespace LabManagement
             }
             return filePath;
         }
-        
+
+        internal static void DebugWriteLine(bool debug, object p)
+        {
+            throw new NotImplementedException();
+        }
+
         //public static string GetMonthDayString(Regex dateRegex, string dateRange, int dateIndex)
         //{
         //    string monthStr = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(dateRegex.Match(dateRange).Groups[dateIndex].Value.ToLower());

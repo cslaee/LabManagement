@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -127,7 +128,115 @@ namespace LabManagement
             return returnString.ToArray();
         }
 
+        static public List<List<object>> GetTupleObj(string sqlStatement)
+        {
+            List<List<object>> returnObj = new List<List<object>>();
+            string type;
+            int i = 0;
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand cmd = connection.CreateCommand();
+            var commandText = new System.Text.StringBuilder();
 
+            cmd.CommandText = sqlStatement;
+            Common.DebugWriteLine(debug, "(" + cmd.CommandText + " )");
+            connection.Open();
+
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    returnObj.Add(new List<Object>());
+                    for (int j = 0; j < reader.FieldCount; j++)
+                    {
+                        type = Regex.Match(reader.GetDataTypeName(j), @"(\w+)").Groups[1].Value;
+                        switch (type)
+                        {
+                            case "INTEGER":
+                                //Console.WriteLine("found int");
+                                returnObj[i].Add(reader.GetValue(j).ToString());
+                                Common.DebugWriteLine(debug, "Found int " + returnObj[i]);
+                                //bool notNumeric = !int.TryParse(lockNumber, out int n);
+                                break;
+                            case "DATE":
+                                //Console.WriteLine("found date");
+                                //returnString.Add(reader.GetValue(i).ToString());
+                                break;
+                            case "VARCHAR":
+                                returnObj[i].Add(reader.GetValue(j).ToString());
+                                Common.DebugWriteLine(debug, "Found Varchar " + returnObj[i].ToString());
+                                //Console.WriteLine("type = " + type);
+                                break;
+                        }
+                        //returnString.Add(reader.GetValue(i));
+                        //returnString.Add(reader.GetValue(i).ToString());
+                        //Console.WriteLine("returnString = " + returnString[i]);
+                    }
+                    i++;
+                }
+            }
+            connection.Close();
+            return returnObj;
+        }
+
+        static public List<object> GetTupleNewOne(string sqlStatement)
+        {
+            var returnObj = new List<object>();
+            string type;
+            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
+            SQLiteCommand cmd = connection.CreateCommand();
+            
+            cmd.CommandText = sqlStatement;
+            Common.DebugWriteLine(debug, "Db.GetTuple(" + cmd.CommandText + " )");
+            connection.Open();
+
+
+
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        type = Regex.Match(reader.GetDataTypeName(i), @"(\w+)").Groups[1].Value;
+                        switch (type)
+                        {
+                            case "INTEGER":
+                                //Console.WriteLine("found int");
+                                returnObj.Add(reader.GetValue(i).ToString());
+                                //bool notNumeric = !int.TryParse(lockNumber, out int n);
+                                break;
+                            case "DATE":
+                                //Console.WriteLine("found date");
+                                //const string FMT = "O";
+
+                                //DateTime? value = (DateTime?)resultSet["myDateColumn"];
+
+                                //string strDate = now1.ToString(FMT);
+                                //var lmnop = reader.GetValue(i);
+                                //string mydate= Convert.ToDateTime(reader.GetDateTime(i)).ToShortDateString().ToString();
+                                //string mydate2 =  DateTime.ParseExact(reader.GetValue(i).ToShortDateString(), "M/d/yyyy", CultureInfo.InvariantCulture);
+                                //DateTime? jj = (DateTime?)reader.GetDateTime(i);
+                                returnObj.Add("Date = *");
+                                //returnString.Add(reader.GetValue(i).ToString());
+                                break;
+                            case "VARCHAR":
+                                returnObj.Add(reader.GetValue(i).ToString());
+                                //Console.WriteLine("type = " + type);
+                               break;
+                            default: 
+                                returnObj.Add("Default type =" + type + ":" + reader.GetValue(i).ToString());
+                                //Console.WriteLine("type = " + type);
+                                break;
+                        }
+                        //returnString.Add(reader.GetValue(i));
+                        //returnString.Add(reader.GetValue(i).ToString());
+                        //Console.WriteLine("returnString = " + returnString[i]);
+                    }
+                }
+            }
+            connection.Close();
+            return returnObj;
+        }
 
 
         /*
@@ -136,7 +245,7 @@ namespace LabManagement
          */
         static public List<object> GetTuple(string tableName, string returnColumn, string[] column, object[] values)
         {
-            var returnString = new List<object>();
+            var returnObj = new List<object>();
             string type;
             int numberOfColumns = column.Length;
             SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
@@ -165,7 +274,7 @@ namespace LabManagement
                         {
                             case "INTEGER":
                                 //Console.WriteLine("found int");
-                                returnString.Add(reader.GetValue(i).ToString());
+                                returnObj.Add(reader.GetValue(i).ToString());
                                 //bool notNumeric = !int.TryParse(lockNumber, out int n);
                                 break;
                             case "DATE":
@@ -173,7 +282,7 @@ namespace LabManagement
                                 //returnString.Add(reader.GetValue(i).ToString());
                                 break;
                             case "VARCHAR":
-                                returnString.Add(reader.GetValue(i).ToString());
+                                returnObj.Add(reader.GetValue(i).ToString());
                                 //Console.WriteLine("type = " + type);
                                 break;
                         }
@@ -184,66 +293,7 @@ namespace LabManagement
                 }
             }
             connection.Close();
-            return returnString;
-        }
-
-
-
-        /*
-         * Parameterized SQL Statement  
-         * Change other methods to look like this
-         */
-        static public List<object> GetTuple(string selectStatment, string tableName, string returnColumn, string[] column, object[] values)
-        {
-            var returnString = new List<object>();
-            string type;
-            int numberOfColumns = column.Length;
-            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
-            SQLiteCommand cmd = connection.CreateCommand();
-            var commandText = new System.Text.StringBuilder();
-
-            commandText.Append(selectStatment + " " + returnColumn + " FROM " + tableName + " WHERE ");
-            for (int i = 0; i < numberOfColumns; i++)
-            {
-                commandText.Append(column[i] + " = @" + column[i] + " AND ");
-                cmd.Parameters.AddWithValue("@" + column[i], values[i]);
-            }
-            commandText.Remove(commandText.Length - 4, 4);
-            cmd.CommandText = commandText.ToString() + " COLLATE NOCASE";
-            Common.DebugWriteLine(debug, "Db.GetTuple(" + cmd.CommandText + " )");
-            connection.Open();
-
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        type = Regex.Match(reader.GetDataTypeName(i), @"(\w+)").Groups[1].Value;
-                        switch (type)
-                        {
-                            case "INTEGER":
-                                //Console.WriteLine("found int");
-                                returnString.Add(reader.GetValue(i).ToString());
-                                //bool notNumeric = !int.TryParse(lockNumber, out int n);
-                                break;
-                            case "DATE":
-                                //Console.WriteLine("found date");
-                                //returnString.Add(reader.GetValue(i).ToString());
-                                break;
-                            case "VARCHAR":
-                                returnString.Add(reader.GetValue(i).ToString());
-                                //Console.WriteLine("type = " + type);
-                                break;
-                        }
-                        //returnString.Add(reader.GetValue(i));
-                        //returnString.Add(reader.GetValue(i).ToString());
-                        //Console.WriteLine("returnString = " + returnString[i]);
-                    }
-                }
-            }
-            connection.Close();
-            return returnString;
+            return returnObj;
         }
 
 

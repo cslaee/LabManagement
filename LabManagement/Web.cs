@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Text;
 namespace LabManagement
 {
@@ -10,23 +13,34 @@ namespace LabManagement
         static public void PublishSchedule()
         {
             Common.DebugWriteLine(debug, "Web.PublishSchedule()");
- //          string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) || ' ' || substr(year, 3, 4) FROM Semester " +
- //                                     "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
 
-           string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), scheduleDate FROM Semester " +
+           string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), name, session, numberOfWeeks, semesterID, version, scheduleDate, schedulePostDate  FROM Semester " +
                                       "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
-//            var tuple2 = Db.GetTuple("SELECT DISTINCT", "substr(name, 1, 3) ||  substr(year, 3, 4), scheduleDate", colname, coldata);
-
-
             var tuple = Db.GetTuple(semesterNamesSQL);
+            List <object> tuple7 = Db.GetTupleNewOne(semesterNamesSQL);
+            List<List<object>> tupleO = Db.GetTupleObj(semesterNamesSQL);
             Common.DebugWriteLine(debug, "Number of Semesters = " + tuple.Length);
-            string ws = "schedule";
+            Common.DebugWriteLine(debug, " **********************************************************************************************************************");
+            Common.DebugWriteLine(debug, " **********************************************************************************************************************");
+            Common.DebugWriteLine(debug, " **********************************************************************************************************************");
+//            Common.DebugWrite(debug, tuple7);
+            Common.DebugWriteLine(debug, " **********************************************************************************************************************");
+            Common.DebugWriteLine(debug, " **********************************************************************************************************************");
+            Common.DebugWriteLine(debug, " **********************************************************************************************************************");
 
+
+
+            foreach(object t in tuple7)
+            {
+                        Common.DebugWriteLine(debug, "t =" +t.ToString());
+            }
+            
+            string ws = "schedule";
             SetupDirectories(ws);
             StoreTabStrip(tuple, ws);
             StoreFileList(tuple, ws);
             StoreIndex(tuple, ws);
-            StoreSheets(tuple, ws);
+            StoreSheets(tupleO, ws);
             StoreStyleSheet(ws);
 
         }
@@ -320,8 +334,8 @@ namespace LabManagement
         }
 
 
-
-        static public void StoreSheets(string[] semesterNames, string sheetName)
+        //static public void StoreSheets(string[] semesterNames, string sheetName)
+        static public void StoreSheets(List<List<object>> semesterNames, string sheetName)
         {
 
             string currentSheet;
@@ -456,18 +470,27 @@ namespace LabManagement
             string textColor = "000000";
             string linkName = "sheet001.htm";
             #endregion
-
-            for (int i = 1; i <= semesterNames.Length; i++)
+            
+            Common.DebugWriteLine(debug, "number of sheets" + semesterNames[1].Count);
+            for (int i = 1; i <= semesterNames.Count; i++)
             {
                 currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + i.ToString("000") + ".htm";
-
-                Common.DebugWriteLine(debug, "Web Debug.StoreSheets: " + currentSheet);
-
+                Common.DebugWriteLine(debug, "Web Debug.StoreSheets: " + semesterNames.ToString());
 
                 using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
                 {
                     using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
-                    {
+                    {   Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][0]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][1]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][2]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][3]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][4]);
+
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][0]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][1]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][2]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][3]);
+                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][4]);
                         WriteToFile(header, w);
                         WriteToFile(fnUpdateTabs, w);
                         WriteToFile(table, w);
