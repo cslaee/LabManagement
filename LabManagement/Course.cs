@@ -9,13 +9,13 @@ namespace LabManagement
         public string Subject { get; set; }
         public int Catalog { get; set; }
         public string Title { get; set; }
-        public int Description { get; set; }
+        public string Description { get; set; }
         public int Credit { get; set; }
         public int Laboratory { get; set; }
         public int PrerequisiteFK { get; set; }
         public int ClassCol { get; set; }
         public int Section { get; set; }  //Not stored in Db.  Only for excel import.
-        static readonly bool debug = Constants.courseDebug;
+        const bool debug = Constants.courseDebug;
 
         public Course(string rawCourse, string title, string creditStr)
         {
@@ -48,5 +48,46 @@ namespace LabManagement
             }
         }
 
+
+        //public Course(string lockNumber)
+        public Course(int n)
+        {
+            string[] colname = new[] { "courseID" };
+            var coldata = new object[] { n };
+            var tuple = Db.GetTuple("Course", "*", colname, coldata);
+            bool noLockInDb = tuple.Count == 0;
+
+
+            if (noLockInDb)
+            {
+                Subject = "ERROR";
+                return;
+            }
+            Subject = tuple[1].ToString(); //Working
+            Catalog = Convert.ToInt32(tuple[2].ToString());// Not Working
+            Title = tuple[3].ToString(); //Working
+            Description = tuple[4].ToString();
+            Credit =  Convert.ToInt32(tuple[5].ToString());
+            Laboratory = 4;// Convert.ToInt32(tuple[6].ToString());
+            ClassCol = 5;// Convert.ToInt32(tuple[7].ToString());
+        }
+
+
+
+
+
+
     }
+
+
+
+
+
+    
+
+
+
+
+
+
 }

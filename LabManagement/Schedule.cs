@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace LabManagement
@@ -20,6 +21,10 @@ namespace LabManagement
         public DateTime EndTime { set; get; }
         public string EndTimeStr { set; get; }
 
+        public Schedule()
+        {
+
+        }
         public Schedule(Course c, int semesterFK, int instructor1FK, int instructor2FK, int room1FK, int room2FK, string rawTime)
         {
             bool debug = Constants.schedule;
@@ -87,6 +92,61 @@ namespace LabManagement
             var coldata = new object[] { CourseFK, Section, SemesterFK, Instructor1FK, Instructor2FK, Room1FK, Room2FK, StatusFK, Days, StartTimeStr, EndTimeStr  };
             Db.Insert("Schedule", colname, coldata);
         }
+        
+
+        static public List<Schedule> GetSemsterClassList(int id)
+        {
+            List<Schedule> semesterClassList = new List<Schedule>();
+            string idString = id.ToString();
+            bool debug = true;
+            string semesterNamesSQL = @"SELECT scheduleID, courseFK, section, semesterFK, instructor1FK, instructor2FK, " +
+                "room1FK, room2FK, statusFK, days, startTime, endTime from Schedule  JOIN Course ON Course.courseID = Schedule.courseFK " +
+                "WHERE semesterFK = " + idString + " ORDER BY catalog ASC";
+
+            List <object> tuple = Db.GetTupleNewOne(semesterNamesSQL);
+            int rowCount = tuple.Count / 12;
+
+            for (int i = 0; i < rowCount; i++)
+            {
+                Schedule s = new Schedule
+                {
+                    ScheduleID = Convert.ToInt32(tuple[i * 12].ToString()),
+                    CourseFK = Convert.ToInt32(tuple[i * 12 + 1].ToString()),
+                    Section = Convert.ToInt32(tuple[i * 12 + 2].ToString()),
+                    SemesterFK = Convert.ToInt32(tuple[i * 12 + 3].ToString()),
+                    Instructor1FK = Convert.ToInt32(tuple[i * 12 + 4].ToString()),
+                    Instructor2FK = Convert.ToInt32(tuple[i * 12 + 5].ToString()),
+                    Room1FK = Convert.ToInt32(tuple[i * 12 + 6].ToString()),
+                    Room2FK = Convert.ToInt32(tuple[i * 12 + 7].ToString()),
+                    StatusFK = Convert.ToInt32(tuple[i * 12 + 8].ToString()),
+                    Days = Convert.ToInt32(tuple[i * 12 + 9].ToString()),
+                    StartTime = Convert.ToDateTime(tuple[i * 12 + 10].ToString()),
+                    EndTime = Convert.ToDateTime(tuple[i * 12 + 11].ToString())
+                };
+/*
+                Common.DebugWriteLine(debug, "rowCount =" + i);
+                 Common.DebugWriteLine(debug, "emester 0 =" + tuple[i*12]);
+                 Common.DebugWriteLine(debug, "emester 1 =" + tuple[i*12+1]);
+                 Common.DebugWriteLine(debug, "emester 2 =" + tuple[i*12+2]);
+                 Common.DebugWriteLine(debug, "emester 3 =" + tuple[i*12+3]);
+                 Common.DebugWriteLine(debug, "emester 4 =" + tuple[i*12+4]);
+                 Common.DebugWriteLine(debug, "emester 5 =" + tuple[i*12+5]);
+                 Common.DebugWriteLine(debug, "emester 6 =" + tuple[i*12+6]);
+                 Common.DebugWriteLine(debug, "emester 7 =" + tuple[i*12+7]);
+                 Common.DebugWriteLine(debug, "emester 8 =" + tuple[i*12+8]);
+                 Common.DebugWriteLine(debug, "emester 9 =" + tuple[i*12+9]);
+                 Common.DebugWriteLine(debug, "emester 11 =" + tuple[i*12+10]);
+                 Common.DebugWriteLine(debug, "emester 12 =" + tuple[i*12+11] + " ET " +s.EndTime);
+                 */
+                 semesterClassList.Add(s);
+            }
+            return semesterClassList;
+        }
+
+
+
+
+
 
 
         static public void DeleteSchedule(int semesterID)

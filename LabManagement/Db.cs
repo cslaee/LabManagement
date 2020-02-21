@@ -128,56 +128,6 @@ namespace LabManagement
             return returnString.ToArray();
         }
 
-        static public List<List<object>> GetTupleObj(string sqlStatement)
-        {
-            List<List<object>> returnObj = new List<List<object>>();
-            string type;
-            int i = 0;
-            SQLiteConnection connection = new SQLiteConnection(Constants.connectionString);
-            SQLiteCommand cmd = connection.CreateCommand();
-            var commandText = new System.Text.StringBuilder();
-
-            cmd.CommandText = sqlStatement;
-            Common.DebugWriteLine(debug, "(" + cmd.CommandText + " )");
-            connection.Open();
-
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    returnObj.Add(new List<Object>());
-                    for (int j = 0; j < reader.FieldCount; j++)
-                    {
-                        type = Regex.Match(reader.GetDataTypeName(j), @"(\w+)").Groups[1].Value;
-                        switch (type)
-                        {
-                            case "INTEGER":
-                                //Console.WriteLine("found int");
-                                returnObj[i].Add(reader.GetValue(j).ToString());
-                                Common.DebugWriteLine(debug, "Found int " + returnObj[i]);
-                                //bool notNumeric = !int.TryParse(lockNumber, out int n);
-                                break;
-                            case "DATE":
-                                //Console.WriteLine("found date");
-                                //returnString.Add(reader.GetValue(i).ToString());
-                                break;
-                            case "VARCHAR":
-                                returnObj[i].Add(reader.GetValue(j).ToString());
-                                Common.DebugWriteLine(debug, "Found Varchar " + returnObj[i].ToString());
-                                //Console.WriteLine("type = " + type);
-                                break;
-                        }
-                        //returnString.Add(reader.GetValue(i));
-                        //returnString.Add(reader.GetValue(i).ToString());
-                        //Console.WriteLine("returnString = " + returnString[i]);
-                    }
-                    i++;
-                }
-            }
-            connection.Close();
-            return returnObj;
-        }
-
         static public List<object> GetTupleNewOne(string sqlStatement)
         {
             var returnObj = new List<object>();
@@ -216,6 +166,10 @@ namespace LabManagement
                                 //string mydate= Convert.ToDateTime(reader.GetDateTime(i)).ToShortDateString().ToString();
                                 //string mydate2 =  DateTime.ParseExact(reader.GetValue(i).ToShortDateString(), "M/d/yyyy", CultureInfo.InvariantCulture);
                                 //DateTime? jj = (DateTime?)reader.GetDateTime(i);
+
+                                /*returnObj.Add(Convert.ToDateTime(reader.GetValue(i).ToString()));  //String was not recognized as a valid DateTime.  See ImportScheule
+                                StartTime = Convert.ToDateTime(tuple[i * 12 + 10].ToString()),*/
+
                                 returnObj.Add("Date = *");
                                 //returnString.Add(reader.GetValue(i).ToString());
                                 break;
@@ -224,7 +178,7 @@ namespace LabManagement
                                 //Console.WriteLine("type = " + type);
                                break;
                             default: 
-                                returnObj.Add("Default type =" + type + ":" + reader.GetValue(i).ToString());
+                                returnObj.Add(reader.GetValue(i).ToString());
                                 //Console.WriteLine("type = " + type);
                                 break;
                         }

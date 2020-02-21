@@ -14,12 +14,13 @@ namespace LabManagement
         {
             Common.DebugWriteLine(debug, "Web.PublishSchedule()");
 
-           string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), name, session, numberOfWeeks, semesterID, version, scheduleDate, schedulePostDate  FROM Semester " +
+           string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), name, session, numberOfWeeks, semesterID, version, year, scheduleDate, schedulePostDate  FROM Semester " +
                                       "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
             var tuple = Db.GetTuple(semesterNamesSQL);
             List <object> tuple7 = Db.GetTupleNewOne(semesterNamesSQL);
-            List<List<object>> tupleO = Db.GetTupleObj(semesterNamesSQL);
+            //List<List<object>> tupleO = Db.GetTupleObj(semesterNamesSQL);
             Common.DebugWriteLine(debug, "Number of Semesters = " + tuple.Length);
+            Common.DebugWriteLine(debug, "Number of Semesters 7 = " + tuple7.Count);
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
@@ -29,20 +30,16 @@ namespace LabManagement
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
 
 
-
-            foreach(object t in tuple7)
-            {
-                        Common.DebugWriteLine(debug, "t =" +t.ToString());
-            }
-            
-            string ws = "schedule";
-            SetupDirectories(ws);
-            StoreTabStrip(tuple, ws);
-            StoreFileList(tuple, ws);
-            StoreIndex(tuple, ws);
-            StoreSheets(tupleO, ws);
-            StoreStyleSheet(ws);
-
+            int rowCount = tuple7.Count/9;
+           
+            string excelWorkSheet = "schedule";
+            SetupDirectories(excelWorkSheet);
+            StoreTabStrip(tuple, excelWorkSheet);
+            StoreFileList(tuple, excelWorkSheet);
+            StoreIndex(tuple, excelWorkSheet);
+            StoreSheets(tuple7, rowCount, excelWorkSheet);
+            StoreStyleSheet(excelWorkSheet);
+        
         }
         static public void SetupDirectories(string sheetName)
         {
@@ -335,10 +332,12 @@ namespace LabManagement
 
 
         //static public void StoreSheets(string[] semesterNames, string sheetName)
-        static public void StoreSheets(List<List<object>> semesterNames, string sheetName)
+        static public void StoreSheets(List<object> semesterNames, int rowCount, string sheetName)
         {
 
             string currentSheet;
+            string currentSemester = "";
+            string currentYear = "1979";
             #region html Content Strings
 
             string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
@@ -414,10 +413,8 @@ namespace LabManagement
                 "  <td class=xl149>Fall Recess</td>",
                 "  <td class=xl150>&nbsp;</td>",
                 " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>Fall",
-                "  SEMESTER 2019 COURSE LIST</td>",
-                "  <td class=xl149>November 28-30</td>",
+                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>" };
+            string[] h4 = new[] {"  <td class=xl149>November 28-30</td>",
                 "  <td class=xl149>Thanksgiving Holiday, University closed</td>",
                 "  <td class=xl150>&nbsp;</td>",
                 " </tr>",
@@ -470,35 +467,67 @@ namespace LabManagement
             string textColor = "000000";
             string linkName = "sheet001.htm";
             #endregion
-            
-            Common.DebugWriteLine(debug, "number of sheets" + semesterNames[1].Count);
-            for (int i = 1; i <= semesterNames.Count; i++)
+
+            for(int i = 0; i < rowCount; i++)
             {
-                currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + i.ToString("000") + ".htm";
-                Common.DebugWriteLine(debug, "Web Debug.StoreSheets: " + semesterNames.ToString());
+                 Common.DebugWriteLine(debug, "rowCount =" + i);
+                 Common.DebugWriteLine(debug, "Semester 0 =" + semesterNames[i*9]);
+                 Common.DebugWriteLine(debug, "Semester 1 =" + semesterNames[i*9+1]);
+                 Common.DebugWriteLine(debug, "Semester 2 =" + semesterNames[i*9+2]);
+                 Common.DebugWriteLine(debug, "Semester 3 =" + semesterNames[i*9+3]);
+                 Common.DebugWriteLine(debug, "Semester 4 =" + semesterNames[i*9+4]);
+                 Common.DebugWriteLine(debug, "Semester 5 =" + semesterNames[i*9+5]);
+                 Common.DebugWriteLine(debug, "Semester 6 =" + semesterNames[i*9+6]);
+                 Common.DebugWriteLine(debug, "Semester 7 =" + semesterNames[i*9+7]);
+                 Common.DebugWriteLine(debug, "Semester 8 =" + semesterNames[i*9+7]);
+            }
+
+            for (int i = 0; i < rowCount; i++)
+            {
+                currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + (i + 1).ToString("000") + ".htm";
+                Common.DebugWriteLine(debug, "Sheet Name = " + semesterNames[i * 9] + " schedId = " + semesterNames[i * 9 + 4]);
 
                 using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
                 {
-                    using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
-                    {   Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][0]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][1]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][2]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][3]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[0][4]);
+                    currentSemester = semesterNames[i * 9 + 1].ToString().ToUpper();
+                    currentYear = semesterNames[i * 9 + 6].ToString();
 
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][0]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][1]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][2]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][3]);
-                        Common.DebugWriteLine(debug, "Saving a sheet" + semesterNames[1][4]);
+                    using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+                    { 
                         WriteToFile(header, w);
                         WriteToFile(fnUpdateTabs, w);
                         WriteToFile(table, w);
                         WriteToFile(h1, w);
                         WriteToFile(h2, w);
                         WriteToFile(h3, w);
-                        for (int j = 0; j<6; j++)
-                       {
+                        w.WriteLine("<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>" + currentSemester);
+                        w.WriteLine(" SEMESTER " + currentYear + " COURSE LIST</td>");
+                        WriteToFile(h4, w);
+
+                        
+                        List<Schedule> semesterClassList = Schedule.GetSemsterClassList(1);
+                        foreach(Schedule s in semesterClassList)
+                        {
+                 //Common.DebugWriteLine(debug, "ScheduleID =" + s.ScheduleID);
+                 //Common.DebugWriteLine(debug, "CourseFK =" + s.CourseFK);
+                            Course crs = new Course(s.CourseFK);
+                 Common.DebugWriteLine(debug, "COURSE =" + crs.Subject + crs.Catalog + "-" +s.Section);
+                 Common.DebugWriteLine(debug, "TITLE =" + crs.Title);
+                 Common.DebugWriteLine(debug, "CR =" + crs.Credit);
+                 Common.DebugWriteLine(debug, "Course Lab =" + crs.Laboratory);
+                 //Common.DebugWriteLine(debug, "CourseFK =" + s.CourseFK);
+                 Common.DebugWriteLine(debug, "SemesterFK =" + s.SemesterFK);
+                 Common.DebugWriteLine(debug, "Instructor1FK =" + s.Instructor1FK);
+                 Common.DebugWriteLine(debug, "Instructor2FK =" + s.Instructor2FK);
+                 Common.DebugWriteLine(debug, "Room1FK =" + s.Room1FK);
+                 Common.DebugWriteLine(debug, "Room2FK =" + s.Room2FK);
+                 Common.DebugWriteLine(debug, "StatusFK =" + s.StatusFK);
+                 Common.DebugWriteLine(debug, "Days =" + s.Days);
+                 Common.DebugWriteLine(debug, "StartTime =" + s.StartTime);
+                 Common.DebugWriteLine(debug, "EndTime =" + s.EndTime);
+
+                        }
+                        
                             w.WriteLine(" <tr height=15 style='height:11.25pt'>");
                             w.WriteLine(tdData + "EE3810-01" + "</td>");
                             w.WriteLine(tdData + "Sensors, Data Acquisition, and Instrumentation with application to Biomedical Engineering" + "</td>");
@@ -507,7 +536,6 @@ namespace LabManagement
                             w.WriteLine(tdData + "F 1055AM-125PM" + "</td>");
                             w.WriteLine(tdData + "ETC255G" + "</td>");
                             w.WriteLine(" </tr>");
-                        }
                         WriteToFile(footer, w);
                     }
                 }
