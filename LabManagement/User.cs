@@ -75,6 +75,41 @@ namespace LabManagement
 
         }
 
+        /*
+        public int UserID { get; set; }
+        public string First { get; set; }
+        public string Last { get; set; }
+        public string Sid { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Cell { get; set; }
+        public int UserType { get; set; }
+*/
+
+
+
+        public User(int id)
+        {
+            string[] colname = new[] { "userID" };
+            var coldata = new object[] { id };
+            var tuple = Db.GetTuple("User", "*", colname, coldata);
+            bool notInDb = tuple.Count == 0;
+
+
+            if (notInDb)
+            {
+                Last = "ERROR";
+                return;
+            }
+            First = tuple[1].ToString(); 
+            Last = tuple[2].ToString(); 
+            Sid = tuple[3].ToString(); 
+            Email = tuple[4].ToString(); 
+            Phone = tuple[5].ToString(); 
+            Cell = tuple[6].ToString();
+            UserType = Convert.ToInt32(tuple[7].ToString());
+        }
+
 
 
 

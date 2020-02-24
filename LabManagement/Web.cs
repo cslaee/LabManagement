@@ -338,6 +338,8 @@ namespace LabManagement
             string currentSheet;
             string currentSemester = "";
             string currentYear = "1979";
+            string subjectCatalogSection = "";
+            string instructor = "";
             #region html Content Strings
 
             string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
@@ -508,17 +510,16 @@ namespace LabManagement
                         List<Schedule> semesterClassList = Schedule.GetSemsterClassList(1);
                         foreach(Schedule s in semesterClassList)
                         {
-                 //Common.DebugWriteLine(debug, "ScheduleID =" + s.ScheduleID);
-                 //Common.DebugWriteLine(debug, "CourseFK =" + s.CourseFK);
                             Course crs = new Course(s.CourseFK);
-                 Common.DebugWriteLine(debug, "COURSE =" + crs.Subject + crs.Catalog + "-" +s.Section);
-                 Common.DebugWriteLine(debug, "TITLE =" + crs.Title);
-                 Common.DebugWriteLine(debug, "CR =" + crs.Credit);
-                 Common.DebugWriteLine(debug, "Course Lab =" + crs.Laboratory);
-                 //Common.DebugWriteLine(debug, "CourseFK =" + s.CourseFK);
-                 Common.DebugWriteLine(debug, "SemesterFK =" + s.SemesterFK);
-                 Common.DebugWriteLine(debug, "Instructor1FK =" + s.Instructor1FK);
-                 Common.DebugWriteLine(debug, "Instructor2FK =" + s.Instructor2FK);
+                            subjectCatalogSection = s.Section == 0 ? crs.Subject + crs.Catalog : crs.Subject + crs.Catalog + "-" + s.Section.ToString().PadLeft(2, '0');
+                            Common.DebugWriteLine(debug, "COURSE = " + subjectCatalogSection); 
+                            Common.DebugWriteLine(debug, "TITLE =" + crs.Title);
+                            Common.DebugWriteLine(debug, "CR =" + crs.Credit);
+                            Common.DebugWriteLine(debug, "Course Lab =" + crs.Laboratory);
+                            User instructor1 = new User(s.Instructor1FK);
+                            User instructor2 = new User(s.Instructor2FK);
+                            instructor = instructor2.Last.Length == 0 ? instructor1.Last : instructor1.Last + "/" + instructor2.Last;
+                            Common.DebugWriteLine(debug, "instructor =" + instructor);
                  Common.DebugWriteLine(debug, "Room1FK =" + s.Room1FK);
                  Common.DebugWriteLine(debug, "Room2FK =" + s.Room2FK);
                  Common.DebugWriteLine(debug, "StatusFK =" + s.StatusFK);

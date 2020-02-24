@@ -49,22 +49,21 @@ namespace LabManagement
         }
 
 
-        //public Course(string lockNumber)
-        public Course(int n)
+        public Course(int id)
         {
             string[] colname = new[] { "courseID" };
-            var coldata = new object[] { n };
+            var coldata = new object[] { id };
             var tuple = Db.GetTuple("Course", "*", colname, coldata);
-            bool noLockInDb = tuple.Count == 0;
+            bool notInDb = tuple.Count == 0;
 
 
-            if (noLockInDb)
+            if (notInDb)
             {
                 Subject = "ERROR";
                 return;
             }
             Subject = tuple[1].ToString(); //Working
-            Catalog = Convert.ToInt32(tuple[2].ToString());// Not Working
+            Catalog = Convert.ToInt32(tuple[2].ToString());
             Title = tuple[3].ToString(); //Working
             Description = tuple[4].ToString();
             Credit =  Convert.ToInt32(tuple[5].ToString());
