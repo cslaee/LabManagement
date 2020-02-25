@@ -15,7 +15,8 @@ namespace LabManagement
         public int RoomNumber { get; set; }
         public string SubRoom { get; set; }
         public string Name { get; set; }
-        static readonly bool debug = Constants.roomDebug;
+        public string BuildingWingNumberSub { get; set; }
+        const bool debug = Constants.roomDebug;
 
         public Room()
         {
@@ -81,6 +82,30 @@ namespace LabManagement
             }
             Common.DebugWriteLine(debug, "Room.cs: RoomID = " + RoomID + " Building =" + Building + " Wing =" + Wing + " RoomNumber =" + RoomNumber + " SubRoom =" + SubRoom);
         }
+
+
+        public Room(int id)
+        {
+            string[] colname = new[] { "roomID" };
+            var coldata = new object[] { id };
+            var tuple = Db.GetTuple("Room", "*", colname, coldata);
+            bool notInDb = tuple.Count == 0;
+
+            if (notInDb)
+            {
+                Building = "ERROR";
+                return;
+            }
+            Building = tuple[1].ToString(); 
+            Wing = tuple[2].ToString(); 
+            RoomNumber = Convert.ToInt32(tuple[3].ToString());
+            SubRoom = tuple[4].ToString(); 
+            Name = tuple[5].ToString();
+            string b1 = Wing.Length == 0 ? Building + RoomNumber: Building + Wing + RoomNumber;
+            BuildingWingNumberSub = SubRoom.Length == 0 ? b1 : b1 + SubRoom;
+
+        }
+
 
 
     }

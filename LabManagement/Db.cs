@@ -12,7 +12,7 @@ namespace LabManagement
 {
     class Db
     {
-        static readonly bool debug = Constants.dbDebug;
+        const bool debug = Constants.dbDebug;
 
         static public void StartDb()
         {

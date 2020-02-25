@@ -95,7 +95,6 @@ namespace LabManagement
             var tuple = Db.GetTuple("User", "*", colname, coldata);
             bool notInDb = tuple.Count == 0;
 
-
             if (notInDb)
             {
                 Last = "ERROR";

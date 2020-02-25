@@ -340,6 +340,7 @@ namespace LabManagement
             string currentYear = "1979";
             string subjectCatalogSection = "";
             string instructor = "";
+            string room = "";
             #region html Content Strings
 
             string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
@@ -512,21 +513,24 @@ namespace LabManagement
                         {
                             Course crs = new Course(s.CourseFK);
                             subjectCatalogSection = s.Section == 0 ? crs.Subject + crs.Catalog : crs.Subject + crs.Catalog + "-" + s.Section.ToString().PadLeft(2, '0');
-                            Common.DebugWriteLine(debug, "COURSE = " + subjectCatalogSection); 
+/*                            Common.DebugWriteLine(debug, "COURSE = " + subjectCatalogSection); 
                             Common.DebugWriteLine(debug, "TITLE =" + crs.Title);
                             Common.DebugWriteLine(debug, "CR =" + crs.Credit);
-                            Common.DebugWriteLine(debug, "Course Lab =" + crs.Laboratory);
+                            Common.DebugWriteLine(debug, "Course Lab =" + crs.Laboratory); */
                             User instructor1 = new User(s.Instructor1FK);
                             User instructor2 = new User(s.Instructor2FK);
                             instructor = instructor2.Last.Length == 0 ? instructor1.Last : instructor1.Last + "/" + instructor2.Last;
-                            Common.DebugWriteLine(debug, "instructor =" + instructor);
-                 Common.DebugWriteLine(debug, "Room1FK =" + s.Room1FK);
-                 Common.DebugWriteLine(debug, "Room2FK =" + s.Room2FK);
-                 Common.DebugWriteLine(debug, "StatusFK =" + s.StatusFK);
-                 Common.DebugWriteLine(debug, "Days =" + s.Days);
+//                            Common.DebugWriteLine(debug, "instructor =" + instructor);
+                            Room room1 = new Room(s.Room1FK);
+                            Room room2 = new Room(s.Room2FK);
+                            room = s.Room2FK == 1 ? room1.BuildingWingNumberSub : room1.BuildingWingNumberSub + "/" +room2.BuildingWingNumberSub;
+ //                           Common.DebugWriteLine(debug, "room = " + room);
+                            
+                            Common.DebugWriteLine(debug, subjectCatalogSection + " | " + crs.Title + " | " + crs.Credit + " | " + instructor + " | " + room);
+ /*                Common.DebugWriteLine(debug, "Days =" + s.Days);
                  Common.DebugWriteLine(debug, "StartTime =" + s.StartTime);
                  Common.DebugWriteLine(debug, "EndTime =" + s.EndTime);
-
+*/
                         }
                         
                             w.WriteLine(" <tr height=15 style='height:11.25pt'>");
