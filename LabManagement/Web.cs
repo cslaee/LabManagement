@@ -336,11 +336,11 @@ namespace LabManagement
         {
 
             string currentSheet;
-            string currentSemester = "";
+            string currentSemester;
             string currentYear = "1979";
-            string subjectCatalogSection = "";
-            string instructor = "";
-            string room = "";
+            string subjectCatalogSection;
+            string instructor;
+            string room;
             #region html Content Strings
 
             string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
@@ -513,26 +513,25 @@ namespace LabManagement
                         {
                             Course crs = new Course(s.CourseFK);
                             subjectCatalogSection = s.Section == 0 ? crs.Subject + crs.Catalog : crs.Subject + crs.Catalog + "-" + s.Section.ToString().PadLeft(2, '0');
-/*                            Common.DebugWriteLine(debug, "COURSE = " + subjectCatalogSection); 
-                            Common.DebugWriteLine(debug, "TITLE =" + crs.Title);
-                            Common.DebugWriteLine(debug, "CR =" + crs.Credit);
-                            Common.DebugWriteLine(debug, "Course Lab =" + crs.Laboratory); */
                             User instructor1 = new User(s.Instructor1FK);
                             User instructor2 = new User(s.Instructor2FK);
                             instructor = instructor2.Last.Length == 0 ? instructor1.Last : instructor1.Last + "/" + instructor2.Last;
-//                            Common.DebugWriteLine(debug, "instructor =" + instructor);
                             Room room1 = new Room(s.Room1FK);
                             Room room2 = new Room(s.Room2FK);
                             room = s.Room2FK == 1 ? room1.BuildingWingNumberSub : room1.BuildingWingNumberSub + "/" +room2.BuildingWingNumberSub;
- //                           Common.DebugWriteLine(debug, "room = " + room);
                             
-                            Common.DebugWriteLine(debug, subjectCatalogSection + " | " + crs.Title + " | " + crs.Credit + " | " + instructor + " | " + room);
- /*                Common.DebugWriteLine(debug, "Days =" + s.Days);
-                 Common.DebugWriteLine(debug, "StartTime =" + s.StartTime);
-                 Common.DebugWriteLine(debug, "EndTime =" + s.EndTime);
-*/
+                            Common.DebugWriteLine(debug, subjectCatalogSection + " | " + crs.Title + " | " + crs.Credit + " | " + instructor + " | " + s.DaysString + " | " + room);
+
+                            w.WriteLine(" <tr height=15 style='height:11.25pt'>");
+                            w.WriteLine(tdData + subjectCatalogSection + "</td>");
+                            w.WriteLine(tdData + crs.Title + "</td>");
+                            w.WriteLine(tdData + crs.Credit + "</td>");
+                            w.WriteLine(tdData + instructor + "</td>");
+                            w.WriteLine(tdData + s.DaysString + "</td>");
+                            w.WriteLine(tdData + room + "</td>");
+                            w.WriteLine(" </tr>");
                         }
-                        
+                      /* 
                             w.WriteLine(" <tr height=15 style='height:11.25pt'>");
                             w.WriteLine(tdData + "EE3810-01" + "</td>");
                             w.WriteLine(tdData + "Sensors, Data Acquisition, and Instrumentation with application to Biomedical Engineering" + "</td>");
@@ -540,8 +539,8 @@ namespace LabManagement
                             w.WriteLine(tdData + "Won" + "</td>");
                             w.WriteLine(tdData + "F 1055AM-125PM" + "</td>");
                             w.WriteLine(tdData + "ETC255G" + "</td>");
-                            w.WriteLine(" </tr>");
-                        WriteToFile(footer, w);
+                            w.WriteLine(" </tr>");*/
+                            WriteToFile(footer, w);
                     }
                 }
 

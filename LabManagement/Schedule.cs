@@ -16,6 +16,7 @@ namespace LabManagement
         public int Room2FK { set; get; }
         public int StatusFK { set; get; }
         public int Days { set; get; }
+        public string DaysString { set; get; }
         public DateTime StartTime { set; get; }
         public string StartTimeStr { set; get; }
         public DateTime EndTime { set; get; }
@@ -98,7 +99,8 @@ namespace LabManagement
         {
             List<Schedule> semesterClassList = new List<Schedule>();
             string idString = id.ToString();
-            bool debug = true;
+            string startTimeStr = ""; 
+            string endTimeStr = ""; 
             string semesterNamesSQL = @"SELECT scheduleID, courseFK, section, semesterFK, instructor1FK, instructor2FK, " +
                 "room1FK, room2FK, statusFK, days, startTime, endTime from Schedule  JOIN Course ON Course.courseID = Schedule.courseFK " +
                 "WHERE semesterFK = " + idString + " ORDER BY catalog ASC";
@@ -123,22 +125,10 @@ namespace LabManagement
                     StartTime = Convert.ToDateTime(tuple[i * 12 + 10].ToString()),
                     EndTime = Convert.ToDateTime(tuple[i * 12 + 11].ToString())
                 };
-/*
-                Common.DebugWriteLine(debug, "rowCount =" + i);
-                 Common.DebugWriteLine(debug, "emester 0 =" + tuple[i*12]);
-                 Common.DebugWriteLine(debug, "emester 1 =" + tuple[i*12+1]);
-                 Common.DebugWriteLine(debug, "emester 2 =" + tuple[i*12+2]);
-                 Common.DebugWriteLine(debug, "emester 3 =" + tuple[i*12+3]);
-                 Common.DebugWriteLine(debug, "emester 4 =" + tuple[i*12+4]);
-                 Common.DebugWriteLine(debug, "emester 5 =" + tuple[i*12+5]);
-                 Common.DebugWriteLine(debug, "emester 6 =" + tuple[i*12+6]);
-                 Common.DebugWriteLine(debug, "emester 7 =" + tuple[i*12+7]);
-                 Common.DebugWriteLine(debug, "emester 8 =" + tuple[i*12+8]);
-                 Common.DebugWriteLine(debug, "emester 9 =" + tuple[i*12+9]);
-                 Common.DebugWriteLine(debug, "emester 11 =" + tuple[i*12+10]);
-                 Common.DebugWriteLine(debug, "emester 12 =" + tuple[i*12+11] + " ET " +s.EndTime);
-                 */
-                 semesterClassList.Add(s);
+                startTimeStr = String.Format("{0:hmm}",s.StartTime);
+                endTimeStr = String.Format("{0:hmm}",s.EndTime);
+                s.DaysString = GetDaysOfWeek(s.Days) + " " + startTimeStr + "-" +endTimeStr;
+                semesterClassList.Add(s);
             }
             return semesterClassList;
         }
