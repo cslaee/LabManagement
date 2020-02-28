@@ -99,8 +99,8 @@ namespace LabManagement
         {
             List<Schedule> semesterClassList = new List<Schedule>();
             string idString = id.ToString();
-            string startTimeStr = ""; 
-            string endTimeStr = ""; 
+            string startTimeStr; 
+            string endTimeStr; 
             string semesterNamesSQL = @"SELECT scheduleID, courseFK, section, semesterFK, instructor1FK, instructor2FK, " +
                 "room1FK, room2FK, statusFK, days, startTime, endTime from Schedule  JOIN Course ON Course.courseID = Schedule.courseFK " +
                 "WHERE semesterFK = " + idString + " ORDER BY catalog ASC";

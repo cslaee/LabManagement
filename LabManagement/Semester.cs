@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace LabManagement
@@ -12,9 +13,10 @@ namespace LabManagement
         public DateTime ScheduleDate { get; set; }
         public DateTime SchedulePostDate { get; set; }
         public string Name { get; set; }
+        public string NameYear { get; set; }
         public string ScheduleDateStr { get; set; }
         public string SchedulePostDateStr { get; set; }
-        static readonly bool debug = Constants.semesterDebug;
+        const bool debug = Constants.semesterDebug;
 
         public Semester() { }
 
@@ -101,7 +103,42 @@ namespace LabManagement
             }
         }
 
+        static public List<Semester> GetSemesterList()
+        {
+            List<Semester> semesterList = new List<Semester>();
+            string startTimeStr; 
+            string endTimeStr;
+            
+            string semesterNamesSQL = "SELECT  DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), semesterID, version, nameFK, year," +
+                "scheduleDate, schedulePostDate, name FROM Semester " +
+                "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
 
+            List <object> tuple = Db.GetTupleNewOne(semesterNamesSQL);
+            int rowCount = tuple.Count / 8;
+
+            for (int i = 0; i < rowCount; i++)
+            {
+                Semester s = new Semester
+                {
+                    NameYear = tuple[i * 8].ToString(),
+                    SemesterID = Convert.ToInt32(tuple[i * 8 + 1].ToString()),
+                    Version = Convert.ToInt32(tuple[i * 8 + 2].ToString()),
+                    NameFK= Convert.ToInt32(tuple[i * 8 + 3].ToString()),
+                    Year = Convert.ToInt32(tuple[i * 8 + 4].ToString()),
+                  //  ScheduleDate = Convert.ToDateTime(tuple[i * 8 + 5].ToString()),
+                  //  SchedulePostDate = Convert.ToDateTime(tuple[i * 8 + 6].ToString()),
+                    Name = tuple[i * 8 + 7].ToString()
+                };
+/*                startTimeStr = String.Format("{0:hmm}",s.StartTime);
+                endTimeStr = String.Format("{0:hmm}",s.EndTime);
+                s.DaysString = GetDaysOfWeek(s.Days) + " " + startTimeStr + "-" +endTimeStr;*/
+                semesterList.Add(s);
+                
+            }
+ 
+
+            return semesterList;
+        }
 
 
 
