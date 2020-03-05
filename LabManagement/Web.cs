@@ -14,10 +14,6 @@ namespace LabManagement
         {
             Common.DebugWriteLine(debug, "Web.PublishSchedule()");
 
-            string adf = "SELECT  DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), semesterID, version, nameFK, year," +
-                "scheduleDate, schedulePostDate, name FROM Semester" +
-                "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
-
            string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), name, session, numberOfWeeks, semesterID, version, year, scheduleDate, schedulePostDate  FROM Semester " +
                                       "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
             var tuple = Db.GetTuple(semesterNamesSQL);
@@ -45,7 +41,6 @@ namespace LabManagement
             StoreIndex(tuple, excelWorkSheet);
             StoreSheets(semesterList, excelWorkSheet);
             StoreStyleSheet(excelWorkSheet);
-            TestStoreSheets(semesterList, rowCount, excelWorkSheet);
         
         }
         static public void SetupDirectories(string sheetName)
@@ -363,7 +358,7 @@ namespace LabManagement
             string subjectCatalogSection;
             string instructor;
             string room;
-            int i = 0;
+            int i = 1;
             #region html Content Strings
 
             string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
@@ -410,9 +405,6 @@ namespace LabManagement
                 "  <td class=xl149>August 19&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;",
                 "  &nbsp; &nbsp;&nbsp;</td>",
                 "  <td class=xl149>University Convocation, Fall semester begins</td>", " </tr>" };
-
-
-
             string[] footer = new[] { "</table>", "</body>", "</html>" };
             string[] h3 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
                 "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
@@ -480,8 +472,6 @@ namespace LabManagement
                 " </tr>"};
 
             string tdData = "  <td class=xl155>";
-
-
 
             string a = "<td bgcolor=\"#";
             string b = "\" nowrap><b><small><small>&nbsp;<a href=\"";
@@ -507,10 +497,10 @@ namespace LabManagement
             }
 
             //for (int i = 0; i < rowCount; i++)
-            foreach (Semester semest in semesterList)
+            foreach (Semester semester in semesterList)
             {
                 currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + (i++).ToString("000") + ".htm";
-                Common.DebugWriteLine(debug, "Sheet Name = " + semest.Name + " SemesterID = " + semest.SemesterID);
+                Common.DebugWriteLine(debug, "Sheet Name = " + semester.Name + " SemesterID = " + semester.SemesterID);
 
                 using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
                 {
@@ -525,30 +515,32 @@ namespace LabManagement
                         WriteToFile(h1, w);
                         WriteToFile(h2, w);
                         WriteToFile(h3, w);
-                        w.WriteLine("<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>" + semest.NameYear.ToUpper());
-                        w.WriteLine(" SEMESTER " + semest.Year + " COURSE LIST</td>");
+                        w.WriteLine("<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>" + semester.NameYear.ToUpper());
+                        w.WriteLine(" SEMESTER " + semester.Year + " COURSE LIST</td>");
                         WriteToFile(h4, w);
-                        
-                        List<Schedule> semesterClassList = Schedule.GetSemsterClassList(1);
-                        foreach(Schedule s in semesterClassList)
+                        List<Schedule> semesterClassList = Schedule.GetSemsterClassList(semester.SemesterID);
+
+                        foreach (Schedule courseTimeAndPlace in semesterClassList)
                         {
-                            Course crs = new Course(s.CourseFK);
-                            subjectCatalogSection = s.Section == 0 ? crs.Subject + crs.Catalog : crs.Subject + crs.Catalog + "-" + s.Section.ToString().PadLeft(2, '0');
-                            User instructor1 = new User(s.Instructor1FK);
-                            User instructor2 = new User(s.Instructor2FK);
+                            Course course = new Course(courseTimeAndPlace.CourseFK);
+                            subjectCatalogSection = courseTimeAndPlace.Section == 0 ? course.Subject + 
+                                course.Catalog : course.Subject + course.Catalog + "-" + courseTimeAndPlace.Section.ToString().PadLeft(2, '0');
+                            User instructor1 = new User(courseTimeAndPlace.Instructor1FK);
+                            User instructor2 = new User(courseTimeAndPlace.Instructor2FK);
                             instructor = instructor2.Last.Length == 0 ? instructor1.Last : instructor1.Last + "/" + instructor2.Last;
-                            Room room1 = new Room(s.Room1FK);
-                            Room room2 = new Room(s.Room2FK);
-                            room = s.Room2FK == 1 ? room1.BuildingWingNumberSub : room1.BuildingWingNumberSub + "/" +room2.BuildingWingNumberSub;
+                            Room room1 = new Room(courseTimeAndPlace.Room1FK);
+                            Room room2 = new Room(courseTimeAndPlace.Room2FK);
+                            room = courseTimeAndPlace.Room2FK == 1 ? room1.BuildingWingNumberSub : room1.BuildingWingNumberSub + "/" +room2.BuildingWingNumberSub;
                             
-                            Common.DebugWriteLine(debug, subjectCatalogSection + " | " + crs.Title + " | " + crs.Credit + " | " + instructor + " | " + s.DaysString + " | " + room);
+                            Common.DebugWriteLine(debug, subjectCatalogSection + " | " + course.Title + " | " +
+                                course.Credit + " | " + instructor + " | " + courseTimeAndPlace.DaysString + " | " + room);
 
                             w.WriteLine(" <tr height=15 style='height:11.25pt'>");
                             w.WriteLine(tdData + subjectCatalogSection + "</td>");
-                            w.WriteLine(tdData + crs.Title + "</td>");
-                            w.WriteLine(tdData + crs.Credit + "</td>");
+                            w.WriteLine(tdData + course.Title + "</td>");
+                            w.WriteLine(tdData + course.Credit + "</td>");
                             w.WriteLine(tdData + instructor + "</td>");
-                            w.WriteLine(tdData + s.DaysString + "</td>");
+                            w.WriteLine(tdData + courseTimeAndPlace.DaysString + "</td>");
                             w.WriteLine(tdData + room + "</td>");
                             w.WriteLine(" </tr>");
                         }
@@ -558,229 +550,8 @@ namespace LabManagement
 
             }
 
-
         }
 
-
-
-
-
-
-        static public void StoreSheetsOld(List<object> semesterNames, int rowCount, string sheetName)
-        {
-
-            string currentSheet;
-            string currentSemester;
-            string currentYear = "1979";
-            string subjectCatalogSection;
-            string instructor;
-            string room;
-            #region html Content Strings
-
-            string[] header = new[] { "<html xmlns:v=\"urn:schemas-microsoft-com:vml\"",
-                "xmlns:o=\"urn:schemas-microsoft-com:office:office\"",
-                "xmlns:x=\"urn:schemas-microsoft-com:office:excel\"", "xmlns=\"http://www.w3.org/TR/REC-html40\">",
-                "", "<head>", "<meta http-equiv=Content-Type content=\"text/html; charset=windows-1252\">",
-                "<meta name=ProgId content=Excel.Sheet>", "<meta name=Generator content=\"Microsoft Excel 15\">",
-                "<link id=Main-File rel=Main-File href=\"../" + sheetName + ".htm\">",
-                "<link rel=File-List href=filelist.xml>", "<title>Class Schedule for Electrical Engineering</title>",
-                "<link rel=Stylesheet href=stylesheet.css>", "<style>", "<!--table", "	{mso-displayed-decimal-separator:\"\\.\";",
-                "	mso-displayed-thousand-separator:\"\\,\";}", "@page", "	{margin:.75in .25in .75in .25in;",
-                "	mso-header-margin:.3in;", "	mso-footer-margin:.3in;", "	mso-page-orientation:landscape;}", "-->", "</style>" };
-
-            string[] fnUpdateTabs = new[] { "<![if !supportTabStrip]><script language=\"JavaScript\">",
-                "<!--", "function fnUpdateTabs()", " {", "  if (parent.window.g_iIEVer>=4) {",
-                "   if (parent.document.readyState==\"complete\"", "    && parent.frames['frTabs'].document.readyState==\"complete\")",
-                "   parent.fnSetActiveSheet(0);", "  else", "   window.setTimeout(\"fnUpdateTabs();\",150);",
-                " }", "}", "", "if (window.name!=\"frSheet\")", " window.location.replace(\"../" + sheetName + ".htm\");",
-                "else", " fnUpdateTabs();", "//-->", "</script>", "<![endif]>", "</head>", "", "<body link=blue vlink=purple class=xl155>","" };
-
-            string[] table = new[] {"<table border=0 cellpadding=0 cellspacing=0 width=916 style='border-collapse:",
-                " collapse;table-layout:fixed;width:688pt'>", " <col class=xl156 width=73 style='mso-width-source:userset;mso-width-alt:2669;",
-                " width:55pt'>", " <col class=xl155 width=458 style='mso-width-source:userset;mso-width-alt:16749;", " width:344pt'>",
-                " <col class=xl157 width=30 style='mso-width-source:userset;mso-width-alt:1097;", " width:23pt'>", 
-                " <col class=xl155 width=103 style='mso-width-source:userset;mso-width-alt:3766;", " width:77pt'>", 
-                " <col class=xl155 width=188 style='mso-width-source:userset;mso-width-alt:6875;", " width:141pt'>", 
-                " <col class=xl155 width=64 style='mso-width-source:userset;mso-width-alt:2340;", " width:48pt'>" };
-
-            string[] h1 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl150 width=73 style='height:9.0pt;width:55pt'>Posted","  8/26/2019</td>",
-                "  <td class=xl151 width=458 style='width:344pt'>&nbsp;</td>",
-                "  <td class=xl152 width=30 style='width:23pt'>&nbsp;</td>",
-                "  <td class=xl160 colspan=2 width=291 style='mso-ignore:colspan;width:218pt'><a",
-                "  href=\"http://www.calstatela.edu/univ/ppa/acadcal.htm\" target=\"_parent\"><span",
-                "  style='font-size:7.0pt;font-weight:700'>Click here to verify Key Dates</span></a></td>",
-                "  <td rowspan=2 class=xl162 width=64 style='width:48pt'><a", 
-                "  href=\"http://download.cslaee.com/\" target=\"_parent\"><span style='font-size:",
-                "  7.0pt'>Download page to print</span></a></td>", " </tr>" };
-
-            string[] h2 = new[] {"  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
-                "  <td class=xl152>&nbsp;</td>",
-                "  <td class=xl152>&nbsp;</td>",
-                "  <td class=xl149>August 19&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;",
-                "  &nbsp; &nbsp;&nbsp;</td>",
-                "  <td class=xl149>University Convocation, Fall semester begins</td>", " </tr>" };
-
-
-
-            string[] footer = new[] { "</table>", "</body>", "</html>" };
-            string[] h3 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
-                "  <td class=xl152>&nbsp;</td>",
-                "  <td class=xl152>&nbsp;</td>",
-                "  <td class=xl149>August 20</td>",
-                "  <td class=xl149>Fall classes begin</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span",
-                "  style='mso-spacerun:yes'> </span>ELECTRICAL AND COMPUTER ENGINEERING</td>",
-                "  <td class=xl149>September 2</td>",
-                "  <td class=xl149>Labor Day, University closed</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl149 style='height:9.0pt'>November 11</td>",
-                "  <td class=xl149>Veterans Day, University closed</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl149 style='height:9.0pt'>November 25-27</td>",
-                "  <td class=xl149>Fall Recess</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>" };
-            string[] h4 = new[] {"  <td class=xl149>November 28-30</td>",
-                "  <td class=xl149>Thanksgiving Holiday, University closed</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl149 style='height:9.0pt'>December 10-16</td>",
-                "  <td class=xl149>Final Examinations</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='height:9.0pt'>",
-                "  <td height=12 class=xl149 style='height:9.0pt'>December 20</td>",
-                "  <td class=xl149>Fall semester ends</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='height:9.0pt'>",
-                "  <td height=12 class=xl152 style='height:9.0pt'>&nbsp;</td>",
-                "  <td class=xl152>&nbsp;</td>",
-                "  <td class=xl152>&nbsp;</td>",
-                "  <td class=xl153>&nbsp;</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                "  <td class=xl150>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='height:9.0pt'>",
-                "  <td height=12 class=xl153 style='height:9.0pt'>&nbsp;</td>",
-                "  <td class=xl153>&nbsp;</td>",
-                "  <td class=xl154>&nbsp;</td>",
-                "  <td class=xl148>&nbsp;</td>",
-                "  <td class=xl153>&nbsp;</td>",
-                "  <td class=xl153>&nbsp;</td>",
-                " </tr>",
-                " <tr class=xl153 height=13 style='height:9.75pt'>",
-                "  <td height=13 class=xl158 style='height:9.75pt'>COURSE</td>",
-                "  <td class=xl159>TITLE</td>",
-                "  <td class=xl159>CR</td>",
-                "  <td class=xl158>FACULTY</td>",
-                "  <td class=xl158>DAYS/TIMES</td>",
-                "  <td class=xl158>ROOM</td>",
-                " </tr>"};
-
-            string tdData = "  <td class=xl155>";
-
-
-
-            string a = "<td bgcolor=\"#";
-            string b = "\" nowrap><b><small><small>&nbsp;<a href=\"";
-            string c = "\" target=\"frSheet\"><font face=\"Arial\" color=\"#";
-            string d = "\">";
-            string e = "</font></a>&nbsp;</small></small></b></td>";
-
-            string tabColor = "FFFFFF";
-            string textColor = "000000";
-            string linkName = "sheet001.htm";
-            #endregion
-
-            for(int i = 0; i < rowCount; i++)
-            {
-                 Common.DebugWriteLine(debug, "rowCount =" + i);
-                 Common.DebugWriteLine(debug, "Semester 0 =" + semesterNames[i*9]);
-                 Common.DebugWriteLine(debug, "Semester 1 =" + semesterNames[i*9+1]);
-                 Common.DebugWriteLine(debug, "Semester 2 =" + semesterNames[i*9+2]);
-                 Common.DebugWriteLine(debug, "Semester 3 =" + semesterNames[i*9+3]);
-                 Common.DebugWriteLine(debug, "Semester 4 =" + semesterNames[i*9+4]);
-                 Common.DebugWriteLine(debug, "Semester 5 =" + semesterNames[i*9+5]);
-                 Common.DebugWriteLine(debug, "Semester 6 =" + semesterNames[i*9+6]);
-                 Common.DebugWriteLine(debug, "Semester 7 =" + semesterNames[i*9+7]);
-                 Common.DebugWriteLine(debug, "Semester 8 =" + semesterNames[i*9+7]);
-            }
-
-            for (int i = 0; i < rowCount; i++)
-            {
-                currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + (i + 1).ToString("000") + ".htm";
-                Common.DebugWriteLine(debug, "Sheet Name = " + semesterNames[i * 9] + " schedId = " + semesterNames[i * 9 + 4]);
-
-                using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
-                {
-                    currentSemester = semesterNames[i * 9 + 1].ToString().ToUpper();
-                    currentYear = semesterNames[i * 9 + 6].ToString();
-
-                    using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
-                    { 
-                        WriteToFile(header, w);
-                        WriteToFile(fnUpdateTabs, w);
-                        WriteToFile(table, w);
-                        WriteToFile(h1, w);
-                        WriteToFile(h2, w);
-                        WriteToFile(h3, w);
-                        w.WriteLine("<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>" + currentSemester);
-                        w.WriteLine(" SEMESTER " + currentYear + " COURSE LIST</td>");
-                        WriteToFile(h4, w);
-                        
-                        List<Schedule> semesterClassList = Schedule.GetSemsterClassList(1);
-                        foreach(Schedule s in semesterClassList)
-                        {
-                            Course crs = new Course(s.CourseFK);
-                            subjectCatalogSection = s.Section == 0 ? crs.Subject + crs.Catalog : crs.Subject + crs.Catalog + "-" + s.Section.ToString().PadLeft(2, '0');
-                            User instructor1 = new User(s.Instructor1FK);
-                            User instructor2 = new User(s.Instructor2FK);
-                            instructor = instructor2.Last.Length == 0 ? instructor1.Last : instructor1.Last + "/" + instructor2.Last;
-                            Room room1 = new Room(s.Room1FK);
-                            Room room2 = new Room(s.Room2FK);
-                            room = s.Room2FK == 1 ? room1.BuildingWingNumberSub : room1.BuildingWingNumberSub + "/" +room2.BuildingWingNumberSub;
-                            
-                            Common.DebugWriteLine(debug, subjectCatalogSection + " | " + crs.Title + " | " + crs.Credit + " | " + instructor + " | " + s.DaysString + " | " + room);
-
-                            w.WriteLine(" <tr height=15 style='height:11.25pt'>");
-                            w.WriteLine(tdData + subjectCatalogSection + "</td>");
-                            w.WriteLine(tdData + crs.Title + "</td>");
-                            w.WriteLine(tdData + crs.Credit + "</td>");
-                            w.WriteLine(tdData + instructor + "</td>");
-                            w.WriteLine(tdData + s.DaysString + "</td>");
-                            w.WriteLine(tdData + room + "</td>");
-                            w.WriteLine(" </tr>");
-                        }
-                      /* 
-                            w.WriteLine(" <tr height=15 style='height:11.25pt'>");
-                            w.WriteLine(tdData + "EE3810-01" + "</td>");
-                            w.WriteLine(tdData + "Sensors, Data Acquisition, and Instrumentation with application to Biomedical Engineering" + "</td>");
-                            w.WriteLine(tdData + "2" + "</td>");
-                            w.WriteLine(tdData + "Won" + "</td>");
-                            w.WriteLine(tdData + "F 1055AM-125PM" + "</td>");
-                            w.WriteLine(tdData + "ETC255G" + "</td>");
-                            w.WriteLine(" </tr>");*/
-                            WriteToFile(footer, w);
-                    }
-                }
-
-            }
-
-
-        }
 
 		static public void StoreStyleSheet(string sheetName)
 		{
