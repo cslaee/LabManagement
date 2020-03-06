@@ -7,38 +7,29 @@ namespace LabManagement
 {
     class Web
     {
-//        static string workingDirectory = Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\"));
-       
-        static readonly bool debug = Constants.webDebug;
+        //        static string workingDirectory = Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\"));
+
+        private const bool debug = Constants.webDebug;
         static public void PublishSchedule()
         {
             Common.DebugWriteLine(debug, "Web.PublishSchedule()");
 
-           string semesterNamesSQL = @"SELECT DISTINCT substr(name, 1, 3) ||  substr(year, 3, 4), name, session, numberOfWeeks, semesterID, version, year, scheduleDate, schedulePostDate  FROM Semester " +
-                                      "INNER JOIN SemesterName ON SemesterName.semesterNameID = Semester.nameFK ORDER BY year DESC, nameFK DESC";
-            var tuple = Db.GetTuple(semesterNamesSQL);
-            List <object> tuple7 = Db.GetTupleNewOne(semesterNamesSQL);
 
             List<Semester> semesterList = Semester.GetSemesterList();
-            //List<List<object>> tupleO = Db.GetTupleObj(semesterNamesSQL);
-            Common.DebugWriteLine(debug, "Number of Semesters = " + tuple.Length);
-            Common.DebugWriteLine(debug, "Number of Semesters 7 = " + tuple7.Count);
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
-//            Common.DebugWrite(debug, tuple7);
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
             Common.DebugWriteLine(debug, " **********************************************************************************************************************");
 
 
-            int rowCount = tuple7.Count/9;
            
             string excelWorkSheet = "schedule";
             SetupDirectories(excelWorkSheet);
-            StoreTabStrip(tuple, excelWorkSheet);
-            StoreFileList(tuple, excelWorkSheet);
-            StoreIndex(tuple, excelWorkSheet);
+            StoreTabStrip(semesterList, excelWorkSheet);
+            StoreFileList(semesterList, excelWorkSheet);
+            StoreIndex(semesterList, excelWorkSheet);
             StoreSheets(semesterList, excelWorkSheet);
             StoreStyleSheet(excelWorkSheet);
         
@@ -52,7 +43,7 @@ namespace LabManagement
              System.IO.Directory.CreateDirectory(Constants.webpageDir + sheetName + @"_files");
         }
 
-        static public void StoreTabStrip(string[] semesterNames, string sheetName)
+        static public void StoreTabStrip(List<Semester> semesterList, string sheetName)
         {
             #region html Content Strings
             string[] header = new[]  {"<html>","<head>", "<meta http-equiv=Content-Type content=\"text/html; charset=windows-1252\">",
@@ -80,11 +71,11 @@ namespace LabManagement
                 using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                 {
                     WriteToFile(header, w);
-                    foreach (string tabName in semesterNames)
+                    foreach (Semester semester in semesterList)
                     {
                         currentSheet = "sheet" + i.ToString("000") + ".htm";
-                        Common.DebugWriteLine(debug, tabName);
-                        w.WriteLine(a + tabColor + b + currentSheet + c + textColor + d + tabName + e);
+                        Common.DebugWriteLine(debug, semester.NameYear);
+                        w.WriteLine(a + tabColor + b + currentSheet + c + textColor + d + semester.NameYear + e);
                         i++;
                     }
                     WriteToFile(footer, w);
@@ -93,7 +84,7 @@ namespace LabManagement
 
         }
 
-        static public void StoreFileList(string[] semesterNames, string sheetName)
+        static public void StoreFileList(List<Semester> semesterList, string sheetName)
         {
             string currentSheet; 
             #region html Content Strings
@@ -110,7 +101,8 @@ namespace LabManagement
                 using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                 {
                     WriteToFile(header, w);
-                    for (int i = 1; i <= semesterNames.Length; i++)
+                    for (int i = 1; i <= semesterList.Count; i++)
+                    foreach (Semester semester in semesterList)
                     {
                         currentSheet = "sheet" + i.ToString("000") + ".htm";
                         Common.DebugWriteLine(debug, currentSheet);
@@ -122,9 +114,9 @@ namespace LabManagement
 
         }
 
-        static public void StoreIndex(string[] semesterNames, string sheetName)
+        static public void StoreIndex(List<Semester> semesterList, string sheetName)
         {
-            int numberOfSheets = semesterNames.Length;
+            int numberOfSheets = semesterList.Count;
             string currentSheet; 
             #region html Content Strings
             int i;
@@ -280,8 +272,6 @@ namespace LabManagement
 
             #endregion
 
-
-
                 using (FileStream fs = new FileStream(Constants.webpageDir + sheetName + ".htm", FileMode.Create))
                 {
                     using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
@@ -296,10 +286,10 @@ namespace LabManagement
 
                         WriteToFile(footer, w);
                         i = 0;
-                        foreach (string tabName in semesterNames)
+                        foreach (Semester tabName in semesterList)
                         {
-                            Common.DebugWriteLine(debug, tabName);
-                            w.WriteLine(" c_rgszSh[" + i + "] = \"" + tabName + "\";");
+                            Common.DebugWriteLine(debug, tabName.NameYear);
+                            w.WriteLine(" c_rgszSh[" + i + "] = \"" + tabName.NameYear + "\";");
                             i++;
                         }
 
@@ -314,12 +304,12 @@ namespace LabManagement
                         WriteToFile(fnMouseOverScroll, w);
                         i = 1;
 
-                        foreach (string tabName in semesterNames)
+                        foreach (Semester tabName in semesterList)
                         {
-                            Common.DebugWriteLine(debug, tabName);
+                            Common.DebugWriteLine(debug, tabName.NameYear);
                             currentSheet = "sheet" + i.ToString("000") + ".htm";
                             w.WriteLine("   <x:ExcelWorksheet>");
-                            w.WriteLine("    <x:Name>" + tabName + "</x:Name>");
+                            w.WriteLine("    <x:Name>" + tabName.NameYear + "</x:Name>");
                             w.WriteLine("    <x:WorksheetSource HRef=" + sheetName + "_files/" + currentSheet + "\"/>");
                             w.WriteLine("   </x:ExcelWorksheet>");
                             i++;
@@ -353,8 +343,6 @@ namespace LabManagement
         {
 
             string currentSheet;
-            string currentSemester;
-            string currentYear = "1979";
             string subjectCatalogSection;
             string instructor;
             string room;
@@ -496,7 +484,6 @@ namespace LabManagement
                  Common.DebugWriteLine(debug, "Name =" + s.Name);
             }
 
-            //for (int i = 0; i < rowCount; i++)
             foreach (Semester semester in semesterList)
             {
                 currentSheet = Constants.webpageDir + sheetName + @"_files\sheet" + (i++).ToString("000") + ".htm";
@@ -504,9 +491,6 @@ namespace LabManagement
 
                 using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
                 {
-                    //currentSemester = semesterNames[i * 9 + 1].ToString().ToUpper();
-                    //currentYear = semesterNames[i * 9 + 6].ToString();
-
                     using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
                     { 
                         WriteToFile(header, w);
@@ -544,7 +528,7 @@ namespace LabManagement
                             w.WriteLine(tdData + room + "</td>");
                             w.WriteLine(" </tr>");
                         }
-                            WriteToFile(footer, w);
+                        WriteToFile(footer, w);
                     }
                 }
 

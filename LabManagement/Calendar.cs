@@ -12,7 +12,7 @@ namespace LabManagement
         public string StartDateStr { get; set; }
         public DateTime EndDate { get; set; }
         public string EndDateStr { get; set; }
-        static readonly bool debug = Constants.calendarDebug;
+        const bool debug = Constants.calendarDebug;
 
         public Calendar() { }
 

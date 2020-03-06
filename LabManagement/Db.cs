@@ -424,7 +424,9 @@ namespace LabManagement
                             val.Append(")");
                             cmd.CommandText = val.ToString();
                             if (debug)
+                            {
                                 Common.DebugWriteLine(debug, "query = " + val.ToString());
+                            }
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLen, val.Length - queryLen);
                         }
