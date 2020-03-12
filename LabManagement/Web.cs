@@ -386,69 +386,30 @@ namespace LabManagement
                 "  href=\"http://download.cslaee.com/\" target=\"_parent\"><span style='font-size:",
                 "  7.0pt'>Download page to print</span></a></td>", " </tr>" };
 
-            string[] h2 = new[] {"  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl153 style='height:9.0pt'></td>",
-                "  <td class=xl152></td>",
-                "  <td class=xl152></td>",
-       "  <td class=xl149>August 19</td>",
-       "  <td class=xl149>University Convocation, Fall semester begins</td>", " </tr>" };
-            string[] footer = new[] { "</table>", "</body>", "</html>" };
-            string[] h3 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl153 style='height:9.0pt'></td>",
-                "  <td class=xl152></td>",
-                "  <td class=xl152></td>",
-       "  <td class=xl149>August 20</td>",
-       "  <td class=xl149>Fall classes begin</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span",
-                "  style='mso-spacerun:yes'> </span>ELECTRICAL AND COMPUTER ENGINEERING</td>",
-       "  <td class=xl149>September 2</td>",
-       "  <td class=xl149>Labor Day, University closed</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-       "  <td height=12 class=xl149 style='height:9.0pt'>November 11</td>",
-       "  <td class=xl149>Veterans Day, University closed</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-       "  <td height=12 class=xl149 style='height:9.0pt'>November 25-27</td>",
-       "  <td class=xl149>Fall Recess</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>" };
-       string[] h4 = new[] {"  <td class=xl149>November 28-30</td>",
-       "  <td class=xl149>Thanksgiving Holiday, University closed</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-       "  <td height=12 class=xl149 style='height:9.0pt'>December 10-16</td>",
-       "  <td class=xl149>Final Examinations</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='height:9.0pt'>",
-       "  <td height=12 class=xl149 style='height:9.0pt'>December 20</td>",
-       "  <td class=xl149>Fall semester ends</td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='height:9.0pt'>",
-                "  <td height=12 class=xl152 style='height:9.0pt'></td>",
-                "  <td class=xl152></td>",
-                "  <td class=xl152></td>",
-                "  <td class=xl153></td>",
-                "  <td class=xl150></td>",
-                "  <td class=xl150></td>",
-                " </tr>",
-                " <tr class=xl153 height=12 style='height:9.0pt'>",
-                "  <td height=12 class=xl153 style='height:9.0pt'></td>",
-                "  <td class=xl153></td>",
-                "  <td class=xl154></td>",
-                "  <td class=xl148></td>",
-                "  <td class=xl153></td>",
-                "  <td class=xl153></td>",
-                " </tr>",
+              
+            string xl153 = "  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>";
+            string xl153s = "  <tr class=xl153 height=12 style='height:9.0pt'>";
+            string xl152 = "   <td class=xl152></td>";
+            string colsp3 = "  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span style='mso-spacerun:yes'> </span>";
+            string d = "   <td class=xl149>September 2</td>";
+            string e = "   <td class=xl149>Labor Day, University closed</td>";
+            string tr = " </tr>";
+
+            string[][] h2 ={
+                new string[]{ xl153, xl152, xl152, xl152, d, e, tr}, //aug 19
+                new string[]{ xl153, xl152, xl152, xl152, d, e, tr}, //aug 28
+                new string[]{ xl153, colsp3 + "ELECTRICAL AND COMPUTER ENGINEERING</td>", d, e, tr}, //Sept 2
+                new string[]{ xl153, d, e, tr}, //nov11
+                new string[]{ xl153, d, e, tr}, //nov25
+                new string[]{ xl153, "", d, e, tr}, //nov28  Fall SEmester 2019
+                new string[]{ xl153, d, e, tr}, //dec10
+                new string[]{ xl153s, d, e, tr}, //dec20-1
+                new string[]{ xl153s, xl152, xl152, xl152, d, e, tr}, //dec20-2
+                new string[]{ xl153s, xl152, xl152, xl152, d, e, tr}, //dec20-3
+                };
+               
+                
+            string[] h3 = new[] {
                 " <tr class=xl153 height=13 style='height:9.75pt'>",
                 "  <td height=13 class=xl158 style='height:9.75pt'>COURSE</td>",
                 "  <td class=xl159>TITLE</td>",
@@ -458,13 +419,14 @@ namespace LabManagement
                 "  <td class=xl158>ROOM</td>",
                 " </tr>"};
 
+            string[] footer = new[] { "</table>", "</body>", "</html>" };
+ 
+            
             string tdData = "  <td class=xl155>";
 
             string a = "<td bgcolor=\"#";
             string b = "\" nowrap><b><small><small>&nbsp;<a href=\"";
             string c = "\" target=\"frSheet\"><font face=\"Arial\" color=\"#";
-            string d = "\">";
-            string e = "</font></a>&nbsp;</small></small></b></td>";
 
             string tabColor = "FFFFFF";
             string textColor = "000000";
@@ -494,11 +456,12 @@ namespace LabManagement
                         WriteToFile(fnUpdateTabs, w);
                         WriteToFile(table, w);
                         WriteToFile(h1, w);
-                        WriteToFile(h2, w);
+                        h2[5][1] = colsp3 + semester.Name.ToUpper() + " SEMESTER " + semester.Year + " COURSE LIST</td>";
+                        foreach(string[] y in h2)
+                        {
+                          WriteToFile(y, w);
+                        }
                         WriteToFile(h3, w);
-                        w.WriteLine("<td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'>" + semester.Name);
-                        w.WriteLine(" SEMESTER " + semester.Year + " COURSE LIST</td>");
-                        WriteToFile(h4, w);
                         List<Schedule> semesterClassList = Schedule.GetSemsterClassList(semester.SemesterID);
 
                         foreach (Schedule courseTimeAndPlace in semesterClassList)
