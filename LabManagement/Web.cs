@@ -387,28 +387,36 @@ namespace LabManagement
                 "  7.0pt'>Download page to print</span></a></td>", " </tr>" };
 
               
-            string xl153 = "  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>";
+            //string xl153 = "  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>";
+            string xl153 = "  <tr class=xl153 height=12 style='height:9.0pt'>";
             string xl153s = "  <tr class=xl153 height=12 style='height:9.0pt'>";
             string xl152 = "   <td class=xl152></td>";
             string colsp3 = "  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span style='mso-spacerun:yes'> </span>";
-            string d = "   <td class=xl149>September 2</td>";
-            string e = "   <td class=xl149>Labor Day, University closed</td>";
             string tr = " </tr>";
 
             string[][] h2 ={
-                new string[]{ xl153, xl152, xl152, xl152, d, e, tr}, //aug 19
-                new string[]{ xl153, xl152, xl152, xl152, d, e, tr}, //aug 28
-                new string[]{ xl153, colsp3 + "ELECTRICAL AND COMPUTER ENGINEERING</td>", d, e, tr}, //Sept 2
-                new string[]{ xl153, d, e, tr}, //nov11
-                new string[]{ xl153, d, e, tr}, //nov25
-                new string[]{ xl153, "", d, e, tr}, //nov28  Fall SEmester 2019
-                new string[]{ xl153, d, e, tr}, //dec10
-                new string[]{ xl153s, d, e, tr}, //dec20-1
-                new string[]{ xl153s, xl152, xl152, xl152, d, e, tr}, //dec20-2
-                new string[]{ xl153s, xl152, xl152, xl152, d, e, tr}, //dec20-3
+                new string[]{ xl153, xl152, xl152, xl152, "", "", tr},
+                new string[]{ xl153, xl152, xl152, xl152, "", "", tr},
+                new string[]{ xl153, colsp3 + "ELECTRICAL AND COMPUTER ENGINEERING</td>", "", "", ""},
+                new string[]{ xl153, "", "", tr},
+                new string[]{ xl153, "", "", tr},
+                new string[]{ xl153, "",  "", "", tr},
+                new string[]{ xl153,  "", "", tr},
+                new string[]{ xl153s,  "", "", tr},
+                new string[]{ xl153s, xl152, xl152, xl152,  "", "", tr},
+                new string[]{ xl153s, xl152, xl152, xl152,  "", "", tr},
                 };
-               
-                
+            string[][] daysOff = {
+                new string[]{"August 19", "University Convocation, Fall semester begins"},
+                new string[]{"August 20", "Fall classes begin"},
+                new string[]{"September 2", "Labor Day, University closed"},
+                new string[]{"November 11", "Veterans Day, University closed"},
+                new string[]{"November 25-27", "Fall Recess"},
+                new string[]{"November 28-30", "Thanksgiving Holiday, University closed"},
+                new string[]{"December 10-16", "Final Examinations"},
+                new string[]{"December 20", "Fall semester ends"}
+                };
+
             string[] h3 = new[] {
                 " <tr class=xl153 height=13 style='height:9.75pt'>",
                 "  <td height=13 class=xl158 style='height:9.75pt'>COURSE</td>",
@@ -457,9 +465,17 @@ namespace LabManagement
                         WriteToFile(table, w);
                         WriteToFile(h1, w);
                         h2[5][1] = colsp3 + semester.Name.ToUpper() + " SEMESTER " + semester.Year + " COURSE LIST</td>";
+                        int j = 0;
+                        int daysOffLength = daysOff.Length;
                         foreach(string[] y in h2)
                         {
-                          WriteToFile(y, w);
+                            int l = y.Length;
+                            if (j < daysOffLength)
+                            {
+                                y[l - 2] = "   <td class=xl149>" + daysOff[j][ 0] + "</td>";
+                                y[l - 1] = "   <td class=xl149>" + daysOff[j++][1] + "</td>";
+                            }
+                            WriteToFile(y, w);
                         }
                         WriteToFile(h3, w);
                         List<Schedule> semesterClassList = Schedule.GetSemsterClassList(semester.SemesterID);
