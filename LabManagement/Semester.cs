@@ -125,13 +125,21 @@ namespace LabManagement
                     Version = Convert.ToInt32(tuple[i * 8 + 2].ToString()),
                     NameFK= Convert.ToInt32(tuple[i * 8 + 3].ToString()),
                     Year = Convert.ToInt32(tuple[i * 8 + 4].ToString()),
-                  //  ScheduleDate = Convert.ToDateTime(tuple[i * 8 + 5].ToString()),
-                  //  SchedulePostDate = Convert.ToDateTime(tuple[i * 8 + 6].ToString()),
+                    //ScheduleDate = Convert.ToDateTime(tuple[i * 8 + 5].ToString()),
+                    ScheduleDateStr = "11/12/2010",//tuple[i * 8 + 5].ToString(),
+                    SchedulePostDateStr = "11/12/2010 Semester.cs",//tuple[i * 8 + 6].ToString(),
                     Name = tuple[i * 8 + 7].ToString()
                 };
-/*                startTimeStr = String.Format("{0:hmm}",s.StartTime);
-                endTimeStr = String.Format("{0:hmm}",s.EndTime);
-                s.DaysString = GetDaysOfWeek(s.Days) + " " + startTimeStr + "-" +endTimeStr;*/
+                /*                startTimeStr = String.Format("{0:hmm}",heduleDate);
+
+                                    StartTime = Convert.ToDateTime(tuple[i * 12 + 10].ToString()),
+                                    EndTime = Convert.ToDateTime(tuple[i * 12 + 11].ToString())
+
+
+                                endTimeStr = String.Format("{0:hmm}",s.EndTime);
+                                s.DaysString = GetDaysOfWeek(s.Days) + " " + startTimeStr + "-" +endTimeStr;*/
+                Common.DebugWriteLine(true, "test date = " + s.ScheduleDateStr );
+                Common.DebugWriteLine(true, "test post date = " + s.SchedulePostDateStr  );
                 semesterList.Add(s);
                 
             }

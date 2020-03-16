@@ -375,8 +375,8 @@ namespace LabManagement
                 " <col class=xl155 width=188 style='mso-width-source:userset;mso-width-alt:6875;", " width:141pt'>", 
                 " <col class=xl155 width=64 style='mso-width-source:userset;mso-width-alt:2340;", " width:48pt'>" };
 
-            string[] h1 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
-                "  <td height=12 class=xl150 width=73 style='height:9.0pt;width:55pt'>Posted","  8/26/2019</td>",
+            string[] td1 = new[] {" <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>",
+                "",
                 "  <td class=xl151 width=458 style='width:344pt'></td>",
                 "  <td class=xl152 width=30 style='width:23pt'></td>",
                 "  <td class=xl160 colspan=2 width=291 style='mso-ignore:colspan;width:218pt'><a",
@@ -386,7 +386,10 @@ namespace LabManagement
                 "  href=\"http://download.cslaee.com/\" target=\"_parent\"><span style='font-size:",
                 "  7.0pt'>Download page to print</span></a></td>", " </tr>" };
 
+
+
               
+            string xl150 = "  <td height=12 class=xl150 width=73 style='height:9.0pt;width:55pt'>";
             //string xl153 = "  <tr class=xl153 height=12 style='mso-height-source:userset;height:9.0pt'>";
             string xl153 = "  <tr class=xl153 height=12 style='height:9.0pt'>";
             string xl153s = "  <tr class=xl153 height=12 style='height:9.0pt'>";
@@ -394,7 +397,7 @@ namespace LabManagement
             string colsp3 = "  <td colspan=3 rowspan=3 height=36 class=xl161 style='height:27.0pt'><span style='mso-spacerun:yes'> </span>";
             string tr = " </tr>";
 
-            string[][] h2 ={
+            string[][] td2 ={
                 new string[]{ xl153, xl152, xl152, xl152, "", "", tr},
                 new string[]{ xl153, xl152, xl152, xl152, "", "", tr},
                 new string[]{ xl153, colsp3 + "ELECTRICAL AND COMPUTER ENGINEERING</td>", "", "", ""},
@@ -417,7 +420,7 @@ namespace LabManagement
                 new string[]{"December 20", "Fall semester ends"}
                 };
 
-            string[] h3 = new[] {
+            string[] td3 = new[] {
                 " <tr class=xl153 height=13 style='height:9.75pt'>",
                 "  <td height=13 class=xl158 style='height:9.75pt'>COURSE</td>",
                 "  <td class=xl159>TITLE</td>",
@@ -459,15 +462,19 @@ namespace LabManagement
                 using (FileStream fs = new FileStream(currentSheet, FileMode.Create))
                 {
                     using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
-                    { 
+                    {
                         WriteToFile(header, w);
                         WriteToFile(fnUpdateTabs, w);
                         WriteToFile(table, w);
-                        WriteToFile(h1, w);
-                        h2[5][1] = colsp3 + semester.Name.ToUpper() + " SEMESTER " + semester.Year + " COURSE LIST</td>";
+                       // td1[1] = "  <td height=12 class=xl150 width=73 style='height:9.0pt;width:55pt'>" + "Posted  8/26/20019" + "</td>";
+                        td1[1] = xl150 + "Revised " + semester.ScheduleDateStr + "</td>";
+                        td2[0][1] = xl150 + "Posted " + semester.SchedulePostDateStr + "</td>";
+                        td2[1][1] = xl150 + "Version " + semester.Version + "</td>";
+                        WriteToFile(td1, w);
+                        td2[5][1] = colsp3 + semester.Name.ToUpper() + " SEMESTER " + semester.Year + " COURSE LIST</td>";
                         int j = 0;
                         int daysOffLength = daysOff.Length;
-                        foreach(string[] y in h2)
+                        foreach(string[] y in td2)
                         {
                             int l = y.Length;
                             if (j < daysOffLength)
@@ -477,7 +484,7 @@ namespace LabManagement
                             }
                             WriteToFile(y, w);
                         }
-                        WriteToFile(h3, w);
+                        WriteToFile(td3, w);
                         List<Schedule> semesterClassList = Schedule.GetSemsterClassList(semester.SemesterID);
 
                         foreach (Schedule courseTimeAndPlace in semesterClassList)
