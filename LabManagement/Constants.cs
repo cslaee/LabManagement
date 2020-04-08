@@ -24,7 +24,9 @@ namespace LabManagement
         public static string workingDirectory = Path.GetFullPath(Path.Combine(System.AppContext.BaseDirectory, @"..\..\..\"));
         public static string webpageDir = workingDirectory + @"webpage\"; 
         public static string sqlPathAndFileName = workingDirectory + "db.sql";
-        
+        public static string excelInitialDataPathAndFileName = workingDirectory + "InitialData.xlsx";
+
+
         public const string dashPattern = @"(\s?-\s?)";
         public const string yearPattern = @"(\d{4})";
         public const string dayYearPattern = @"\s(\d{1,2}),\s" + yearPattern;

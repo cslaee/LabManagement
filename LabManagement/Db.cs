@@ -90,8 +90,8 @@ namespace LabManagement
 
         static public void ImportExcelData()
         {
-            string fileName = System.AppContext.BaseDirectory + @"InitialData.xlsx";
-            List<ExcelData> excelList = ExcelData.GetEntireWorkbook(fileName);
+            //string fileName = System.AppContext.BaseDirectory + @"InitialData.xlsx";
+            List<ExcelData> excelList = ExcelData.GetEntireWorkbook(Constants.excelInitialDataPathAndFileName);
             foreach (ExcelData ws in excelList)
             {
                 string[,] sheetData = new string[ws.rowCount - 1, ws.colCount];
