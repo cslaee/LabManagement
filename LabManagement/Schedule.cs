@@ -101,6 +101,8 @@ namespace LabManagement
             string idString = id.ToString();
             string startTimeStr; 
             string endTimeStr; 
+            string startTimeAmPm; 
+            string endTimeAmPm; 
             string semesterNamesSQL = @"SELECT scheduleID, courseFK, section, semesterFK, instructor1FK, instructor2FK, " +
                 "room1FK, room2FK, statusFK, days, startTime, endTime from Schedule  JOIN Course ON Course.courseID = Schedule.courseFK " +
                 "WHERE semesterFK = " + idString + " ORDER BY catalog ASC";
@@ -126,7 +128,13 @@ namespace LabManagement
                     EndTime = Convert.ToDateTime(tuple[i * 12 + 11].ToString())
                 };
                 startTimeStr = String.Format("{0:hmm}",s.StartTime);
-                endTimeStr = String.Format("{0:hmm}",s.EndTime);
+                endTimeStr = String.Format("{0:hmmtt}",s.EndTime);
+                startTimeAmPm = String.Format("{0:tt}",s.StartTime);
+                endTimeAmPm = String.Format("{0:tt}",s.EndTime);
+                if (! startTimeAmPm.Equals(endTimeAmPm))
+                {
+                    startTimeStr = String.Format("{0:hmmtt}",s.StartTime);
+                }
                 s.DaysString = GetDaysOfWeek(s.Days) + " " + startTimeStr + "-" +endTimeStr;
                 semesterClassList.Add(s);
             }

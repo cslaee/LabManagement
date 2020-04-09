@@ -138,8 +138,8 @@ namespace LabManagement
             string[] fnBuildFrameset = new[] { "", "function fnBuildFrameset()", "{", " var szHTML=\"<frameset rows=\\\"*,18\\\""+
                 " border=0 width=0 frameborder=no framespacing=0>\"+", 
                 "  \"<frame src=\\\"\"+document.all.item(\"shLink\")[1].href+\"\\\" name=\\\"frSheet\\\" noresize>\"+",
-                "  \"<frameset cols=\"54,*\" border=0 width=0 frameborder=no framespacing=0>\"",
-                "  \"<frame src=\"\" name=\"frScroll\" marginwidth=0 marginheight=0 scrolling=no>\"",
+                "  \"<frameset cols=\"54,*\" border=0 width=0 frameborder=no framespacing=0>\"+",
+                "  \"<frame src=\"\" name=\"frScroll\" marginwidth=0 marginheight=0 scrolling=no>\"+",
                 "  \"<frame src=\\\"\\\" name=\\\"frTabs\\\" marginwidth=0 marginheight=0 scrolling=no>\"+", 
                 "  \"</frameset></frameset><plaintext>\";", "", 
                 " with (document) {", "  open(\"text/html\",\"replace\");", "  write(szHTML);", "  close();", " }", "",
