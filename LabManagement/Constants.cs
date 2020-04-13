@@ -4,9 +4,9 @@ namespace LabManagement
 {
     class Constants
     {
-        public const bool wipeDB = true;
+        public const bool wipeDB = false; //was true
         public const bool dbDebug = false;
-        public const bool importScheduleDebug = false;
+        public const bool importScheduleDebug = true;
         public const bool semesterDebug = false;
         public const bool calendarDebug = false;
         public const bool courseDebug = false;
