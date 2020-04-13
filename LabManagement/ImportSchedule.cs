@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Net;
 
 namespace LabManagement
 {
@@ -203,13 +204,13 @@ namespace LabManagement
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
-            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\fall 2019");
+//            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\fall 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
-            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\spring 2019");
+//            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\spring 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
@@ -233,6 +234,58 @@ namespace LabManagement
                 return "-" + monthInt + "-" + dayStr;
             }
             return "";
+        }
+        
+        static public void GetAcademicCalendar()
+        {
+            int fallRow = 2;
+            int semesterLabelCol = 1;
+            int semester = 0;
+
+            string academicCalendar = "http://www.calstatela.edu/sites/default/files/groups/Planning%20and%20Budget/academic_calendar_visuals_2018-2025_6-27-19_for_website_sum19.xlsx";
+             Common.DebugWriteLine(debug, "Here I am " + academicCalendar);
+            WebClient Client = new WebClient ();
+          //  Client.DownloadFile(academicCalendar, Constants.workingDirectory + "academic_calendar.xlsx");
+//            ExcelData ws = new ExcelData(fileName, 1);
+            ExcelData ws = new ExcelData(Constants.workingDirectory + "academic_calendar.xlsx", 1);
+            
+            
+            string title = ws.excelArray[fallRow, 2].Trim();
+            Common.DebugWriteLine(debug, "fallRow =" + title);
+            Common.DebugWriteLine(debug, "Row Count =" + ws.rowCount);
+
+            for (int currentRow = 0; currentRow < ws.rowCount; currentRow++)
+            {
+                string eventName = ws.excelArray[currentRow, 1].Trim();
+                
+                switch (eventName)
+                {
+                    case "Fall Semester":
+                        semester = 1;
+                        break;
+                   case "Winter Intersession":
+                        semester = 2;
+                        break;
+                   case "Spring  Semester":
+                        semester = 3;
+                        break;
+                   case "May  Inersession":
+                        semester = 4;
+                        break;
+                   case "Summer Intersession":
+                        semester = 5;
+                        break;
+                   default:
+                        if(eventName.Length == 0)
+                        {
+                           semester = 0;
+                        }
+                        break;
+
+                }
+                Common.DebugWriteLine(debug, "Row =" + eventName + " # =" + eventName.Length + "Semester # =" + semester);
+            }
+
         }
 
 

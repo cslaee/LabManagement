@@ -22,8 +22,9 @@ namespace LabManagement
             //Application.Run(new EmailCombinations());
             //ImportSchedule.GetExcelSchedule();
 
-            ImportSchedule.TestImportSemesters();
-            Web.PublishSchedule();
+            //ImportSchedule.TestImportSemesters();
+            //Web.PublishSchedule();
+            ImportSchedule.GetAcademicCalendar();
 //            System.Environment.Exit(1);
 
 
