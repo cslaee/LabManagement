@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Net;
+using Microsoft.Office.Interop.Outlook;
+using System.Linq;
 
 namespace LabManagement
 {
@@ -82,7 +84,7 @@ namespace LabManagement
                         colname = new[] { "name", "session", "numberOfWeeks" };
                         coldata = new object[] { "Summer", session, weeks };
                         tuple = Db.GetTuple("SemesterName", "semesterNameID", colname, coldata);
-                        
+
                         hasSemesterNameFK = tuple.Count > 0;
                         if (hasSemesterNameFK)
                         {
@@ -168,6 +170,21 @@ namespace LabManagement
         }
 
 
+
+        static public string FindString(int row, int col, ExcelData ws, Regex pattern)
+        {
+                string rawInput = ws.excelArray[row, col];
+                string excelString = pattern.Match(rawInput).Groups[0].Value;
+                bool hasWhatWeAreLookingFor = excelString.Length != 0;
+                if (hasWhatWeAreLookingFor)
+                {
+                    return excelString;
+                }
+            return "";
+        }
+
+
+
         static void BuildSchedule(ExcelData ws, int semesterId, int firstRow, int lastRow)
         {
             Regex courseRegex = new Regex(Constants.coursePattern);
@@ -241,7 +258,9 @@ namespace LabManagement
             int fallRow = 2;
             int semesterLabelCol = 1;
             int semester = 0;
-
+            int semesterYear;
+            List<int> yearList = new List<int>();
+            Regex yearRegex= new Regex(Constants.yearPattern);
             string academicCalendar = "http://www.calstatela.edu/sites/default/files/groups/Planning%20and%20Budget/academic_calendar_visuals_2018-2025_6-27-19_for_website_sum19.xlsx";
              Common.DebugWriteLine(debug, "Here I am " + academicCalendar);
             WebClient Client = new WebClient ();
@@ -262,6 +281,17 @@ namespace LabManagement
                 {
                     case "Fall Semester":
                         semester = 1;
+                        for (int col = 2; col < ws.colCount; col += 2)
+                        {
+                            string semesterYearStr = FindString(currentRow - 1, col, ws, yearRegex);
+                            if (! int.TryParse(semesterYearStr, out semesterYear))
+                            {
+                                col = ws.colCount;
+                            }
+                            yearList.Add(semesterYear);
+                            Common.DebugWriteLine(debug, "Year = " + semesterYear); 
+
+                        }
                         break;
                    case "Winter Intersession":
                         semester = 2;
@@ -269,7 +299,7 @@ namespace LabManagement
                    case "Spring  Semester":
                         semester = 3;
                         break;
-                   case "May  Inersession":
+                   case "May Intersession":
                         semester = 4;
                         break;
                    case "Summer Intersession":
@@ -278,16 +308,32 @@ namespace LabManagement
                    default:
                         if(eventName.Length == 0)
                         {
-                           semester = 0;
+                            semester = 0;
+                            break;
                         }
+                        //Calendar(string startDate, string endDate, Semester semester, string eventTypeStr)
+                        //Calender x = new Calendar("Dec, 12, 2020", "Dec, 12, 2020", Semester semester, eventName)
+
+                        Common.DebugWriteLine(debug, semester + " " + eventName);
+                        //for (int col = 3; col < ws.colCount; col += 2)
+                        for (int col = 0; col < (ws.colCount -3)/2; col++)
+                        {
+                            string rawInput = ws.excelArray[currentRow, col * 2 + 3];
+                            Common.DebugWriteLine(debug, "Date = " + rawInput + " " + yearList.ElementAt(col)); 
+                        }
+
+
+
+
+
+
                         break;
 
                 }
-                Common.DebugWriteLine(debug, "Row =" + eventName + " # =" + eventName.Length + "Semester # =" + semester);
+                //Common.DebugWriteLine(debug, "Row =" + eventName + " # =" + eventName.Length + "Semester # =" + semester);
             }
 
         }
-
 
     }
 }
