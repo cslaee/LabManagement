@@ -1,4 +1,18 @@
-﻿using System;
+﻿/*
+ * Need to make changes to the database schema?
+ * Download a free copy of mysql-workbench from https://dev.mysql.com/downloads/workbench/
+ * Download and install exportsqlite plugin to export mwb files to sql files.
+ * https://github.com/tatsushid/mysqcl-wb-exportsqlite
+ * Open mysql workbench to modify database structure 
+ * Open current database schema MySQLworkbenchDiagram.mwb
+ * Make modificattions.
+ * Export to a sql file.
+ * Tools>Catalog>Exportx Sqlite Create Script
+ * In constants.cs set wipeDB flag to true.
+ * On the first run of the program the new schema will be used.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Globalization;
@@ -12,7 +26,8 @@ namespace LabManagement
 {
     class Db
     {
-        const bool debug = Constants.dbDebug;
+        //const bool debug = Constants.dbDebug;
+        const bool debug = true; 
 
         static public void StartDb()
         {
@@ -224,6 +239,7 @@ namespace LabManagement
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
                         type = Regex.Match(reader.GetDataTypeName(i), @"(\w+)").Groups[1].Value;
+                        Common.DebugWriteLine(debug,"   Value " + i + "=" + reader.GetValue(i).ToString());
                         switch (type)
                         {
                             case "INTEGER":
@@ -358,7 +374,7 @@ namespace LabManagement
                 conn.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(conn))
                 {
-                    Common.DebugWrite(debug, "insert into =" + tableName);
+                    //Common.DebugWrite(debug, "insert into =" + tableName);
                     commandText.Append("INSERT INTO " + tableName + " (");
                     val.Append(") VALUES (");
                     for (int i = 0; i < numberOfColumns; i++)
@@ -366,13 +382,14 @@ namespace LabManagement
                         commandText.Append(column[i] + ", ");
                         val.Append("?, ");
                         cmd.Parameters.Add(new SQLiteParameter(column[i], values[i]));
-                        Common.DebugWrite(debug, column[i] + "=" + values[i] + ", ");
+                     //   Common.DebugWrite(debug, column[i] + "=" + values[i] + ", ");
                     }
                     commandText.Remove(commandText.Length - 2, 2);
                     val.Remove(val.Length - 2, 2);
                     commandText.Append(val + ")");
                     cmd.CommandText = commandText.ToString();
-                    Common.DebugWriteLine(debug, "Db.Insert(" + cmd.CommandText + " )");
+                    Common.DebugWriteLine(debug, "query = " + commandText.ToString());
+                    //Common.DebugWriteLine(debug, "Db.Insert(" + cmd.CommandText + " )");
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -385,9 +402,7 @@ namespace LabManagement
                     }
                     catch (SQLiteException)
                     {
-                        Common.DebugWriteLine(true, cmd.CommandText);
-                        Common.DebugWrite(true, values.ToString());
-                        //Console.WriteLine("SQLiteException with Db.Insert(" + cmd.CommandText + " )");
+                        Common.DebugWriteLine(debug, "SQLiteException with " + cmd.CommandText + " with values " + values.ToString());
                     }
                 }
                 conn.Close();
@@ -405,7 +420,6 @@ namespace LabManagement
             string SqlInsertArrayQuery = "INSERT INTO " + name + " (" + column + ") VALUES(";
             int queryLen = SqlInsertArrayQuery.Length;
             val.Append(SqlInsertArrayQuery);
-            Common.DebugWriteLine(debug, "* SqlInsertArrayQuery = " + SqlInsertArrayQuery);
 
             using (SQLiteConnection conn = new SQLiteConnection(Constants.connectionString))
             {
@@ -423,10 +437,7 @@ namespace LabManagement
                             val.Remove(val.Length - 2, 2);
                             val.Append(")");
                             cmd.CommandText = val.ToString();
-                            if (debug)
-                            {
-                                Common.DebugWriteLine(debug, "query = " + val.ToString());
-                            }
+                            Common.DebugWriteLine(debug, "query = " + val.ToString());
                             result = cmd.ExecuteNonQuery();
                             val.Remove(queryLen, val.Length - queryLen);
                         }

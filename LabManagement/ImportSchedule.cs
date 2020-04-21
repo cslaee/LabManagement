@@ -221,13 +221,13 @@ namespace LabManagement
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2018");
-//            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\fall 2019");
+            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\fall 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\fall 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2018");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\spring 2019");
-//            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\spring 2019");
+            GetExcelSchedule(Constants.workingDirectory +  @"\ArletteSchedules\spring 2019");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2016");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2017");
 //            GetExcelSchedule(@"C:\Users\moberme\Documents\LabManagement\ArletteSchedules\summer 2018");
@@ -259,6 +259,7 @@ namespace LabManagement
             int semesterLabelCol = 1;
             int semester = 0;
             int semesterYear;
+            Calendar calendar = new Calendar();
             List<int> yearList = new List<int>();
             Regex yearRegex= new Regex(Constants.yearPattern);
             string academicCalendar = "http://www.calstatela.edu/sites/default/files/groups/Planning%20and%20Budget/academic_calendar_visuals_2018-2025_6-27-19_for_website_sum19.xlsx";
@@ -275,9 +276,9 @@ namespace LabManagement
 
             for (int currentRow = 0; currentRow < ws.rowCount; currentRow++)
             {
-                string eventName = ws.excelArray[currentRow, 1].Trim();
+                EventType eventType = new EventType(ws.excelArray[currentRow, 1].Trim());
                 
-                switch (eventName)
+                switch (eventType.Description)
                 {
                     case "Fall Semester":
                         semester = 1;
@@ -306,7 +307,7 @@ namespace LabManagement
                         semester = 5;
                         break;
                    default:
-                        if(eventName.Length == 0)
+                        if(eventType.Description.Length == 0)
                         {
                             semester = 0;
                             break;
@@ -314,23 +315,17 @@ namespace LabManagement
                         //Calendar(string startDate, string endDate, Semester semester, string eventTypeStr)
                         //Calender x = new Calendar("Dec, 12, 2020", "Dec, 12, 2020", Semester semester, eventName)
 
-                        Common.DebugWriteLine(debug, semester + " " + eventName);
-                        //for (int col = 3; col < ws.colCount; col += 2)
+                        Common.DebugWriteLine(debug, semester + " " + eventType.Description);
                         for (int col = 0; col < (ws.colCount -3)/2; col++)
                         {
                             string rawInput = ws.excelArray[currentRow, col * 2 + 3];
-                            Common.DebugWriteLine(debug, "Date = " + rawInput + " " + yearList.ElementAt(col)); 
+                            Common.DebugWriteLine(debug, "Date = " + rawInput + " " + yearList.ElementAt(col) + "EventTypeID " + eventType.EventTypeID); 
                         }
-
-
-
-
 
 
                         break;
 
                 }
-                //Common.DebugWriteLine(debug, "Row =" + eventName + " # =" + eventName.Length + "Semester # =" + semester);
             }
 
         }

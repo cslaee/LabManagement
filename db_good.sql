@@ -1,8 +1,8 @@
--- Creator:       MySQL Workbench 8.0.19/ExportSQLite Plugin 0.1.0
+-- Creator:       MySQL Workbench 8.0.15/ExportSQLite Plugin 0.1.0
 -- Author:        Mike Obermeyer
 -- Caption:       Initial DB
 -- Project:       EE Lab Management
--- Changed:       2020-04-20 17:08
+-- Changed:       2019-04-16 14:26
 -- Created:       2018-03-28 09:46
 -- Description:
 --   Use this plugin to export file.
@@ -11,7 +11,7 @@
 --   
 --   Then export file.
 --   Tools>Catalog>ExportSqliteTableCoumns
-PRAGMA foreign_keys = OFF;
+PRAGMA foreign_keys = ON;
 
 -- Schema: mydb
 ATTACH "mydb.sdb" AS "mydb";
@@ -41,10 +41,12 @@ CREATE TABLE "mydb"."ItemType"(
   "valueSuffix" VARCHAR(45)
 );
 CREATE TABLE "mydb"."EventType"(
-  "eventTypeID" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  "eventTypeID" VARCHAR(45) PRIMARY KEY NOT NULL,
   "description" VARCHAR(45),
   CONSTRAINT "description_UNIQUE"
-    UNIQUE("description")
+    UNIQUE("description"),
+  CONSTRAINT "eventTypeID_UNIQUE"
+    UNIQUE("eventTypeID")
 );
 CREATE TABLE "mydb"."UserType"(
   "userTypeID" INTEGER PRIMARY KEY NOT NULL,
